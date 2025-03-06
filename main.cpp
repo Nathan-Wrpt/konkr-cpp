@@ -1,5 +1,4 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 #include "core/grid.hpp"
 #include <vector>
 #include <string>
@@ -24,13 +23,6 @@ int main() {
         return 1;
     }
 
-    // Initialize SDL_image
-    if (IMG_Init(IMG_INIT_PNG) == 0) {
-        SDL_Log("Failed to initialize SDL_image: %s", IMG_GetError());
-        SDL_Quit();
-        return 1;
-    }
-
     // Create the SDL window
     SDL_Window* window = SDL_CreateWindow("Hexagonal Grid",
                                           SDL_WINDOWPOS_CENTERED,
@@ -40,7 +32,6 @@ int main() {
 
     if (!window) {
         SDL_Log("Unable to create window: %s", SDL_GetError());
-        IMG_Quit();
         SDL_Quit();
         return 1;
     }
@@ -50,7 +41,6 @@ int main() {
     if (!renderer) {
         SDL_Log("Unable to create renderer: %s", SDL_GetError());
         SDL_DestroyWindow(window);
-        IMG_Quit();
         SDL_Quit();
         return 1;
     }
@@ -59,17 +49,6 @@ int main() {
     HexagonalGrid grid(hexSize);
     grid.generateFromASCII(asciiMap, windowWidth, windowHeight);
 
-    // Load textures
-    if (!grid.loadTexture("grass", renderer, "images/grass.png") ||
-        !grid.loadTexture("water", renderer, "images/grass.png")) { // Same texture for now
-        SDL_Log("Failed to load textures");
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        IMG_Quit();
-        SDL_Quit();
-        return 1;
-    }
-
     // Main loop
     bool running = true;
     SDL_Event event;
@@ -77,6 +56,14 @@ int main() {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
+            } else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                int mouseX, mouseY;
+                SDL_GetMouseState(&mouseX, &mouseY);
+                grid.handleMouseClick(mouseX, mouseY);
+            } else if (event.type == SDL_MOUSEMOTION) {
+                int mouseX, mouseY;
+                SDL_GetMouseState(&mouseX, &mouseY);
+                grid.handleMouseMotion(mouseX, mouseY);
             }
         }
 
@@ -94,7 +81,6 @@ int main() {
     // Clean up
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    IMG_Quit();
     SDL_Quit();
 
     return 0;
