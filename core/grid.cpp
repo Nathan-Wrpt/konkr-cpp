@@ -82,8 +82,8 @@ void HexagonalGrid::generateFromASCII(const std::vector<std::string>& asciiMap, 
 }
 
 Point HexagonalGrid::hexToPixel(const Hex& hex) const {
-    double x = hexSize * (std::sqrt(3) * hex.q + std::sqrt(3) / 2 * hex.r) + offsetX;
-    double y = hexSize * (3.0 / 2 * hex.r) + offsetY;
+    double x = hexSize * (std::sqrt(3) * hex.getQ() + std::sqrt(3) / 2 * hex.getR()) + offsetX;
+    double y = hexSize * (3.0 / 2 * hex.getR()) + offsetY;
     return Point(x, y);
 }
 

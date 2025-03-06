@@ -14,9 +14,9 @@ struct Point {
 
 // Hex class for cube coordinates
 class Hex {
-public:
+private:
     int q, r, s;
-
+public:
     Hex(int q, int r, int s);
 
     // Basic operations
@@ -36,6 +36,15 @@ public:
         if (r != other.r) return r < other.r;
         return s < other.s;
     }
+    // Getters
+    int getQ() const { return q; }
+    int getR() const { return r; }
+    int getS() const { return s; }
+
+    // Setters
+    void setQ(int q) { this->q = q; }
+    void setR(int r) { this->r = r; }
+    void setS(int s) { this->s = s; }
 };
 
 
