@@ -10,11 +10,11 @@ int main() {
 
     // ASCII map
     std::vector<std::string> asciiMap = {
-        "  . . .",
-        " . . . .",
-        "  . . .",
-        " . . . .",
-        "  . . ."
+        "  ...",
+        " ....",
+        "  ...",
+        " ....",
+        "  ..."
     };
 
     // Initialize SDL
