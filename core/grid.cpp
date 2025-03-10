@@ -115,6 +115,10 @@ Hex HexagonalGrid::pixelToHex(int x, int y) const {
     return Hex(rq, rr, rs);
 }
 
+bool HexagonalGrid::hexExists(const Hex& hex) const {
+    return hexColors.find(hex) != hexColors.end();
+}
+
 void HexagonalGrid::handleMouseClick(int mouseX, int mouseY) {
     Hex clickedHex = pixelToHex(mouseX, mouseY);
 

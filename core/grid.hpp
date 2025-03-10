@@ -69,6 +69,9 @@ public:
     // Convert pixel to hex
     Hex pixelToHex(int x, int y) const;
 
+    // Check if a hex exists in the grid
+    bool hexExists(const Hex& hex) const; 
+
     // Handle mouse click
     void handleMouseClick(int mouseX, int mouseY);
 
