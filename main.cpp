@@ -1,7 +1,4 @@
-#include <SDL2/SDL.h>
-#include "core/grid.hpp"
-#include <vector>
-#include <string>
+#include "game/game.hpp"
 
 int main() {
     const int windowWidth = 800;
@@ -20,6 +17,13 @@ int main() {
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
+        return 1;
+    }
+
+    // Initialize SDL_image
+    int imgFlags = IMG_INIT_PNG;
+    if (!(IMG_Init(imgFlags) & imgFlags)) {
+        SDL_Log("SDL_image could not initialize! SDL_image Error: %s", IMG_GetError());
         return 1;
     }
 
@@ -45,9 +49,8 @@ int main() {
         return 1;
     }
 
-    // Create the hexagonal grid
-    HexagonalGrid grid(hexSize);
-    grid.generateFromASCII(asciiMap, windowWidth, windowHeight);
+    // Create the game instance
+    Game game(hexSize, asciiMap, windowWidth, windowHeight, renderer);
 
     // Main loop
     bool running = true;
@@ -56,23 +59,19 @@ int main() {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
-            } else if (event.type == SDL_MOUSEBUTTONDOWN) {
-                int mouseX, mouseY;
-                SDL_GetMouseState(&mouseX, &mouseY);
-                grid.handleMouseClick(mouseX, mouseY);
-            } else if (event.type == SDL_MOUSEMOTION) {
-                int mouseX, mouseY;
-                SDL_GetMouseState(&mouseX, &mouseY);
-                grid.handleMouseMotion(mouseX, mouseY);
+            } else {
+                game.handleEvent(event);
             }
         }
+
+        game.update();
 
         // Clear the screen
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);
 
-        // Draw the hexagonal grid
-        grid.draw(renderer);
+        // Render the game
+        game.render(renderer);
 
         // Present the rendered frame
         SDL_RenderPresent(renderer);
@@ -81,6 +80,7 @@ int main() {
     // Clean up
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    IMG_Quit();
     SDL_Quit();
 
     return 0;

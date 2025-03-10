@@ -40,9 +40,9 @@ void HexagonalGrid::generateFromASCII(const std::vector<std::string>& asciiMap, 
     hexColors.clear();
 
     // Parse the ASCII map and generate hexes
-    for (int row = 0; row < asciiMap.size(); ++row) {
+    for (size_t row = 0; row < asciiMap.size(); ++row) {
         const std::string& line = asciiMap[row];
-        for (int col = 0; col < line.size(); ++col) {
+        for (size_t col = 0; col < line.size(); ++col) {
             char c = line[col];
             if (c == '.') { // '.' represents a hex
                 // Convert ASCII coordinates to axial coordinates

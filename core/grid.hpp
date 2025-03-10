@@ -80,6 +80,12 @@ public:
 
     // Draw the grid
     void draw(SDL_Renderer* renderer) const;
+
+    // Getter for hexes
+    const std::vector<Hex>& getHexes() const { return hexes; }
+
+    // Getter for hex size
+    double getHexSize() const { return hexSize; }
 };
 
 #endif // HEXAGONAL_GRID_HPP
