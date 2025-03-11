@@ -10,7 +10,7 @@ Entity::~Entity() {}
 // --- Bandit Class Implementation ---
 
 Bandit::Bandit(Hex hex) 
-    : Entity(hex, 1, "images/hexa.png") {}
+    : Entity(hex, 1, "icons/bandit.png") {}
 
 Bandit::~Bandit() {}
 

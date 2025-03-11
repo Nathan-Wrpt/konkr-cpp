@@ -35,6 +35,7 @@ bool Hex::operator==(const Hex& other) const {
 
 HexagonalGrid::HexagonalGrid(double hexSize) : hexSize(hexSize), offsetX(0), offsetY(0), hoveredHex(nullptr) {}
 
+
 void HexagonalGrid::generateFromASCII(const std::vector<std::string>& asciiMap, int windowWidth, int windowHeight) {
     hexes.clear();
     hexColors.clear();
@@ -44,7 +45,7 @@ void HexagonalGrid::generateFromASCII(const std::vector<std::string>& asciiMap, 
         const std::string& line = asciiMap[row];
         for (size_t col = 0; col < line.size(); ++col) {
             char c = line[col];
-            if (c == '.' || c == 'G') { // '.' represents a default hex, 'G' represents a green hex
+            if (colorMap.find(c) != colorMap.end()) { // '.' represents a default hex, 'G' represents a green hex
                 // Convert ASCII coordinates to axial coordinates
                 int q = col - (row / 2); // Adjust for odd-r offset
                 int r = row;
@@ -53,11 +54,7 @@ void HexagonalGrid::generateFromASCII(const std::vector<std::string>& asciiMap, 
                 hexes.push_back(hex);
 
                 // Assign color based on character
-                if (c == 'G') {
-                    hexColors[hex] = {0, 255, 0, SDL_ALPHA_OPAQUE}; // Green color
-                } else {
-                    hexColors[hex] = {255, 255, 255, SDL_ALPHA_OPAQUE}; // Default color: white
-                }
+                hexColors[hex] = colorMap.at(c);
             }
         }
     }
