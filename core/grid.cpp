@@ -44,14 +44,20 @@ void HexagonalGrid::generateFromASCII(const std::vector<std::string>& asciiMap, 
         const std::string& line = asciiMap[row];
         for (size_t col = 0; col < line.size(); ++col) {
             char c = line[col];
-            if (c == '.') { // '.' represents a hex
+            if (c == '.' || c == 'G') { // '.' represents a default hex, 'G' represents a green hex
                 // Convert ASCII coordinates to axial coordinates
                 int q = col - (row / 2); // Adjust for odd-r offset
                 int r = row;
                 int s = -q - r;
                 Hex hex(q, r, s);
                 hexes.push_back(hex);
-                hexColors[hex] = {255, 255, 255, SDL_ALPHA_OPAQUE}; // Default color: white
+
+                // Assign color based on character
+                if (c == 'G') {
+                    hexColors[hex] = {0, 255, 0, SDL_ALPHA_OPAQUE}; // Green color
+                } else {
+                    hexColors[hex] = {255, 255, 255, SDL_ALPHA_OPAQUE}; // Default color: white
+                }
             }
         }
     }
@@ -136,24 +142,22 @@ void HexagonalGrid::handleMouseMotion(int mouseX, int mouseY) {
         // If the hovered hex is different from the previous one
         if (!hoveredHex || (*hoveredHex == hovered) == false) {
             // Restore the color of the previously hovered hex
-            if (hoveredHex) {
-                hexColors[*hoveredHex] = {255, 255, 255, SDL_ALPHA_OPAQUE}; // White
-            }
+            // if (hoveredHex) {
+            //     hexColors[*hoveredHex] = {255, 255, 255, SDL_ALPHA_OPAQUE}; // White
+            // }
 
             // Update the hovered hex and set its color to yellow
-            hoveredHex = &hexColors.find(hovered)->first;
-            hexColors[hovered] = {255, 255, 0, SDL_ALPHA_OPAQUE}; // Yellow
+            // hoveredHex = &hexColors.find(hovered)->first;
+            // hexColors[hovered] = {255, 255, 0, SDL_ALPHA_OPAQUE}; // Yellow
         }
     } else {
         // If no hex is hovered, restore the color of the previously hovered hex
-        if (hoveredHex) {
-            hexColors[*hoveredHex] = {255, 255, 255, SDL_ALPHA_OPAQUE}; // White
-            hoveredHex = nullptr;
-        }
+        // if (hoveredHex) {
+        //     hexColors[*hoveredHex] = {255, 255, 255, SDL_ALPHA_OPAQUE}; // White
+        //     hoveredHex = nullptr;
+        // }
     }
 }
-
-
 
 void HexagonalGrid::draw(SDL_Renderer* renderer) const {
     for (const auto& hex : hexes) {
@@ -161,18 +165,20 @@ void HexagonalGrid::draw(SDL_Renderer* renderer) const {
 
         // Get the color of the hex
         SDL_Color color = hexColors.at(hex);
-        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
-        // Draw the hexagon
-        SDL_Point points[7];
+        // Calculate the points of the hexagon
+        Sint16 xPoints[6];
+        Sint16 yPoints[6];
         for (int i = 0; i < 6; ++i) {
             double angle = 2 * M_PI / 6 * (i + 0.5); // Pointy-top hex
-            double x = center.x + hexSize * std::cos(angle);
-            double y = center.y + hexSize * std::sin(angle);
-            points[i] = {static_cast<int>(x), static_cast<int>(y)};
+            xPoints[i] = static_cast<Sint16>(center.x + hexSize * std::cos(angle));
+            yPoints[i] = static_cast<Sint16>(center.y + hexSize * std::sin(angle));
         }
-        points[6] = points[0]; // Close the hexagon
 
-        SDL_RenderDrawLines(renderer, points, 7);
+        // Fill the hexagon with the specified color
+        filledPolygonRGBA(renderer, xPoints, yPoints, 6, color.r, color.g, color.b, color.a);
+
+        // Draw the outline of the hexagon
+        aapolygonRGBA(renderer, xPoints, yPoints, 6, 0, 0, 0, 255);
     }
 }

@@ -5,7 +5,7 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall
 
 # Linker flags
-LDFLAGS = -lSDL2 -lSDL2_image
+LDFLAGS = -lSDL2 -lSDL2_image -lSDL2_gfx
 
 # Source files
 SRC = $(wildcard *.cpp core/*.cpp entities/*.cpp game/*.cpp)

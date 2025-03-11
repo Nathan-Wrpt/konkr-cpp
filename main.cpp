@@ -1,17 +1,17 @@
 #include "game/game.hpp"
 
 int main() {
-    const int windowWidth = 800;
-    const int windowHeight = 600;
+    const int windowWidth = 1000;
+    const int windowHeight = 1000;
     const double hexSize = 30.0;
 
     // ASCII map
     std::vector<std::string> asciiMap = {
-        "  ...",
-        " ....",
-        "  ...",
-        " ....",
-        "  ..."
+        "...............",
+        "......GGG......",
+        "......GGG......",
+        ".........RR......",
+        ".........R...."
     };
 
     // Initialize SDL

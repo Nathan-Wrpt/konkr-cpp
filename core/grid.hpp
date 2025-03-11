@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL2_gfxPrimitives.h>
 
 // Point structure for rendering
 struct Point {
