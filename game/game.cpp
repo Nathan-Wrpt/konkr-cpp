@@ -11,6 +11,25 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, int windowW
     bandit = Bandit(initialBanditHex);
     villager = Villager(initialVillagerHex);
 
+    // Count the number of unique colors in the grid
+    nbplayers = -1;
+    std::vector<SDL_Color> uniqueColors;
+    for (const auto& pair : grid.getHexColors()) {
+        const SDL_Color& color = pair.second;
+        bool found = false;
+        for (const auto& uniqueColor : uniqueColors) {
+            if (color.r == uniqueColor.r && color.g == uniqueColor.g &&
+            color.b == uniqueColor.b && color.a == uniqueColor.a) {
+            found = true;
+            break;
+            }
+        }
+        if (!found) {
+            nbplayers++;
+            uniqueColors.push_back(color);
+        }
+    }
+    printf("Number of players: %d\n", nbplayers);
     // Load textures
     banditTexture = IMG_LoadTexture(renderer, bandit.getTexturePath().c_str());
     villagerTexture = IMG_LoadTexture(renderer, villager.getTexturePath().c_str());

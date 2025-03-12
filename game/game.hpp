@@ -15,6 +15,7 @@ private:
     SDL_Texture* villagerTexture;
     bool playerTurn;
     bool villagerSelected;
+    int nbplayers;
 
 public:
     Game(double hexSize, const std::vector<std::string>& asciiMap, int windowWidth, int windowHeight, SDL_Renderer* renderer);

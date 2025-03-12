@@ -105,6 +105,9 @@ public:
 
     // Getter for hex size
     double getHexSize() const { return hexSize; }
+
+    // Getter for hex colors
+    const std::map<Hex, SDL_Color>& getHexColors() const { return hexColors; }
 };
 
 #endif // HEXAGONAL_GRID_HPP
