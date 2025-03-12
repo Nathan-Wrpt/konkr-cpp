@@ -18,10 +18,10 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
     : grid(hexSize),
       playerTurn(true),
       villagerSelected(false),
-      banditTexture(nullptr),
-      villagerTexture(nullptr),
       villagerSelectedIndex(-1)
 {
+    banditTexture = IMG_LoadTexture(renderer, "icons/bandit.png");
+    SDL_Texture* villagerTexture = IMG_LoadTexture(renderer, "icons/villager.png");
     grid.generateFromASCII(asciiMap, windowWidth, windowHeight);
 
     // Count the number of unique colors in the grid
@@ -94,8 +94,6 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
 
                 villagers.emplace_back(randomHex); // Create a villager on the random hex
 
-                SDL_Texture* villagerTexture = IMG_LoadTexture(
-                    renderer, villagers.back().getTexturePath().c_str());
                 if (!villagerTexture) {
                     std::cerr << "Error loading villager texture: "
                               << IMG_GetError() << std::endl;

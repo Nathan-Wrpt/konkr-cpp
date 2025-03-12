@@ -27,7 +27,6 @@ class Game {
     bool playerTurn;
     bool villagerSelected;
     SDL_Texture* banditTexture;
-    SDL_Texture* villagerTexture; // This might be unused, keep for now.
     std::vector<SDL_Texture*> villagerTextures;
     int nbplayers;
     int villagerSelectedIndex;
