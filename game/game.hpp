@@ -18,6 +18,8 @@ class Game {
 
     void handleEvent(SDL_Event& event);
     void update();
+    SDL_Rect entityToRect(const Entity& entity) const;
+    void render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Texture* texture) const;
     void render(SDL_Renderer* renderer) const;
 
   private:
@@ -27,7 +29,7 @@ class Game {
     bool playerTurn;
     bool villagerSelected;
     SDL_Texture* banditTexture;
-    std::vector<SDL_Texture*> villagerTextures;
+    SDL_Texture* villagerTexture;
     int nbplayers;
     int villagerSelectedIndex;
 };

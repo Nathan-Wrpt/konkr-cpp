@@ -21,7 +21,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
       villagerSelectedIndex(-1)
 {
     banditTexture = IMG_LoadTexture(renderer, "icons/bandit.png");
-    SDL_Texture* villagerTexture = IMG_LoadTexture(renderer, "icons/villager.png");
+    villagerTexture = IMG_LoadTexture(renderer, "icons/villager.png");
     grid.generateFromASCII(asciiMap, windowWidth, windowHeight);
 
     // Count the number of unique colors in the grid
@@ -98,7 +98,6 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
                     std::cerr << "Error loading villager texture: "
                               << IMG_GetError() << std::endl;
                 }
-                villagerTextures.push_back(villagerTexture);
             }
         }
     }
@@ -107,10 +106,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
 Game::~Game() {
     SDL_DestroyTexture(banditTexture);
 
-    for (SDL_Texture* texture : villagerTextures) {
-        SDL_DestroyTexture(texture);
-    }
-    villagerTextures.clear();
+    SDL_DestroyTexture(villagerTexture);
 }
 
 void Game::handleEvent(SDL_Event& event) {
@@ -151,27 +147,26 @@ void Game::update() {
     }
 }
 
+SDL_Rect Game::entityToRect(const Entity& entity) const {
+    int x = static_cast<int>(grid.hexToPixel(entity.getHex()).x - grid.getHexSize() / 2);
+    int y = static_cast<int>(grid.hexToPixel(entity.getHex()).y - grid.getHexSize() / 2);
+    int w_h = static_cast<int>(grid.getHexSize());
+    return {x, y, w_h, w_h};
+}
+
+void Game::render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Texture* texture) const {
+    SDL_Rect entityRect = entityToRect(entity);
+    SDL_RenderCopy(renderer, texture, NULL, &entityRect);
+}
+
 void Game::render(SDL_Renderer* renderer) const {
     grid.draw(renderer);
 
-    SDL_Rect banditRect = {
-        static_cast<int>(grid.hexToPixel(bandit.getHex()).x -
-                         grid.getHexSize() / 2),
-        static_cast<int>(grid.hexToPixel(bandit.getHex()).y -
-                         grid.getHexSize() / 2),
-        static_cast<int>(grid.getHexSize()),
-        static_cast<int>(grid.getHexSize())};
-    SDL_RenderCopy(renderer, banditTexture, NULL, &banditRect);
+    // Render the bandit
+    render_entity(renderer, bandit, banditTexture);
 
     // Render all villagers
     for (size_t i = 0; i < villagers.size(); ++i) {
-        SDL_Rect villagerRect = {
-            static_cast<int>(grid.hexToPixel(villagers[i].getHex()).x -
-                             grid.getHexSize() / 2),
-            static_cast<int>(grid.hexToPixel(villagers[i].getHex()).y -
-                             grid.getHexSize() / 2),
-            static_cast<int>(grid.getHexSize()),
-            static_cast<int>(grid.getHexSize())};
-        SDL_RenderCopy(renderer, villagerTextures[i], NULL, &villagerRect);
+        render_entity(renderer, villagers[i], villagerTexture);
     }
 }
