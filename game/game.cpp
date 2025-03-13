@@ -1,6 +1,7 @@
 #include "game.hpp"
 #include <random> // Required for random number generation
 #include <map>
+#include <filesystem>
 
 // Custom comparison function for SDL_Color
 struct SDL_Color_Compare {
@@ -20,8 +21,18 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
       villagerSelected(false),
       villagerSelectedIndex(-1)
 {
-    banditTexture = IMG_LoadTexture(renderer, "icons/bandit.png");
-    villagerTexture = IMG_LoadTexture(renderer, "icons/villager.png");
+
+    // Load all textures from the icons directory
+    std::string iconsPath = "icons/";
+    for (const auto& filename : iconsMap2) {
+        std::string path = iconsPath + filename.first + ".png";
+        SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
+        if (!texture) {
+            std::cerr << "Error loading texture: " << IMG_GetError() << std::endl;
+        }
+        textures.push_back(texture);
+    } 
+
     grid.generateFromASCII(asciiMap, windowWidth, windowHeight);
 
     // Count the number of unique colors in the grid
@@ -65,13 +76,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
             return; // Or throw an exception
         }
     }
-
-    bandit = Bandit(initialBanditHex);
-    banditTexture = IMG_LoadTexture(renderer, bandit.getTexturePath().c_str());
-    if (!banditTexture) {
-        std::cerr << "Error loading bandit texture: " << IMG_GetError()
-                  << std::endl;
-    }
+    bandits.emplace_back(initialBanditHex);
 
     // Create a map to store hexes by color
     std::map<SDL_Color, std::vector<Hex>, SDL_Color_Compare> hexesByColor;
@@ -104,9 +109,9 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
 }
 
 Game::~Game() {
-    SDL_DestroyTexture(banditTexture);
-
-    SDL_DestroyTexture(villagerTexture);
+    for (SDL_Texture* texture : textures) {
+        SDL_DestroyTexture(texture);
+    }
 }
 
 void Game::handleEvent(SDL_Event& event) {
@@ -142,7 +147,8 @@ void Game::handleEvent(SDL_Event& event) {
 
 void Game::update() {
     if (!playerTurn) {
-        bandit.move(grid);
+        for(auto& bandit : bandits)
+            bandit.move(grid);
         playerTurn = true;
     }
 }
@@ -162,11 +168,12 @@ void Game::render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Textu
 void Game::render(SDL_Renderer* renderer) const {
     grid.draw(renderer);
 
-    // Render the bandit
-    render_entity(renderer, bandit, banditTexture);
+    // Render the bandits
+    for(const auto& bandit : bandits)
+        render_entity(renderer, bandit, textures[iconsMap2["bandit"]]);
 
     // Render all villagers
     for (size_t i = 0; i < villagers.size(); ++i) {
-        render_entity(renderer, villagers[i], villagerTexture);
+        render_entity(renderer, villagers[i], textures[iconsMap2["villager"]]);
     }
 }

@@ -10,6 +10,18 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+std::map<std::string, int> iconsMap2 = {
+  {"bandit", 0},   {"bandit-camp", 1},
+  {"castle", 2},        {"coin", 3},
+  {"coins", 4},         {"deficit", 5},
+  {"emoji-happy", 6},   {"face", 7},
+  {"gold-trophy", 8},   {"grave", 9},
+  {"hero", 10},        {"knight", 11},
+  {"pikeman", 12},     {"silver-trophy", 13},
+  {"surplus", 14},      {"town", 15},
+  {"treasury", 16},     {"upkeep", 17},
+  {"villager", 18}};
+
 class Game {
   public:
     Game(double hexSize, const std::vector<std::string>& asciiMap,
@@ -24,10 +36,11 @@ class Game {
 
   private:
     HexagonalGrid grid;
-    Bandit bandit;
+    std::vector<Bandit> bandits;
     std::vector<Villager> villagers;
     bool playerTurn;
     bool villagerSelected;
+    std::vector<SDL_Texture*> textures;
     SDL_Texture* banditTexture;
     SDL_Texture* villagerTexture;
     int nbplayers;
