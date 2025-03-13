@@ -3,6 +3,7 @@
 #include <map>
 #include <filesystem>
 
+
 // Custom comparison function for SDL_Color
 struct SDL_Color_Compare {
     bool operator()(const SDL_Color& a, const SDL_Color& b) const {
@@ -24,7 +25,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
 
     // Load all textures from the icons directory
     std::string iconsPath = "icons/";
-    for (const auto& filename : iconsMap5) {
+    for (const auto& filename : iconsMap) {
         std::string path = iconsPath + filename.first + ".png";
         SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
         if (!texture) {
@@ -36,7 +37,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
     grid.generateFromASCII(asciiMap, windowWidth, windowHeight);
 
     // Count the number of unique colors in the grid
-    nbplayers = -1;
+    nbplayers = 0;
     std::vector<SDL_Color> uniqueColors;
     for (const auto& pair : grid.getHexColors()) {
         const SDL_Color& color = pair.second;
@@ -49,6 +50,9 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
             }
         }
         if (!found) {
+            if(color.r == 255 && color.g == 255 && color.b == 255) {
+                continue;
+            }
             nbplayers++;
             Player player(color);
             players.emplace_back(player);
@@ -180,10 +184,10 @@ void Game::render(SDL_Renderer* renderer) const {
 
     // Render the bandits
     for(const auto& bandit : bandits)
-        render_entity(renderer, bandit, textures[iconsMap5["bandit"]]);
+        render_entity(renderer, bandit, textures[iconsMap["bandit"]]);
 
     // Render all villagers
     for (size_t i = 0; i < villagers.size(); ++i) {
-        render_entity(renderer, villagers[i], textures[iconsMap5["villager"]]);
+        render_entity(renderer, villagers[i], textures[iconsMap["villager"]]);
     }
 }

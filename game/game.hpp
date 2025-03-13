@@ -11,7 +11,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-std::map<std::string, int> iconsMap5 = {
+std::map<std::string, int> iconsMap = {
   {"bandit", 0},   {"bandit-camp", 1},
   {"castle", 2},        {"coin", 3},
   {"coins", 4},         {"deficit", 5},
