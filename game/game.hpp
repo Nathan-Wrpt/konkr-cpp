@@ -7,10 +7,11 @@
 
 #include "../core/grid.hpp"
 #include "../entities/entity.hpp"
+#include "../players/player.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-std::map<std::string, int> iconsMap2 = {
+std::map<std::string, int> iconsMap5 = {
   {"bandit", 0},   {"bandit-camp", 1},
   {"castle", 2},        {"coin", 3},
   {"coins", 4},         {"deficit", 5},
@@ -36,6 +37,7 @@ class Game {
 
   private:
     HexagonalGrid grid;
+    std::vector<Player> players;
     std::vector<Bandit> bandits;
     std::vector<Villager> villagers;
     bool playerTurn;

@@ -24,7 +24,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
 
     // Load all textures from the icons directory
     std::string iconsPath = "icons/";
-    for (const auto& filename : iconsMap2) {
+    for (const auto& filename : iconsMap5) {
         std::string path = iconsPath + filename.first + ".png";
         SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
         if (!texture) {
@@ -50,12 +50,14 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
         }
         if (!found) {
             nbplayers++;
+            Player player(color);
+            players.emplace_back(player);
             uniqueColors.push_back(color);
         }
     }
     printf("Number of players: %d\n", nbplayers);
 
-    // Initialize bandit at a random white hex
+    // Initialize a bandit at a random white hex
     Hex initialBanditHex = grid.getHexes()[0];
     bool banditHexFound = false;
     for (const auto& pair : grid.getHexColors()) {
@@ -90,6 +92,14 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
     std::mt19937 gen(rd());
 
     for (auto& [color, hexes] : hexesByColor) {
+        Player currentplayer = players[0];
+        for (int i = 0; i < nbplayers; i++) {
+            if (color.r == currentplayer.getColor().r && color.g == currentplayer.getColor().g &&
+                color.b == currentplayer.getColor().b && color.a == currentplayer.getColor().a) {
+                break;
+            }
+            currentplayer = players[i+1];
+        }
         if (color.r != 255 || color.g != 255 || color.b != 255) {
             if (!hexes.empty()) {
                 // Choose a random hex of this color
@@ -170,10 +180,10 @@ void Game::render(SDL_Renderer* renderer) const {
 
     // Render the bandits
     for(const auto& bandit : bandits)
-        render_entity(renderer, bandit, textures[iconsMap2["bandit"]]);
+        render_entity(renderer, bandit, textures[iconsMap5["bandit"]]);
 
     // Render all villagers
     for (size_t i = 0; i < villagers.size(); ++i) {
-        render_entity(renderer, villagers[i], textures[iconsMap2["villager"]]);
+        render_entity(renderer, villagers[i], textures[iconsMap5["villager"]]);
     }
 }

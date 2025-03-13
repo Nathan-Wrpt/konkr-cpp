@@ -8,7 +8,7 @@ CXXFLAGS = -std=c++17 -Wall
 LDFLAGS = -lSDL2 -lSDL2_image -lSDL2_gfx
 
 # Source files
-SRC = $(wildcard *.cpp core/*.cpp entities/*.cpp game/*.cpp)
+SRC = $(wildcard *.cpp core/*.cpp entities/*.cpp game/*.cpp players/*.cpp)
 
 # Object files
 OBJ = $(SRC:.cpp=.o)
