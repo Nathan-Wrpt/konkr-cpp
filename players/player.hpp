@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <string>
+#include <memory>
+#include <algorithm>
 #include <SDL2/SDL.h>
 #include "../core/grid.hpp"
 #include "../entities/entity.hpp"
@@ -11,20 +13,20 @@
 class Player {
 private:
     SDL_Color color;
-    std::vector<Entity*> entities;
-    std::vector<Building*> buildings;
+    std::vector<std::shared_ptr<Entity>> entities;
+    std::vector<std::shared_ptr<Building>> buildings;
 public:
     Player(SDL_Color color);
-    ~Player();
+    ~Player() = default;
 
     SDL_Color getColor() const { return color; }
-    const std::vector<Entity*>& getEntities() const { return entities; }
-    const std::vector<Building*>& getBuildings() const { return buildings; }
+    const std::vector<std::shared_ptr<Entity>>& getEntities() const { return entities; }
+    const std::vector<std::shared_ptr<Building>>& getBuildings() const { return buildings; }
 
-    void addEntity(Entity* entity);
-    void removeEntity(Entity* entity);
-    void addBuilding(Building* building);
-    void removeBuilding(Building* building);
+    void addEntity(std::shared_ptr<Entity> entity);
+    void removeEntity(std::shared_ptr<Entity> entity);
+    void addBuilding(std::shared_ptr<Building> building);
+    void removeBuilding(std::shared_ptr<Building> building);
 };
 
 #endif

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
+#include <map>
 
 #include "../core/grid.hpp"
 #include "../entities/entity.hpp"
@@ -28,15 +30,12 @@ class Game {
   private:
     HexagonalGrid grid;
     std::vector<Player> players;
-    std::vector<Bandit> bandits;
-    std::vector<Villager> villagers;
-    bool playerTurn;
-    bool villagerSelected;
+    std::vector<std::shared_ptr<Bandit>> bandits;
+    int playerTurn;
+    bool entitySelected;
     std::vector<SDL_Texture*> textures;
-    SDL_Texture* banditTexture;
-    SDL_Texture* villagerTexture;
+    int selectedEntityIndex;
     int nbplayers;
-    int villagerSelectedIndex;
 };
 
 #endif

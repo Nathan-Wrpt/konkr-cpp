@@ -1,7 +1,8 @@
 #include "game.hpp"
-#include <random> // Required for random number generation
+#include <random>
 #include <map>
 #include <filesystem>
+#include <algorithm>
 
 std::map<std::string, int> iconsMap = {
     {"bandit", 0},        {"bandit-camp", 1},
@@ -19,7 +20,6 @@ std::map<std::string, int> iconsMap = {
 // Custom comparison function for SDL_Color
 struct SDL_Color_Compare {
     bool operator()(const SDL_Color& a, const SDL_Color& b) const {
-        // Compare colors based on their individual components
         if (a.r != b.r) return a.r < b.r;
         if (a.g != b.g) return a.g < b.g;
         if (a.b != b.b) return a.b < b.b;
@@ -30,23 +30,23 @@ struct SDL_Color_Compare {
 Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
         int windowWidth, int windowHeight, SDL_Renderer* renderer)
     : grid(hexSize),
-    playerTurn(true),
-    villagerSelected(false),
-    villagerSelectedIndex(-1)
-    {
+      playerTurn(0),  // Start with player 0
+      entitySelected(false),
+      selectedEntityIndex(-1)
+{
     std::cout << "Game constructor started" << std::endl;
 
     // Load all textures from the icons directory
     std::cout << "Loading textures..." << std::endl;
     std::string iconsPath = "icons/";
     for (const auto& filename : iconsMap) {
-    std::string path = iconsPath + filename.first + ".png";
-    std::cout << "Loading texture: " << path << std::endl;
-    SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
-    if (!texture) {
-        std::cerr << "Error loading texture: " << IMG_GetError() << std::endl;
-    }
-    textures.push_back(texture);
+        std::string path = iconsPath + filename.first + ".png";
+        std::cout << "Loading texture: " << path << std::endl;
+        SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
+        if (!texture) {
+            std::cerr << "Error loading texture: " << IMG_GetError() << std::endl;
+        }
+        textures.push_back(texture);
     } 
     std::cout << "Textures loaded: " << textures.size() << std::endl;
 
@@ -54,10 +54,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
     grid.generateFromASCII(asciiMap, windowWidth, windowHeight);
     std::cout << "Grid generated" << std::endl;
 
-    villagerTexture = textures[iconsMap["villager"]];
-    banditTexture = textures[iconsMap["bandit"]];
-
-    // Count the number of unique colors in the grid
+    // Count the number of unique colors in the grid and create players
     nbplayers = 0;
     std::vector<SDL_Color> uniqueColors;
     for (const auto& pair : grid.getHexColors()) {
@@ -70,17 +67,13 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
                 break;
             }
         }
-        if (!found) {
-            if(color.r == 255 && color.g == 255 && color.b == 255) {
-                continue;
-            }
+        if (!found && !(color.r == 255 && color.g == 255 && color.b == 255)) {
             nbplayers++;
-            //Player player(color);
-            //players.emplace_back(player);
+            players.emplace_back(color);
             uniqueColors.push_back(color);
         }
     }
-    printf("Number of players: %d\n", nbplayers);
+    std::cout << "Number of players: " << nbplayers << std::endl;
 
     // Initialize a bandit at a random white hex
     Hex initialBanditHex = grid.getHexes()[0];
@@ -93,17 +86,10 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
             break;
         }
     }
-    if (!banditHexFound) {
-        // Handle the case where no white hex is found (e.g., use the first hex)
-        if (!grid.getHexes().empty()) {
-            initialBanditHex = grid.getHexes()[0];
-        } else {
-            // Handle the case where the grid is empty
-            std::cerr << "Error: Grid is empty!" << std::endl;
-            return; // Or throw an exception
-        }
+    if (!banditHexFound && !grid.getHexes().empty()) {
+        initialBanditHex = grid.getHexes()[0];
     }
-    bandits.emplace_back(initialBanditHex);
+    bandits.push_back(std::make_shared<Bandit>(initialBanditHex));
 
     // Create a map to store hexes by color
     std::map<SDL_Color, std::vector<Hex>, SDL_Color_Compare> hexesByColor;
@@ -112,40 +98,32 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
         hexesByColor[color].push_back(pair.first);
     }
 
-    // Initialize villagers (one for each color, excluding white)
+    // Initialize villagers for each player
     std::random_device rd;
     std::mt19937 gen(rd());
 
-    for (auto& [color, hexes] : hexesByColor) {
-        // Player currentplayer = players[0];
-        // for (int i = 0; i < nbplayers; i++) {
-        //     if (color.r == currentplayer.getColor().r && color.g == currentplayer.getColor().g &&
-        //         color.b == currentplayer.getColor().b && color.a == currentplayer.getColor().a) {
-        //         break;
-        //     }
-        //     currentplayer = players[i+1];
-        // }
-        if (color.r != 255 || color.g != 255 || color.b != 255) {
-            if (!hexes.empty()) {
-                // Choose a random hex of this color
-                std::uniform_int_distribution<> distrib(0, hexes.size() - 1);
-                int randomIndex = distrib(gen);
-                Hex randomHex = hexes[randomIndex];
-
-                villagers.emplace_back(randomHex); // Create a villager on the random hex
-
-                if (!villagerTexture) {
-                    std::cerr << "Error loading villager texture: "
-                              << IMG_GetError() << std::endl;
-                }
-            }
+    for (auto& player : players) {
+        SDL_Color playerColor = player.getColor();
+        auto it = hexesByColor.find(playerColor);
+        
+        if (it != hexesByColor.end() && !it->second.empty()) {
+            // Choose a random hex of this player's color
+            std::uniform_int_distribution<> distrib(0, it->second.size() - 1);
+            int randomIndex = distrib(gen);
+            Hex randomHex = it->second[randomIndex];
+            
+            // Create a villager and add it to the player
+            auto villager = std::make_shared<Villager>(randomHex);
+            player.addEntity(villager);
         }
     }
 }
 
 Game::~Game() {
     for (SDL_Texture* texture : textures) {
-        SDL_DestroyTexture(texture);
+        if (texture) {
+            SDL_DestroyTexture(texture);
+        }
     }
 }
 
@@ -155,22 +133,40 @@ void Game::handleEvent(SDL_Event& event) {
         SDL_GetMouseState(&mouseX, &mouseY);
         Hex clickedHex = grid.pixelToHex(mouseX, mouseY);
 
-        if (playerTurn) {
-            if (!villagerSelected) {
-                // Check if any villager is selected
-                for (size_t i = 0; i < villagers.size(); ++i) {
-                    if (clickedHex == villagers[i].getHex()) {
-                        villagerSelectedIndex = i;  // Store the index of the selected villager
-                        villagerSelected = true;
+        if (playerTurn >= 0 && playerTurn < players.size()) {
+            if (!entitySelected) {
+                // Check if any villager of the current player is selected
+                Player& currentPlayer = players[playerTurn];
+                const auto& playerEntities = currentPlayer.getEntities();
+                
+                for (size_t i = 0; i < playerEntities.size(); ++i) {
+                    if (playerEntities[i]->getHex() == clickedHex) {
+                        selectedEntityIndex = i;
+                        entitySelected = true;
                         break;
                     }
                 }
             } else {
+                // Move the selected villager if the hex is valid
                 if (grid.hexExists(clickedHex)) {
-                    villagers[villagerSelectedIndex].move(grid, clickedHex);
-                    playerTurn = false;
+                    Player& currentPlayer = players[playerTurn];
+                    auto villager = std::dynamic_pointer_cast<Villager>(
+                        currentPlayer.getEntities()[selectedEntityIndex]);
+                    
+                    if (villager) {
+                        villager->move(grid, clickedHex);
+                        
+                        // Move bandits after each player's move
+                        for (auto& bandit : bandits) {
+                            bandit->move(grid);
+                        }
+                        
+                        // Move to the next player's turn
+                        playerTurn = (playerTurn + 1) % players.size();
+                    }
                 }
-                villagerSelected = false;
+                entitySelected = false;
+                selectedEntityIndex = -1;
             }
         }
     } else if (event.type == SDL_MOUSEMOTION) {
@@ -181,11 +177,6 @@ void Game::handleEvent(SDL_Event& event) {
 }
 
 void Game::update() {
-    if (!playerTurn) {
-        for(auto& bandit : bandits)
-            bandit.move(grid);
-        playerTurn = true;
-    }
 }
 
 SDL_Rect Game::entityToRect(const Entity& entity) const {
@@ -201,14 +192,26 @@ void Game::render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Textu
 }
 
 void Game::render(SDL_Renderer* renderer) const {
+    // Draw the grid
     grid.draw(renderer);
 
-    // Render the bandits
-    for(const auto& bandit : bandits)
-        render_entity(renderer, bandit, textures[iconsMap["bandit"]]);
+    // Render all bandits
+    for (const auto& bandit : bandits) {
+        render_entity(renderer, *bandit, textures[iconsMap.at("bandit")]);
+    }
 
-    // Render all villagers
-    for (size_t i = 0; i < villagers.size(); ++i) {
-        render_entity(renderer, villagers[i], textures[iconsMap["villager"]]);
+    // Render all players' entities
+    for (size_t i = 0; i < players.size(); i++) {
+        const auto& player = players[i];
+        for (const auto& entity : player.getEntities()) {
+            // Determine the texture based on entity type
+            std::string textureKey = "villager";
+            
+            if (std::dynamic_pointer_cast<Villager>(entity)) {
+                textureKey = "villager";
+            }
+            
+            render_entity(renderer, *entity, textures[iconsMap.at(textureKey)]);
+        }
     }
 }

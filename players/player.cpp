@@ -2,42 +2,25 @@
 
 Player::Player(SDL_Color color) : color(color) {}
 
-Player::~Player() {
-    for (Entity* entity : entities) {
-        delete entity;
-    }
-    entities.clear();
-
-    for (Building* building : buildings) {
-        delete building;
-    }
-    buildings.clear();
-}
-
-void Player::addEntity(Entity* entity) {
+void Player::addEntity(std::shared_ptr<Entity> entity) {
     entities.push_back(entity);
 }
 
-void Player::removeEntity(Entity* entity) {
-    for (size_t i = 0; i < entities.size(); ++i) {
-        if (entities[i] == entity) {
-            entities.erase(entities.begin() + i);
-            delete entity;
-            return;
-        }
+void Player::removeEntity(std::shared_ptr<Entity> entity) {
+    // Using STL algorithm to find and remove the entity
+    auto it = std::find(entities.begin(), entities.end(), entity);
+    if (it != entities.end()) {
+        entities.erase(it);
     }
 }
 
-void Player::addBuilding(Building* building) {
+void Player::addBuilding(std::shared_ptr<Building> building) {
     buildings.push_back(building);
 }
 
-void Player::removeBuilding(Building* building) {
-    for (size_t i = 0; i < buildings.size(); ++i) {
-        if (buildings[i] == building) {
-            buildings.erase(buildings.begin() + i);
-            delete building;
-            return;
-        }
+void Player::removeBuilding(std::shared_ptr<Building> building) {
+    auto it = std::find(buildings.begin(), buildings.end(), building);
+    if (it != buildings.end()) {
+        buildings.erase(it);
     }
 }
