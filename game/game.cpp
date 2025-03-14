@@ -3,6 +3,18 @@
 #include <map>
 #include <filesystem>
 
+std::map<std::string, int> iconsMap = {
+    {"bandit", 0},        {"bandit-camp", 1},
+    {"castle", 2},        {"coin", 3},
+    {"coins", 4},         {"deficit", 5},
+    {"emoji-happy", 6},   {"face", 7},
+    {"gold-trophy", 8},   {"grave", 9},
+    {"hero", 10},         {"knight", 11},
+    {"pikeman", 12},      {"silver-trophy", 13},
+    {"surplus", 14},      {"town", 15},
+    {"treasury", 16},     {"upkeep", 17},
+    {"villager", 18}
+};
 
 // Custom comparison function for SDL_Color
 struct SDL_Color_Compare {
@@ -16,25 +28,34 @@ struct SDL_Color_Compare {
 };
 
 Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
-           int windowWidth, int windowHeight, SDL_Renderer* renderer)
+        int windowWidth, int windowHeight, SDL_Renderer* renderer)
     : grid(hexSize),
-      playerTurn(true),
-      villagerSelected(false),
-      villagerSelectedIndex(-1)
-{
+    playerTurn(true),
+    villagerSelected(false),
+    villagerSelectedIndex(-1)
+    {
+    std::cout << "Game constructor started" << std::endl;
 
     // Load all textures from the icons directory
+    std::cout << "Loading textures..." << std::endl;
     std::string iconsPath = "icons/";
     for (const auto& filename : iconsMap) {
-        std::string path = iconsPath + filename.first + ".png";
-        SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
-        if (!texture) {
-            std::cerr << "Error loading texture: " << IMG_GetError() << std::endl;
-        }
-        textures.push_back(texture);
+    std::string path = iconsPath + filename.first + ".png";
+    std::cout << "Loading texture: " << path << std::endl;
+    SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
+    if (!texture) {
+        std::cerr << "Error loading texture: " << IMG_GetError() << std::endl;
+    }
+    textures.push_back(texture);
     } 
+    std::cout << "Textures loaded: " << textures.size() << std::endl;
 
+    std::cout << "Generating grid..." << std::endl;
     grid.generateFromASCII(asciiMap, windowWidth, windowHeight);
+    std::cout << "Grid generated" << std::endl;
+
+    villagerTexture = textures[iconsMap["villager"]];
+    banditTexture = textures[iconsMap["bandit"]];
 
     // Count the number of unique colors in the grid
     nbplayers = 0;
@@ -54,8 +75,8 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
                 continue;
             }
             nbplayers++;
-            Player player(color);
-            players.emplace_back(player);
+            //Player player(color);
+            //players.emplace_back(player);
             uniqueColors.push_back(color);
         }
     }
@@ -96,14 +117,14 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
     std::mt19937 gen(rd());
 
     for (auto& [color, hexes] : hexesByColor) {
-        Player currentplayer = players[0];
-        for (int i = 0; i < nbplayers; i++) {
-            if (color.r == currentplayer.getColor().r && color.g == currentplayer.getColor().g &&
-                color.b == currentplayer.getColor().b && color.a == currentplayer.getColor().a) {
-                break;
-            }
-            currentplayer = players[i+1];
-        }
+        // Player currentplayer = players[0];
+        // for (int i = 0; i < nbplayers; i++) {
+        //     if (color.r == currentplayer.getColor().r && color.g == currentplayer.getColor().g &&
+        //         color.b == currentplayer.getColor().b && color.a == currentplayer.getColor().a) {
+        //         break;
+        //     }
+        //     currentplayer = players[i+1];
+        // }
         if (color.r != 255 || color.g != 255 || color.b != 255) {
             if (!hexes.empty()) {
                 // Choose a random hex of this color
