@@ -20,23 +20,29 @@ class Entity {
     
         // Getter for texture path
         std::string getTexturePath() const { return path_to_texture; }
+
+        virtual void move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor);
+
     };
     
-class Bandit : public Entity {
-    public:
-        Bandit() : Entity(Hex(0, 0, 0), 1, "icons/bandit.png") {} // Default constructor
-        Bandit(Hex hex);
-        virtual ~Bandit();
-        void move(HexagonalGrid& grid);
-    };
+    class Bandit : public Entity {
+        public:
+            Bandit() : Entity(Hex(0, 0, 0), 1, "icons/bandit.png") {} // Default constructor
+            Bandit(Hex hex);
+            virtual ~Bandit();        
+            void move(HexagonalGrid& grid, const SDL_Color& ownerColor = {255, 255, 255, 255});
+        };
+        
     
-    class Villager : public Entity {
+class Villager : public Entity {
     public:
         Villager() : Entity(Hex(0, 0, 0), 1, "icons/villager.png") {} // Default constructor
         Villager(Hex hex);
         virtual ~Villager();
-        void move(HexagonalGrid& grid, Hex target);
-    };
         
+        virtual void move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) override;
+};
+    
+    
 
 #endif // ENTITY_HPP

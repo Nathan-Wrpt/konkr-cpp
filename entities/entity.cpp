@@ -7,6 +7,17 @@ Entity::Entity(Hex hex, int protection_level, std::string path_to_texture)
 
 Entity::~Entity() {}
 
+void Entity::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) {
+    // Check if the target is a valid position on the grid
+    if (grid.hexExists(target)) {
+        hex = target;
+        // Change the color of the hex to the owner's color
+        grid.setHexColor(target, ownerColor);
+    } else {
+        std::cout << "Error: Target position is not valid." << std::endl;
+    }
+}
+
 // --- Bandit Class Implementation ---
 
 Bandit::Bandit(Hex hex) 
@@ -14,7 +25,7 @@ Bandit::Bandit(Hex hex)
 
 Bandit::~Bandit() {}
 
-void Bandit::move(HexagonalGrid& grid) {
+void Bandit::move(HexagonalGrid& grid, const SDL_Color& ownerColor) {
     // Directions possibles sur une grille hexagonale (pointy-top orientation)
     const std::vector<Hex> directions = {
         Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
@@ -37,6 +48,10 @@ void Bandit::move(HexagonalGrid& grid) {
         if (grid.hexExists(newHex)) {
             // Mettre à jour la position du Bandit
             hex = newHex;
+            
+            // Changer la couleur de la case pour la couleur de base du jeu
+            grid.setHexColor(newHex, ownerColor);
+            
             moved = true;
         }
 
@@ -56,11 +71,6 @@ Villager::Villager(Hex hex)
 
 Villager::~Villager() {}
 
-void Villager::move(HexagonalGrid& grid, Hex target) {
-    // Vérifier si la cible est une position valide sur la grille
-    if (grid.hexExists(target)) {
-        hex = target;
-    } else {
-        std::cout << "Error: Target position is not valid." << std::endl;
-    }
+void Villager::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) {
+    Entity::move(grid, target, ownerColor);
 }

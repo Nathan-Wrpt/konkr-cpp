@@ -197,3 +197,10 @@ void HexagonalGrid::draw(SDL_Renderer* renderer) const {
         aapolygonRGBA(renderer, xPoints, yPoints, 6, 0, 0, 0, 255);
     }
 }
+
+void HexagonalGrid::setHexColor(const Hex& hex, const SDL_Color& color) {
+    // Check if the hex exists in the grid
+    if (hexExists(hex)) {
+        hexColors[hex] = color;
+    }
+}

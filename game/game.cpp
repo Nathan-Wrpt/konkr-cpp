@@ -154,7 +154,7 @@ void Game::handleEvent(SDL_Event& event) {
                         currentPlayer.getEntities()[selectedEntityIndex]);
                     
                     if (villager) {
-                        villager->move(grid, clickedHex);
+                        villager->move(grid, clickedHex, currentPlayer.getColor());
                         
                         // Move bandits after each player's move
                         for (auto& bandit : bandits) {

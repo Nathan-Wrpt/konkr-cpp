@@ -93,6 +93,10 @@ public:
 
     // Getter for hex colors
     const std::map<Hex, SDL_Color>& getHexColors() const { return hexColors; }
+
+    // Set the color of a hex
+    void setHexColor(const Hex& hex, const SDL_Color& color);
+
 };
 
 #endif // HEXAGONAL_GRID_HPP
