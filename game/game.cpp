@@ -205,13 +205,29 @@ void Game::render(SDL_Renderer* renderer) const {
         const auto& player = players[i];
         for (const auto& entity : player.getEntities()) {
             // Determine the texture based on entity type
-            std::string textureKey = "villager";
+            std::string textureKey = "villager"; // Default
             
+            // You could use dynamic_cast or a virtual method to determine entity type
             if (std::dynamic_pointer_cast<Villager>(entity)) {
                 textureKey = "villager";
             }
             
+            // Render the entity
             render_entity(renderer, *entity, textures[iconsMap.at(textureKey)]);
         }
+    }
+    
+    // Display current player's color at the top of the screen
+    if (playerTurn >= 0 && playerTurn < players.size()) {
+        SDL_Color currentColor = players[playerTurn].getColor();
+        
+        SDL_Rect colorRect = {10, 10, 50, 30};
+        
+        SDL_SetRenderDrawColor(renderer, currentColor.r, currentColor.g, currentColor.b, currentColor.a);
+        
+        SDL_RenderFillRect(renderer, &colorRect);
+        
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderDrawRect(renderer, &colorRect);
     }
 }
