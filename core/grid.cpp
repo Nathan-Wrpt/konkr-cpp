@@ -204,3 +204,28 @@ void HexagonalGrid::setHexColor(const Hex& hex, const SDL_Color& color) {
         hexColors[hex] = color;
     }
 }
+
+bool HexagonalGrid::hasNeighborWithColor(const Hex& hex, const SDL_Color& color) const {
+    // Define the directions to the six neighbors
+    const std::vector<Hex> directions = {
+        Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
+        Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
+    };
+
+    // Check each neighbor
+    for (const auto& direction : directions) {
+        Hex neighbor = hex.add(direction);
+        auto it = hexColors.find(neighbor);
+        if (it != hexColors.end()) {
+            const SDL_Color& neighborColor = it->second;
+            if (neighborColor.r == color.r &&
+                neighborColor.g == color.g &&
+                neighborColor.b == color.b &&
+                neighborColor.a == color.a) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}

@@ -31,7 +31,7 @@ class Game {
     HexagonalGrid grid;
     std::vector<Player> players;
     std::vector<std::shared_ptr<Bandit>> bandits;
-    int playerTurn;
+    size_t playerTurn;
     bool entitySelected;
     std::vector<SDL_Texture*> textures;
     int selectedEntityIndex;

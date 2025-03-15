@@ -67,7 +67,7 @@ int main() {
         game.update();
 
         // Clear the screen
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+        SDL_SetRenderDrawColor(renderer, 0, 119, 182, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);
 
         // Render the game

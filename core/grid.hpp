@@ -97,6 +97,9 @@ public:
     // Set the color of a hex
     void setHexColor(const Hex& hex, const SDL_Color& color);
 
+    // Check if a neighbor of a hex has a specific color
+    bool hasNeighborWithColor(const Hex& hex, const SDL_Color& color) const;
+
 };
 
 #endif // HEXAGONAL_GRID_HPP

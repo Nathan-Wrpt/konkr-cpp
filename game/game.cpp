@@ -147,6 +147,7 @@ void Game::handleEvent(SDL_Event& event) {
                     }
                 }
             } else {
+                bool moveSuccessful = false;
                 // Move the selected villager if the hex is valid
                 if (grid.hexExists(clickedHex)) {
                     Player& currentPlayer = players[playerTurn];
@@ -154,15 +155,18 @@ void Game::handleEvent(SDL_Event& event) {
                         currentPlayer.getEntities()[selectedEntityIndex]);
                     
                     if (villager) {
-                        villager->move(grid, clickedHex, currentPlayer.getColor());
+                        moveSuccessful = villager->move(grid, clickedHex, currentPlayer.getColor());
                         
-                        // Move bandits after each player's move
-                        for (auto& bandit : bandits) {
-                            bandit->move(grid);
+                        // Move to the next player's turn only if the move was successful
+                        if (moveSuccessful) {
+                            playerTurn = (playerTurn + 1) % players.size();
                         }
-                        
-                        // Move to the next player's turn
-                        playerTurn = (playerTurn + 1) % players.size();
+                    }
+                }
+                // Move bandits after all players have moved
+                if (playerTurn == 0 && moveSuccessful) {
+                    for (const auto& bandit : bandits) {
+                        bandit->move(grid);
                     }
                 }
                 entitySelected = false;

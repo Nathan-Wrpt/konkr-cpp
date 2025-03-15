@@ -7,14 +7,16 @@ Entity::Entity(Hex hex, int protection_level, std::string path_to_texture)
 
 Entity::~Entity() {}
 
-void Entity::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) {
+bool Entity::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) {
     // Check if the target is a valid position on the grid
-    if (grid.hexExists(target)) {
+    if (grid.hexExists(target) && grid.hasNeighborWithColor(target, ownerColor)) {
         hex = target;
         // Change the color of the hex to the owner's color
         grid.setHexColor(target, ownerColor);
+        return true;
     } else {
         std::cout << "Error: Target position is not valid." << std::endl;
+        return false;
     }
 }
 
@@ -25,7 +27,7 @@ Bandit::Bandit(Hex hex)
 
 Bandit::~Bandit() {}
 
-void Bandit::move(HexagonalGrid& grid, const SDL_Color& ownerColor) {
+bool Bandit::move(HexagonalGrid& grid, const SDL_Color& ownerColor) {
     // Directions possibles sur une grille hexagonale (pointy-top orientation)
     const std::vector<Hex> directions = {
         Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
@@ -47,11 +49,7 @@ void Bandit::move(HexagonalGrid& grid, const SDL_Color& ownerColor) {
         // Vérifier si la nouvelle position est valide
         if (grid.hexExists(newHex)) {
             // Mettre à jour la position du Bandit
-            hex = newHex;
-            
-            // Changer la couleur de la case pour la couleur de base du jeu
-            grid.setHexColor(newHex, ownerColor);
-            
+            hex = newHex;            
             moved = true;
         }
 
@@ -61,7 +59,9 @@ void Bandit::move(HexagonalGrid& grid, const SDL_Color& ownerColor) {
     // Si aucune position valide n'est trouvée, le Bandit reste en place
     if (!moved) {
         std::cout << "No valid position found for Bandit" << std::endl;
+        return false;
     }
+    return true;
 }
 
 // --- Villager Class Implementation ---
@@ -70,7 +70,3 @@ Villager::Villager(Hex hex)
     : Entity(hex, 1, "icons/villager.png") {}
 
 Villager::~Villager() {}
-
-void Villager::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) {
-    Entity::move(grid, target, ownerColor);
-}
