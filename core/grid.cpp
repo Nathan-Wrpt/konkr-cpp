@@ -218,10 +218,7 @@ bool HexagonalGrid::hasNeighborWithColor(const Hex& hex, const SDL_Color& color)
         auto it = hexColors.find(neighbor);
         if (it != hexColors.end()) {
             const SDL_Color& neighborColor = it->second;
-            if (neighborColor.r == color.r &&
-                neighborColor.g == color.g &&
-                neighborColor.b == color.b &&
-                neighborColor.a == color.a) {
+            if (neighborColor == color) {
                 return true;
             }
         }

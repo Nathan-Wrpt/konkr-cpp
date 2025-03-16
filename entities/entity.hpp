@@ -21,6 +21,9 @@ public:
     // Getter for texture path
     std::string getTexturePath() const { return path_to_texture; }
 
+    // Getter for protection level
+    int getProtectionLevel() const { return protection_level; }
+
     virtual bool move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor);
 
 };
