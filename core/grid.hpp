@@ -4,11 +4,21 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <iostream>
+#include <memory>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 
 // matching between the colors like "r" to the color value
 extern const std::map<char, SDL_Color> colorMap;
+
+// Redéfinition de l'opérateur == pour SDL_Color
+inline bool operator==(const SDL_Color& lhs, const SDL_Color& rhs) {
+    return lhs.r == rhs.r &&
+           lhs.g == rhs.g &&
+           lhs.b == rhs.b &&
+           lhs.a == rhs.a;
+}
 
 // Point structure for rendering
 struct Point {

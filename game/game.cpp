@@ -148,6 +148,7 @@ void Game::handleEvent(SDL_Event& event) {
                 }
             } else {
                 bool moveSuccessful = false;
+                bool moveAllowed = false;
                 // Move the selected villager if the hex is valid
                 if (grid.hexExists(clickedHex)) {
                     Player& currentPlayer = players[playerTurn];
@@ -155,6 +156,7 @@ void Game::handleEvent(SDL_Event& event) {
                         currentPlayer.getEntities()[selectedEntityIndex]);
                     
                     if (villager) {
+                        // moveAllowed = 
                         moveSuccessful = villager->move(grid, clickedHex, currentPlayer.getColor());
                         
                         // Move to the next player's turn only if the move was successful
@@ -233,5 +235,30 @@ void Game::render(SDL_Renderer* renderer) const {
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderDrawRect(renderer, &colorRect);
+    }
+}
+
+bool Game :: isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer) const {
+    // Define the directions to the six neighbors
+    const std::vector<Hex> directions = {
+        Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
+        Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
+    };
+    
+    for (const auto& player : players) {
+        if (player.getColor() == currentPlayer.getColor()) {
+            continue;
+        }
+        
+        for (const auto& direction : directions) {
+            Hex neighbor = hex.add(direction);
+            if (grid.hexExists(neighbor)) {
+                for (const auto& entity : player.getEntities()) {
+                    if (entity->getHex() == neighbor) {
+                        return true;
+                    }
+                }
+            }
+        }
     }
 }

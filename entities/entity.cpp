@@ -8,17 +8,35 @@ Entity::Entity(Hex hex, int protection_level, std::string path_to_texture)
 Entity::~Entity() {}
 
 bool Entity::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) {
-    // Check if the target is a valid position on the grid
-    if (grid.hexExists(target) && grid.hasNeighborWithColor(target, ownerColor)) {
-        hex = target;
-        // Change the color of the hex to the owner's color
-        grid.setHexColor(target, ownerColor);
-        return true;
-    } else {
-        std::cout << "Error: Target position is not valid." << std::endl;
-        return false;
+    if (grid.hexExists(target)) {
+        // Check if the target is the same color as the ownerColor
+        auto it = grid.getHexColors().find(target);
+        if (it != grid.getHexColors().end()) {
+            const SDL_Color& targetColor = it->second;
+
+            // Check if the target color matches the owner's color
+            if (targetColor == ownerColor) {
+                // Move the entity to the target hex
+                hex = target;
+                // Return false because the entity can be moved again
+                return false;
+            } else {
+                // Check if the target is a valid position on the grid
+                if (grid.hasNeighborWithColor(target, ownerColor)) {
+                    hex = target;
+                    
+                    // Change the color of the hex to the owner's color
+                    grid.setHexColor(target, ownerColor);
+                    return true;
+                }
+            }
+        }
     }
+    std::cout << "Error: Target position is not valid." << std::endl;
+    return false;
 }
+
+
 
 // --- Bandit Class Implementation ---
 

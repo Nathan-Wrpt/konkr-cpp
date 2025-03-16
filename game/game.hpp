@@ -26,6 +26,7 @@ class Game {
     SDL_Rect entityToRect(const Entity& entity) const;
     void render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Texture* texture) const;
     void render(SDL_Renderer* renderer) const;
+    bool isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer) const;
 
   private:
     HexagonalGrid grid;
