@@ -66,7 +66,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
                 break;
             }
         }
-        if (!found && !(color.r == 255 && color.g == 255 && color.b == 255)) {
+        if (!found && !(color == SDL_Color{255, 255, 255, 255})) {
             nbplayers++;
             players.emplace_back(color);
             uniqueColors.push_back(color);
@@ -128,6 +128,21 @@ Game::~Game() {
 }
 
 void Game::handleEvent(SDL_Event& event) {
+    // if 'E' is pressed, change player
+    if (event.type == SDL_KEYDOWN) {
+        if (event.key.keysym.sym == SDLK_e) {
+            playerTurn = (playerTurn + 1) % players.size();
+            Player currentPlayer = players[playerTurn];
+            for (const auto& entity : currentPlayer.getEntities()) {
+                entity->setMoved(false);
+            }
+            if (playerTurn == 0) {
+                for (const auto& bandit : bandits) {
+                    bandit->move(grid);
+                }
+            }
+        }
+    }
     if (event.type == SDL_MOUSEBUTTONDOWN) {
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
@@ -135,12 +150,11 @@ void Game::handleEvent(SDL_Event& event) {
 
         if (playerTurn >= 0 && playerTurn < players.size()) {
             if (!entitySelected) {
-                // Check if any villager of the current player is selected
                 Player& currentPlayer = players[playerTurn];
                 const auto& playerEntities = currentPlayer.getEntities();
                 
                 for (size_t i = 0; i < playerEntities.size(); ++i) {
-                    if (playerEntities[i]->getHex() == clickedHex) {
+                    if (!playerEntities[i]->hasMoved() && playerEntities[i]->getHex() == clickedHex) {
                         selectedEntityIndex = i;
                         entitySelected = true;
                         break;
@@ -158,14 +172,8 @@ void Game::handleEvent(SDL_Event& event) {
                         
                         // Move to the next player's turn only if the move was successful
                         if (moveSuccessful) {
-                            playerTurn = (playerTurn + 1) % players.size();
+                            entity->setMoved(true);
                         }
-                    }
-                }
-                // Move bandits after all players have moved
-                if (playerTurn == 0 && moveSuccessful) {
-                    for (const auto& bandit : bandits) {
-                        bandit->move(grid);
                     }
                 }
                 entitySelected = false;
