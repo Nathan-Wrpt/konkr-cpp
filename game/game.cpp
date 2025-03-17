@@ -148,30 +148,37 @@ void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed, change player
     if (event.type == SDL_KEYDOWN) {
         if (event.key.keysym.sym == SDLK_e) {
-            playerTurn = (playerTurn + 1) % players.size();
-            Player& currentPlayer = players[playerTurn];
-            currentPlayer.addCoins(grid.getNbCasesColor(currentPlayer.getColor()));
-            for(auto& entity : currentPlayer.getEntities()) {
-                entity->setMoved(false);
-                // Pay upkeep for each entity
-                int currentUpkeep = entity->getUpkeep();
-                if(currentPlayer.getCoins() >= currentUpkeep) {
-                    currentPlayer.removeCoins(currentUpkeep);
-                } else {
-                    Hex entityHex = entity->getHex();
-                    currentPlayer.removeEntity(entity);
-                    addBandit(entityHex);
-                }
-            }
-
             // BANDIT ACTIONS HERE
             if (playerTurn == 0) {
                 for (const auto& bandit : bandits) {
                     bandit->move(grid);
                 }
             }
+            // END OF BANDIT ACTIONS
+
+            // Change player
+            playerTurn = (playerTurn + 1) % players.size();
+            Player& currentPlayer = players[playerTurn];
+
+            // land income
+            currentPlayer.addCoins(grid.getNbCasesColor(currentPlayer.getColor()));
+
+            // Pay upkeep for each entity
+            for(auto& entity : currentPlayer.getEntities()) {
+                entity->setMoved(false);
+                int currentUpkeep = entity->getUpkeep();
+                if(currentPlayer.getCoins() >= currentUpkeep) {
+                    currentPlayer.removeCoins(currentUpkeep);
+                } else {
+                    // If cannot pay upkeep, replace by bandit
+                    Hex entityHex = entity->getHex();
+                    currentPlayer.removeEntity(entity);
+                    addBandit(entityHex);
+                }
+            }
         }
     }
+    
     if (event.type == SDL_MOUSEBUTTONDOWN) {
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
