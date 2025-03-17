@@ -226,3 +226,13 @@ bool HexagonalGrid::hasNeighborWithColor(const Hex& hex, const SDL_Color& color)
 
     return false;
 }
+
+int HexagonalGrid::getNbCasesColor(const SDL_Color& color) const {
+    int count = 0;
+    for (const auto& pair : hexColors) {
+        if (pair.second == color) {
+            count++;
+        }
+    }
+    return count;
+}

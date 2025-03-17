@@ -15,6 +15,7 @@ private:
     SDL_Color color;
     std::vector<std::shared_ptr<Entity>> entities;
     std::vector<std::shared_ptr<Building>> buildings;
+    int coins;
 public:
     Player(SDL_Color color);
     ~Player() = default;
@@ -27,6 +28,9 @@ public:
     void removeEntity(std::shared_ptr<Entity> entity);
     void addBuilding(std::shared_ptr<Building> building);
     void removeBuilding(std::shared_ptr<Building> building);
+    int getCoins() const { return coins; }
+    void addCoins(int amount) { coins += amount; }
+    void removeCoins(int amount) { coins -= amount; }
 };
 
 #endif

@@ -110,6 +110,9 @@ public:
     // Check if a neighbor of a hex has a specific color
     bool hasNeighborWithColor(const Hex& hex, const SDL_Color& color) const;
 
+    //Get the number of cases in a certain color
+    int getNbCasesColor(const SDL_Color& color) const;
+
 };
 
 #endif // HEXAGONAL_GRID_HPP

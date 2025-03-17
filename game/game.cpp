@@ -146,9 +146,14 @@ void Game::handleEvent(SDL_Event& event) {
         if (event.key.keysym.sym == SDLK_e) {
             playerTurn = (playerTurn + 1) % players.size();
             Player currentPlayer = players[playerTurn];
-            for (const auto& entity : currentPlayer.getEntities()) {
+            currentPlayer.addCoins(grid.getNbCasesColor(currentPlayer.getColor()));
+            for(auto& entity : currentPlayer.getEntities()) {
                 entity->setMoved(false);
+
+                // Pay upkeep for each entity
+                currentPlayer.removeCoins(entity->getUpkeep());
             }
+
             // BANDIT ACTIONS HERE
             if (playerTurn == 0) {
                 for (const auto& bandit : bandits) {
@@ -269,6 +274,9 @@ void Game::render(SDL_Renderer* renderer) const {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderDrawRect(renderer, &colorRect);
     }
+    int coinsnumber = currentPlayer.getCoins();
+    SDL_Texture* coinTexture = textures[iconsMap.at("coin")];
+    SDL_Color textColor = {255, 255, 255, 255};
 }
 
 bool Game :: isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) const {

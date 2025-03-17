@@ -2,8 +2,8 @@
 
 // --- Entity Class Implementation ---
 
-Entity::Entity(Hex hex, int protection_level, std::string name) 
-    : hex(hex), protection_level(protection_level), name(name) {
+Entity::Entity(Hex hex, int protection_level, std::string name, int upkeep) 
+    : hex(hex), protection_level(protection_level), name(name), upkeep(0) {
         moved = false;
     }
 
@@ -43,7 +43,7 @@ bool Entity::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) 
 // --- Bandit Class Implementation ---
 
 Bandit::Bandit(Hex hex) 
-    : Entity(hex, 0, "bandit") {}
+    : Entity(hex, 0, "bandit", 0) {}
 
 Bandit::~Bandit() {}
 
@@ -87,13 +87,13 @@ bool Bandit::move(HexagonalGrid& grid, const SDL_Color& ownerColor) {
 // --- Villager Class Implementation ---
 
 Villager::Villager(Hex hex) 
-    : Entity(hex, 1, "villager") {}
+    : Entity(hex, 1, "villager", 2) {}
 
 Villager::~Villager() {}
 
 // --- Pikeman Class Implementation ---
 
 Pikeman::Pikeman(Hex hex) 
-    : Entity(hex, 2, "pikeman") {}
+    : Entity(hex, 2, "pikeman", 6) {}
 
 Pikeman::~Pikeman() {}

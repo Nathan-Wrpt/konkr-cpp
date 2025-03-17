@@ -12,8 +12,9 @@ protected:
     int protection_level;
     bool moved;
     std::string name;
+    int upkeep;
 public:
-    Entity(Hex hex, int protection_level, std::string name);
+    Entity(Hex hex, int protection_level, std::string name, int upkeep = 0);
     virtual ~Entity();
 
     // Getter for hex
@@ -33,6 +34,8 @@ public:
     
     virtual bool move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor);
 
+    // Getter for upkeep
+    int getUpkeep() const { return upkeep; }
 };
 
 class Bandit : public Entity {
