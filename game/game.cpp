@@ -202,6 +202,28 @@ void Game::manageBandits(){
     }
 }
 
+void Game::upgradeEntity(const Hex& hex) {
+    for (auto& player : players) {
+        for (auto& entity : player.getEntities()) {
+            if (entity->getHex() == hex) {
+                if (entity->getName() == "villager") {
+                    player.removeEntity(entity);
+                    player.addEntity(std::make_shared<Pikeman>(hex));
+                    player.getEntities().back()->setMoved(true);
+                // } else if (entity->getName() == "pikeman") {
+                //     player.removeEntity(entity);
+                //     player.addEntity(std::make_shared<Knight>(hex));
+                //     player.getEntities().back()->setMoved(true);
+                // } else if (entity->getName() == "knight") {
+                //     player.removeEntity(entity);
+                //     player.addEntity(std::make_shared<Hero>(hex));
+                //     player.getEntities().back()->setMoved(true);
+                }
+            }
+        }
+    }
+}
+
 void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed, change player
     if (event.type == SDL_KEYDOWN) {
@@ -267,13 +289,30 @@ void Game::handleEvent(SDL_Event& event) {
                     
                     if ((entity) && 
                         !isSurroundedByOtherPlayerEntities(clickedHex, currentPlayer, entity->getProtectionLevel()) &&
-                        !isSurroundedBySamePlayerEntities(clickedHex, currentPlayer)) {
+                        hasSamePlayerEntities(clickedHex, currentPlayer) == "") {
                         moveSuccessful = entity->move(grid, clickedHex, currentPlayer.getColor());
                         
                         // We flag the entity as moved if the move was successful
                         if (moveSuccessful) {
                             entity->setMoved(true);
+
+                            // remove potential entity on the hex we are moving to
+                            for (auto& player : players) {
+                                if (player.getColor() == currentPlayer.getColor()) {
+                                    continue;
+                                }
+                                for (auto& entity : player.getEntities()) {
+                                    if (entity->getHex() == clickedHex) {
+                                        player.removeEntity(entity);
+                                        printf("Entity removed\n");
+                                        break;
+                                    }
+                                }
+                            }
                         }
+                    } else if (entity && entity->getName() == hasSamePlayerEntities(clickedHex, currentPlayer)) {
+                        currentPlayer.removeEntity(entity);
+                        upgradeEntity(clickedHex);
                     }
                 }
                 entitySelected = false;
@@ -395,11 +434,9 @@ bool Game :: isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& cur
             if (entity->getHex() == hex &&  
                 grid.getHexColors().at(hex) == player.getColor()) {
                 if (entity->getProtectionLevel() >= currentLevel) {
-                    std::cout << "Hex protected by another player's entity" << std::endl;
+                    std::cout << "Too weak to beat this enemy" << std::endl;
                     return true;
                 } else {
-                    player.removeEntity(entity);
-                    std::cout << "Entity remove" << std::endl;
                     return false;
                 }
             }
@@ -409,11 +446,11 @@ bool Game :: isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& cur
 }
 
 // Check if a hex is surrounded other entities of the same player
-bool Game::isSurroundedBySamePlayerEntities(const Hex& hex, const Player& currentPlayer) const {
+std::string Game::hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const {
     for (const auto& entity : currentPlayer.getEntities()) {
         if (entity->getHex() == hex) {
-            return true;
+            return entity->getName();
         }
     }
-    return false;
+    return "";
 }

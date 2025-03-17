@@ -28,11 +28,12 @@ class Game {
     void render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Texture* texture) const;
     void render(SDL_Renderer* renderer) const;
     bool isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel);
-    bool isSurroundedBySamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
+    std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
     void addBandit(Hex hex);
     bool entityOnHex(const Hex& hex);
     void manageBandits();
     int nbBanditsOnColor(const SDL_Color& color);
+    void upgradeEntity(const Hex& hex);
 
   private:
     HexagonalGrid grid;
