@@ -30,9 +30,10 @@ struct SDL_Color_Compare {
 Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
         int windowWidth, int windowHeight, SDL_Renderer* renderer)
     : grid(hexSize),
-      playerTurn(0),  // Start with player 0
-      entitySelected(false),
-      selectedEntityIndex(-1)
+    playerTurn(0),
+    entitySelected(false),
+    selectedEntityIndex(-1),
+    draggedButton(nullptr)
 {
     std::cout << "Game constructor started" << std::endl;
     turn = 0;
@@ -130,9 +131,19 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
             auto  pikeman = std::make_shared<Pikeman>(randomHexPikeman);
             player.addEntity(pikeman);
         }
-    }
+    }    
+    int nbButtons = 4;
+    int buttonSize = 50;
+    int buttonSpacing = 10;
+    int totalWidth = nbButtons * buttonSize + 3 * buttonSpacing;
+    int startX = (windowWidth - totalWidth) / 2;
+    int buttonY = windowHeight - buttonSize - 20;
+    
+    unitButtons.emplace_back(startX, buttonY, buttonSize, buttonSize, "villager", 10);
+    unitButtons.emplace_back(startX + buttonSize + buttonSpacing, buttonY, buttonSize, buttonSize, "pikeman", 20);
+    unitButtons.emplace_back(startX + 2 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "knight", 40);
+    unitButtons.emplace_back(startX + 3 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "hero", 100);
 }
-
 Game::~Game() {
     for (SDL_Texture* texture : textures) {
         if (texture) {
@@ -341,6 +352,70 @@ void Game::render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Textu
     SDL_RenderCopy(renderer, texture, NULL, &entityRect);
 }
 
+void Game::renderButton(SDL_Renderer* renderer, const Button& button) const {
+    SDL_Rect buttonRect = button.getRect();
+    
+    // Draw button background
+    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+    SDL_RenderFillRect(renderer, &buttonRect);
+    
+    // Draw button border
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderDrawRect(renderer, &buttonRect);
+    
+    // Draw button icon
+    SDL_Texture* iconTexture = textures[iconsMap.at(button.getIconName())];
+    SDL_RenderCopy(renderer, iconTexture, NULL, &buttonRect);
+    
+    // Draw cost text with better visibility
+    TTF_Font* font = TTF_OpenFont("assets/OpenSans.ttf", 16); // Larger font size
+    if (font) {
+        // Create a small background for the text
+        SDL_Rect textBgRect = {
+            buttonRect.x, 
+            buttonRect.y + buttonRect.h - 20, 
+            buttonRect.w, 
+            20
+        };
+        
+        // Draw a semi-transparent black background for the text
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
+        SDL_RenderFillRect(renderer, &textBgRect);
+        
+        // Use bright text color for better contrast
+        SDL_Color textColor = {255, 255, 0, 255}; // Bright yellow for visibility
+        
+        std::string costText = std::to_string(button.getCost());
+        SDL_Surface* textSurface = TTF_RenderText_Solid(font, costText.c_str(), textColor);
+        
+        if (textSurface) {
+            SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+            
+            if (textTexture) {
+                // Center the text in the background
+                int textWidth = textSurface->w;
+                int textHeight = textSurface->h;
+                
+                SDL_Rect costRect = {
+                    buttonRect.x + (buttonRect.w - textWidth) / 2,
+                    buttonRect.y + buttonRect.h - textHeight - 2,
+                    textWidth,
+                    textHeight
+                };
+                
+                SDL_RenderCopy(renderer, textTexture, NULL, &costRect);
+                SDL_DestroyTexture(textTexture);
+            }
+            
+            SDL_FreeSurface(textSurface);
+        }
+        
+        TTF_CloseFont(font);
+    }
+}
+
+
+
 void Game::render(SDL_Renderer* renderer) const {
     // Draw the grid
     grid.draw(renderer);
@@ -402,6 +477,11 @@ void Game::render(SDL_Renderer* renderer) const {
     SDL_Rect textRect = {70, 50, 50, 30};
     SDL_RenderCopy(renderer, SDL_CreateTextureFromSurface(renderer, TTF_RenderText_Solid(font, coinsnumber.c_str(), textColor)), NULL, &textRect);
     TTF_CloseFont(font);
+
+    // Render all buttons
+    for (const auto& button : unitButtons) {
+        renderButton(renderer, button);
+    }
 }
 
 bool Game :: isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) {

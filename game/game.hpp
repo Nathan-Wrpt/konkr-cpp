@@ -10,6 +10,8 @@
 #include "../core/grid.hpp"
 #include "../entities/entity.hpp"
 #include "../players/player.hpp"
+#include "../ui/button.hpp"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
@@ -34,6 +36,7 @@ class Game {
     void manageBandits();
     int nbBanditsOnColor(const SDL_Color& color);
     void upgradeEntity(const Hex& hex);
+    void renderButton(SDL_Renderer* renderer, const Button& button) const;
 
   private:
     HexagonalGrid grid;
@@ -45,6 +48,8 @@ class Game {
     int selectedEntityIndex;
     int nbplayers;
     int turn;
+    std::vector<Button> unitButtons;
+    Button* draggedButton;
 };
 
 #endif
