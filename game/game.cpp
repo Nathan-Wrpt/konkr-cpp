@@ -171,7 +171,6 @@ void Game::handleEvent(SDL_Event& event) {
                     if (!playerEntities[i]->hasMoved() && playerEntities[i]->getHex() == clickedHex) {
                         selectedEntityIndex = i;
                         entitySelected = true;
-                        printf("Entity selected\n");
                         break;
                     }
                 }
