@@ -12,6 +12,7 @@
 #include "../players/player.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 extern std::map<std::string, int> iconsMap;
 

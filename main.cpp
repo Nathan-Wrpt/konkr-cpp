@@ -1,6 +1,7 @@
 #include "game/game.hpp"
 
 int main() {
+    TTF_Init();
     const int windowWidth = 1000;
     const int windowHeight = 1000;
     const double hexSize = 30.0;

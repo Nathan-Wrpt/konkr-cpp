@@ -275,8 +275,9 @@ void Game::render(SDL_Renderer* renderer) const {
         SDL_RenderDrawRect(renderer, &colorRect);
     }
     int coinsnumber = currentPlayer.getCoins();
-    SDL_Texture* coinTexture = textures[iconsMap.at("coin")];
-    SDL_Color textColor = {255, 255, 255, 255};
+    // coinTexture = textures[iconsMap.at("coin")];
+    SDL_Rect coinRect = {10, 50, 50, 30};
+    SDL_RenderCopy(renderer, textures[iconsMap.at("coin")], NULL, &coinRect);
 }
 
 bool Game :: isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) const {
