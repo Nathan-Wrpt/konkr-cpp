@@ -3,7 +3,9 @@
 // --- Entity Class Implementation ---
 
 Entity::Entity(Hex hex, int protection_level, std::string name) 
-    : hex(hex), protection_level(protection_level), name(name) {}
+    : hex(hex), protection_level(protection_level), name(name) {
+        moved = false;
+    }
 
 Entity::~Entity() {}
 
@@ -41,7 +43,7 @@ bool Entity::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) 
 // --- Bandit Class Implementation ---
 
 Bandit::Bandit(Hex hex) 
-    : Entity(hex, 1, "bandit") {}
+    : Entity(hex, 0, "bandit") {}
 
 Bandit::~Bandit() {}
 
