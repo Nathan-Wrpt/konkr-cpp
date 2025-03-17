@@ -10,6 +10,7 @@ class Entity {
 protected:
     Hex hex;
     int protection_level;
+    bool moved;
     std::string name;
 public:
     Entity(Hex hex, int protection_level, std::string name);
@@ -24,6 +25,12 @@ public:
     // Getter for protection level
     int getProtectionLevel() const { return protection_level; }
 
+    // Getter for moved
+    bool hasMoved() const { return moved; }
+
+    // Setter for moved
+    void setMoved(bool moved) { this->moved = moved; }
+    
     virtual bool move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor);
 
 };
