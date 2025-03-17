@@ -68,3 +68,15 @@ Pikeman::Pikeman(Hex hex)
     : Entity(hex, 2, "pikeman", 6) {}
 
 Pikeman::~Pikeman() {}
+
+// --- Knight Class Implementation ---
+Knight::Knight(Hex hex) 
+    : Entity(hex, 3, "knight", 18) {}
+
+Knight::~Knight() {}
+
+// --- Hero Class Implementation ---
+Hero::Hero(Hex hex) 
+    : Entity(hex, 4, "hero", 54) {}
+
+Hero::~Hero() {}

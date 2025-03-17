@@ -61,4 +61,18 @@ public:
     virtual ~Pikeman();
 };
 
+class Knight : public Entity {
+    public:
+        Knight() : Entity(Hex(0, 0, 0), 3, "knight") {} // Default constructor
+        Knight(Hex hex);
+        virtual ~Knight();
+    };
+    
+class Hero : public Entity {
+    public:
+        Hero() : Entity(Hex(0, 0, 0), 4, "hero") {} // Default constructor
+        Hero(Hex hex);
+        virtual ~Hero();
+    };
+
 #endif // ENTITY_HPP
