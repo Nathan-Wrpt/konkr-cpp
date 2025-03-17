@@ -3,6 +3,6 @@ konkr game in cpp
 
 Pour installer les dépendances sur ubuntu :
 ```bash
-sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-gfx-dev
+sudo apt install libsdl2-dev libsdl2-image-dev libsdl2-gfx-dev libsdl2-ttf-dev
 ```
 
