@@ -2,8 +2,8 @@
 
 // --- Entity Class Implementation ---
 
-Entity::Entity(Hex hex, int protection_level, std::string path_to_texture) 
-    : hex(hex), protection_level(protection_level), path_to_texture(path_to_texture) {}
+Entity::Entity(Hex hex, int protection_level, std::string name) 
+    : hex(hex), protection_level(protection_level), name(name) {}
 
 Entity::~Entity() {}
 
@@ -24,7 +24,7 @@ bool Entity::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) 
                 // Check if the target is a valid position on the grid
                 if (grid.hasNeighborWithColor(target, ownerColor)) {
                     hex = target;
-                    
+
                     // Change the color of the hex to the owner's color
                     grid.setHexColor(target, ownerColor);
                     return true;
@@ -41,7 +41,7 @@ bool Entity::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) 
 // --- Bandit Class Implementation ---
 
 Bandit::Bandit(Hex hex) 
-    : Entity(hex, 1, "icons/bandit.png") {}
+    : Entity(hex, 1, "bandit") {}
 
 Bandit::~Bandit() {}
 
@@ -85,6 +85,13 @@ bool Bandit::move(HexagonalGrid& grid, const SDL_Color& ownerColor) {
 // --- Villager Class Implementation ---
 
 Villager::Villager(Hex hex) 
-    : Entity(hex, 1, "icons/villager.png") {}
+    : Entity(hex, 1, "villager") {}
 
 Villager::~Villager() {}
+
+// --- Pikeman Class Implementation ---
+
+Pikeman::Pikeman(Hex hex) 
+    : Entity(hex, 2, "pikeman") {}
+
+Pikeman::~Pikeman() {}

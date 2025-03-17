@@ -8,10 +8,10 @@ int main() {
     // ASCII map
     std::vector<std::string> asciiMap = {
         "...............",
-        "......ggg......",
-        "......ggg......",
-        ".........rr......",
-        ".........r...."
+        "..ggg......",
+        "..ggg......",
+        "....rr......",
+        "....r...."
     };
 
     // Initialize SDL

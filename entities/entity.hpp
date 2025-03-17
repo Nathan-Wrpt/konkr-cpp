@@ -10,16 +10,16 @@ class Entity {
 protected:
     Hex hex;
     int protection_level;
-    std::string path_to_texture;
+    std::string name;
 public:
-    Entity(Hex hex, int protection_level, std::string path_to_texture);
+    Entity(Hex hex, int protection_level, std::string name);
     virtual ~Entity();
 
     // Getter for hex
     Hex getHex() const { return hex; }
 
-    // Getter for texture path
-    std::string getTexturePath() const { return path_to_texture; }
+    // Getter for name
+    std::string getName() const { return name; }
 
     // Getter for protection level
     int getProtectionLevel() const { return protection_level; }
@@ -30,7 +30,7 @@ public:
 
 class Bandit : public Entity {
 public:
-    Bandit() : Entity(Hex(0, 0, 0), 1, "icons/bandit.png") {} // Default constructor
+    Bandit() : Entity(Hex(0, 0, 0), 1, "bandit") {} // Default constructor
     Bandit(Hex hex);
     virtual ~Bandit();        
     bool move(HexagonalGrid& grid, const SDL_Color& ownerColor = {255, 255, 255, 255});
@@ -39,9 +39,16 @@ public:
     
 class Villager : public Entity {
 public:
-    Villager() : Entity(Hex(0, 0, 0), 1, "icons/villager.png") {} // Default constructor
+    Villager() : Entity(Hex(0, 0, 0), 1, "villager") {} // Default constructor
     Villager(Hex hex);
     virtual ~Villager();
+};
+
+class Pikeman : public Entity {
+public:
+    Pikeman() : Entity(Hex(0, 0, 0), 2, "pikeman") {} // Default constructor
+    Pikeman(Hex hex);
+    virtual ~Pikeman();
 };
 
 #endif // ENTITY_HPP

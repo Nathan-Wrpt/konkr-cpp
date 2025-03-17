@@ -61,8 +61,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
         const SDL_Color& color = pair.second;
         bool found = false;
         for (const auto& uniqueColor : uniqueColors) {
-            if (color.r == uniqueColor.r && color.g == uniqueColor.g &&
-                color.b == uniqueColor.b && color.a == uniqueColor.a) {
+            if (color == uniqueColor) {
                 found = true;
                 break;
             }
@@ -115,6 +114,8 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
             // Create a villager and add it to the player
             auto villager = std::make_shared<Villager>(randomHex);
             player.addEntity(villager);
+            auto  pikeman = std::make_shared<Pikeman>(randomHex);
+            player.addEntity(pikeman);
         }
     }
 }
@@ -148,16 +149,13 @@ void Game::handleEvent(SDL_Event& event) {
                 }
             } else {
                 bool moveSuccessful = false;
-                // Move the selected villager if the hex is valid
                 if (grid.hexExists(clickedHex)) {
                     Player& currentPlayer = players[playerTurn];
-                    auto villager = std::dynamic_pointer_cast<Villager>(
-                        currentPlayer.getEntities()[selectedEntityIndex]);
+                    auto entity = currentPlayer.getEntities()[selectedEntityIndex];
                     
-                    if (villager && 
-                        !isSurroundedByOtherPlayerEntities(clickedHex, currentPlayer, villager->getProtectionLevel())) {
-                        // moveAllowed = isSurroundedByOtherPlayerEntities(clickedHex, currentPlayer, villager->getProtectionLevel());
-                        moveSuccessful = villager->move(grid, clickedHex, currentPlayer.getColor());
+                    if ((entity) && 
+                        !isSurroundedByOtherPlayerEntities(clickedHex, currentPlayer, entity->getProtectionLevel())) {
+                        moveSuccessful = entity->move(grid, clickedHex, currentPlayer.getColor());
                         
                         // Move to the next player's turn only if the move was successful
                         if (moveSuccessful) {
@@ -211,11 +209,15 @@ void Game::render(SDL_Renderer* renderer) const {
         const auto& player = players[i];
         for (const auto& entity : player.getEntities()) {
             // Determine the texture based on entity type
-            std::string textureKey = "villager"; // Default
-            
+            std::string textureKey = entity->getName();
+
             // You could use dynamic_cast or a virtual method to determine entity type
             if (std::dynamic_pointer_cast<Villager>(entity)) {
                 textureKey = "villager";
+            }
+
+            if (std::dynamic_pointer_cast<Pikeman>(entity)) {
+                textureKey = "pikeman";
             }
             
             // Render the entity
