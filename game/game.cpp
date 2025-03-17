@@ -210,14 +210,14 @@ void Game::upgradeEntity(const Hex& hex) {
                     player.removeEntity(entity);
                     player.addEntity(std::make_shared<Pikeman>(hex));
                     player.getEntities().back()->setMoved(true);
-                // } else if (entity->getName() == "pikeman") {
-                //     player.removeEntity(entity);
-                //     player.addEntity(std::make_shared<Knight>(hex));
-                //     player.getEntities().back()->setMoved(true);
-                // } else if (entity->getName() == "knight") {
-                //     player.removeEntity(entity);
-                //     player.addEntity(std::make_shared<Hero>(hex));
-                //     player.getEntities().back()->setMoved(true);
+                } else if (entity->getName() == "pikeman") {
+                    player.removeEntity(entity);
+                    player.addEntity(std::make_shared<Knight>(hex));
+                    player.getEntities().back()->setMoved(true);
+                } else if (entity->getName() == "knight") {
+                    player.removeEntity(entity);
+                    player.addEntity(std::make_shared<Hero>(hex));
+                    player.getEntities().back()->setMoved(true);
                 }
             }
         }
@@ -310,7 +310,7 @@ void Game::handleEvent(SDL_Event& event) {
                                 }
                             }
                         }
-                    } else if (entity && entity->getName() == hasSamePlayerEntities(clickedHex, currentPlayer)) {
+                    } else if (entity && !(entity->getHex() == clickedHex) && entity->getName() == hasSamePlayerEntities(clickedHex, currentPlayer)) {
                         currentPlayer.removeEntity(entity);
                         upgradeEntity(clickedHex);
                     }
