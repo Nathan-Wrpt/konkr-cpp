@@ -78,8 +78,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
     Hex initialBanditHex = grid.getHexes()[0];
     bool banditHexFound = false;
     for (const auto& pair : grid.getHexColors()) {
-        if (pair.second.r == 255 && pair.second.g == 255 &&
-            pair.second.b == 255) {
+        if (pair.second == SDL_Color{255, 255, 255, 255}) {
             initialBanditHex = pair.first;
             banditHexFound = true;
             break;
@@ -210,15 +209,6 @@ void Game::render(SDL_Renderer* renderer) const {
         for (const auto& entity : player.getEntities()) {
             // Determine the texture based on entity type
             std::string textureKey = entity->getName();
-
-            // You could use dynamic_cast or a virtual method to determine entity type
-            if (std::dynamic_pointer_cast<Villager>(entity)) {
-                textureKey = "villager";
-            }
-
-            if (std::dynamic_pointer_cast<Pikeman>(entity)) {
-                textureKey = "pikeman";
-            }
             
             // Render the entity
             render_entity(renderer, *entity, textures[iconsMap.at(textureKey)]);
