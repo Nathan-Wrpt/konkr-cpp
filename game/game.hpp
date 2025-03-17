@@ -32,6 +32,7 @@ class Game {
     void addBandit(Hex hex);
     bool entityOnHex(const Hex& hex);
     void manageBandits();
+    int nbBanditsOnColor(const SDL_Color& color);
 
   private:
     HexagonalGrid grid;

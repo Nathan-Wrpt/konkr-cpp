@@ -161,6 +161,16 @@ bool Game::entityOnHex(const Hex& hex) {
     return false;
 }
 
+int Game::nbBanditsOnColor(const SDL_Color& color) {
+    int count = 0;
+    for (const auto& bandit : bandits) {
+        if (grid.getHexColors().at(bandit->getHex()) == color) {
+            count++;
+        }
+    }
+    return count;
+}
+
 void Game::manageBandits(){
     // Directions possibles sur une grille hexagonale (pointy-top orientation)
     const std::vector<Hex> directions = {
@@ -212,6 +222,8 @@ void Game::handleEvent(SDL_Event& event) {
             if(turn > 0) {
                 // land income
                 currentPlayer.addCoins(grid.getNbCasesColor(currentPlayer.getColor()));
+                // coins stolen by bandits
+                currentPlayer.removeCoins(nbBanditsOnColor(currentPlayer.getColor()));
 
                 // Pay upkeep for each entity
                 for(auto& entity : currentPlayer.getEntities()) {
