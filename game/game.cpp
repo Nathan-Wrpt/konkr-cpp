@@ -280,25 +280,16 @@ void Game::render(SDL_Renderer* renderer) const {
     SDL_RenderCopy(renderer, textures[iconsMap.at("coin")], NULL, &coinRect);
 }
 
-bool Game :: isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) const {
+bool Game :: isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) {
     // Define the directions to the six neighbors
     const std::vector<Hex> directions = {
         Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
         Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
     };
     
-    for (const auto& player : players) {
+    for (auto& player : players) {
         if (player.getColor() == currentPlayer.getColor()) {
             continue;
-        }
-
-        for (const auto& entity : player.getEntities()) {
-            if (entity->getHex() == hex && 
-                entity->getProtectionLevel() >= currentLevel && 
-                grid.getHexColors().at(hex) == player.getColor()) {
-                std::cout << "Hex protected by another player's entity" << std::endl;
-                return true;
-            }
         }
         
         for (const auto& direction : directions) {
@@ -311,6 +302,20 @@ bool Game :: isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& cur
                         std::cout << "Hex protected by another player's entity" << std::endl;
                         return true;
                     }
+                }
+            }
+        }
+
+        for (const auto& entity : player.getEntities()) {
+            if (entity->getHex() == hex &&  
+                grid.getHexColors().at(hex) == player.getColor()) {
+                if (entity->getProtectionLevel() >= currentLevel) {
+                    std::cout << "Hex protected by another player's entity" << std::endl;
+                    return true;
+                } else {
+                    player.removeEntity(entity);
+                    std::cout << "Entity remove" << std::endl;
+                    return false;
                 }
             }
         }
