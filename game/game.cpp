@@ -140,18 +140,28 @@ Game::~Game() {
     }
 }
 
+void Game::addBandit(Hex hex) {
+    bandits.push_back(std::make_shared<Bandit>(hex));
+}
+
 void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed, change player
     if (event.type == SDL_KEYDOWN) {
         if (event.key.keysym.sym == SDLK_e) {
             playerTurn = (playerTurn + 1) % players.size();
-            Player currentPlayer = players[playerTurn];
+            Player& currentPlayer = players[playerTurn];
             currentPlayer.addCoins(grid.getNbCasesColor(currentPlayer.getColor()));
             for(auto& entity : currentPlayer.getEntities()) {
                 entity->setMoved(false);
-
                 // Pay upkeep for each entity
-                currentPlayer.removeCoins(entity->getUpkeep());
+                int currentUpkeep = entity->getUpkeep();
+                if(currentPlayer.getCoins() >= currentUpkeep) {
+                    currentPlayer.removeCoins(currentUpkeep);
+                } else {
+                    Hex entityHex = entity->getHex();
+                    currentPlayer.removeEntity(entity);
+                    addBandit(entityHex);
+                }
             }
 
             // BANDIT ACTIONS HERE
@@ -274,10 +284,15 @@ void Game::render(SDL_Renderer* renderer) const {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderDrawRect(renderer, &colorRect);
     }
-    int coinsnumber = currentPlayer.getCoins();
+    std::string coinsnumber = std::to_string(currentPlayer.getCoins());
     // coinTexture = textures[iconsMap.at("coin")];
     SDL_Rect coinRect = {10, 50, 50, 30};
     SDL_RenderCopy(renderer, textures[iconsMap.at("coin")], NULL, &coinRect);
+    TTF_Font* font = TTF_OpenFont("assets/OpenSans.ttf", 24);
+    SDL_Color textColor = {255, 255, 255, 255};
+    SDL_Rect textRect = {70, 50, 50, 30};
+    SDL_RenderCopy(renderer, SDL_CreateTextureFromSurface(renderer, TTF_RenderText_Solid(font, coinsnumber.c_str(), textColor)), NULL, &textRect);
+    TTF_CloseFont(font);
 }
 
 bool Game :: isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) {

@@ -49,14 +49,14 @@ public:
     
 class Villager : public Entity {
 public:
-    Villager() : Entity(Hex(0, 0, 0), 1, "villager") {} // Default constructor
+    Villager() : Entity(Hex(0, 0, 0), 1, "villager", 2) {} // Default constructor
     Villager(Hex hex);
     virtual ~Villager();
 };
 
 class Pikeman : public Entity {
 public:
-    Pikeman() : Entity(Hex(0, 0, 0), 2, "pikeman") {} // Default constructor
+    Pikeman() : Entity(Hex(0, 0, 0), 2, "pikeman", 6) {} // Default constructor
     Pikeman(Hex hex);
     virtual ~Pikeman();
 };

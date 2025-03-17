@@ -29,6 +29,7 @@ class Game {
     void render(SDL_Renderer* renderer) const;
     bool isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel);
     bool isSurroundedBySamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
+    void addBandit(Hex hex);
 
   private:
     HexagonalGrid grid;

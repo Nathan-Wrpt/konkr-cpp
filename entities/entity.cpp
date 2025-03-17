@@ -3,7 +3,7 @@
 // --- Entity Class Implementation ---
 
 Entity::Entity(Hex hex, int protection_level, std::string name, int upkeep) 
-    : hex(hex), protection_level(protection_level), name(name), upkeep(0) {
+    : hex(hex), protection_level(protection_level), name(name), upkeep(upkeep) {
         moved = false;
     }
 
