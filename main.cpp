@@ -7,7 +7,7 @@ int main() {
 
     // ASCII map
     std::vector<std::string> asciiMap = {
-        "...............",
+        "oo.............",
         "..ggg......",
         "..ggg......",
         "....rr......",

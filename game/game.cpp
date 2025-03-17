@@ -168,7 +168,8 @@ void Game::handleEvent(SDL_Event& event) {
                     auto entity = currentPlayer.getEntities()[selectedEntityIndex];
                     
                     if ((entity) && 
-                        !isSurroundedByOtherPlayerEntities(clickedHex, currentPlayer, entity->getProtectionLevel())) {
+                        !isSurroundedByOtherPlayerEntities(clickedHex, currentPlayer, entity->getProtectionLevel()) &&
+                        !isSurroundedBySamePlayerEntities(clickedHex, currentPlayer)) {
                         moveSuccessful = entity->move(grid, clickedHex, currentPlayer.getColor());
                         
                         // We flag the entity as moved if the move was successful
@@ -318,6 +319,16 @@ bool Game :: isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& cur
                     }
                 }
             }
+        }
+    }
+    return false;
+}
+
+// Check if a hex is surrounded other entities of the same player
+bool Game::isSurroundedBySamePlayerEntities(const Hex& hex, const Player& currentPlayer) const {
+    for (const auto& entity : currentPlayer.getEntities()) {
+        if (entity->getHex() == hex) {
+            return true;
         }
     }
     return false;
