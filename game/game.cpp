@@ -104,16 +104,29 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
         SDL_Color playerColor = player.getColor();
         auto it = hexesByColor.find(playerColor);
         
-        if (it != hexesByColor.end() && !it->second.empty()) {
-            // Choose a random hex of this player's color
-            std::uniform_int_distribution<> distrib(0, it->second.size() - 1);
-            int randomIndex = distrib(gen);
-            Hex randomHex = it->second[randomIndex];
+        if (it != hexesByColor.end()) {
+            std::vector<Hex>& playerHexes = it->second;
+            if (playerHexes.empty()) {
+            std::cerr << "No hexes found for player color: " << playerColor.r << ", " << playerColor.g << ", " << playerColor.b << std::endl;
+            continue;
+            }
+
+            // Choose a random hex for the villager
+            std::uniform_int_distribution<> distrib(0, playerHexes.size() - 1);
+            int randomIndexVillager = distrib(gen);
+            Hex randomHexVillager = playerHexes[randomIndexVillager];
+
+            // Choose a random hex for the pikeman (different)
+            int randomIndexPikeman = distrib(gen);
+            while(randomIndexPikeman == randomIndexVillager) {
+                randomIndexPikeman = distrib(gen);
+            }
+            Hex randomHexPikeman = playerHexes[randomIndexPikeman];
             
             // Create a villager and add it to the player
-            auto villager = std::make_shared<Villager>(randomHex);
+            auto villager = std::make_shared<Villager>(randomHexVillager);
             player.addEntity(villager);
-            auto  pikeman = std::make_shared<Pikeman>(randomHex);
+            auto  pikeman = std::make_shared<Pikeman>(randomHexPikeman);
             player.addEntity(pikeman);
         }
     }
@@ -136,6 +149,7 @@ void Game::handleEvent(SDL_Event& event) {
             for (const auto& entity : currentPlayer.getEntities()) {
                 entity->setMoved(false);
             }
+            // BANDIT ACTIONS HERE
             if (playerTurn == 0) {
                 for (const auto& bandit : bandits) {
                     bandit->move(grid);
@@ -182,34 +196,6 @@ void Game::handleEvent(SDL_Event& event) {
                 selectedEntityIndex = -1;
             }
         }
-    // Si on veut drag & drop (le vrai)
-    // } else if (event.type == SDL_MOUSEBUTTONUP) {
-    //     int mouseX, mouseY;
-    //     SDL_GetMouseState(&mouseX, &mouseY);
-    //     Hex clickedHex = grid.pixelToHex(mouseX, mouseY);
-
-    //     if(entitySelected) {
-    //         bool moveSuccessful = false;
-    //         if (grid.hexExists(clickedHex)) {
-    //             Player& currentPlayer = players[playerTurn];
-    //             auto entity = currentPlayer.getEntities()[selectedEntityIndex];
-                
-    //             if ((entity) && 
-    //                 !isSurroundedByOtherPlayerEntities(clickedHex, currentPlayer, entity->getProtectionLevel())) {
-    //                 moveSuccessful = entity->move(grid, clickedHex, currentPlayer.getColor());
-    //                 printf("Move successful\n");
-                    
-    //                 // We flag the entity as moved if the move was successful
-    //                 if (moveSuccessful) {
-    //                     entity->setMoved(true);
-    //                 }
-    //             }
-    //         }
-    //         entitySelected = false;
-    //         selectedEntityIndex = -1;
-    //     }
-            
-    
     } else if (event.type == SDL_MOUSEMOTION) {
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
