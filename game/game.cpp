@@ -145,6 +145,53 @@ void Game::addBandit(Hex hex) {
     bandits.push_back(std::make_shared<Bandit>(hex));
 }
 
+bool Game::entityOnHex(const Hex& hex) {
+    for(const auto& bandit : bandits) {
+        if (bandit->getHex() == hex) {
+            return true;
+        }
+    }
+    for (const auto& player : players) {
+        for (const auto& entity : player.getEntities()) {
+            if (entity->getHex() == hex) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void Game::manageBandits(){
+    // Directions possibles sur une grille hexagonale (pointy-top orientation)
+    const std::vector<Hex> directions = {
+        Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
+        Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
+    };
+
+    for (const auto& bandit : bandits) {
+        bool moved = false;
+        int maxAttempts = 10; // Limite le nombre de tentatives
+        int attempts = 0;
+
+        // Essayer de trouver une position valide
+        while (!moved && attempts < maxAttempts) {
+            // Choisir une direction aléatoire
+            Hex direction = directions[std::rand() % directions.size()];
+
+            // Calculer la nouvelle position
+            Hex newHex = bandit->getHex().add(direction);
+
+            // Vérifier si la nouvelle position est valide
+            if (grid.hexExists(newHex) && !entityOnHex(newHex)) {
+                bandit->move(grid, newHex);
+                moved = true;
+            } else {
+                attempts++;
+            }
+        }
+    }
+}
+
 void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed, change player
     if (event.type == SDL_KEYDOWN) {
@@ -156,9 +203,7 @@ void Game::handleEvent(SDL_Event& event) {
             if (playerTurn == 0) {
                 turn++;
                 if(turn > 0) {
-                    for (const auto& bandit : bandits) {
-                        bandit->move(grid);
-                    }
+                    manageBandits();
                 }
             }
             // END OF BANDIT ACTIONS

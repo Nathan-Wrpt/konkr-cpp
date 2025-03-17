@@ -30,6 +30,8 @@ class Game {
     bool isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel);
     bool isSurroundedBySamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
     void addBandit(Hex hex);
+    bool entityOnHex(const Hex& hex);
+    void manageBandits();
 
   private:
     HexagonalGrid grid;

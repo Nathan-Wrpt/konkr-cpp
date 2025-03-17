@@ -43,7 +43,7 @@ public:
     Bandit() : Entity(Hex(0, 0, 0), 1, "bandit") {} // Default constructor
     Bandit(Hex hex);
     virtual ~Bandit();        
-    bool move(HexagonalGrid& grid, const SDL_Color& ownerColor = {255, 255, 255, 255});
+    bool move(HexagonalGrid& grid, Hex target);
     };
         
     

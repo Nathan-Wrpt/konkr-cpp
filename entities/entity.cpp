@@ -47,41 +47,12 @@ Bandit::Bandit(Hex hex)
 
 Bandit::~Bandit() {}
 
-bool Bandit::move(HexagonalGrid& grid, const SDL_Color& ownerColor) {
-    // Directions possibles sur une grille hexagonale (pointy-top orientation)
-    const std::vector<Hex> directions = {
-        Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
-        Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
-    };
-
-    bool moved = false;
-    int maxAttempts = 10; // Limite le nombre de tentatives
-    int attempts = 0;
-
-    // Essayer de trouver une position valide
-    while (!moved && attempts < maxAttempts) {
-        // Choisir une direction aléatoire
-        Hex direction = directions[std::rand() % directions.size()];
-
-        // Calculer la nouvelle position
-        Hex newHex = hex.add(direction);
-
-        // Vérifier si la nouvelle position est valide
-        if (grid.hexExists(newHex)) {
-            // Mettre à jour la position du Bandit
-            hex = newHex;            
-            moved = true;
-        }
-
-        attempts++;
+bool Bandit::move(HexagonalGrid& grid, Hex target) {
+    if(grid.hexExists(target)) {
+        hex = target;
+        return true;
     }
-
-    // Si aucune position valide n'est trouvée, le Bandit reste en place
-    if (!moved) {
-        std::cout << "No valid position found for Bandit" << std::endl;
-        return false;
-    }
-    return true;
+    return false;
 }
 
 // --- Villager Class Implementation ---
