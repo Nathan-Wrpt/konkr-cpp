@@ -157,6 +157,7 @@ void Game::handleEvent(SDL_Event& event) {
                     if (!playerEntities[i]->hasMoved() && playerEntities[i]->getHex() == clickedHex) {
                         selectedEntityIndex = i;
                         entitySelected = true;
+                        printf("Entity selected\n");
                         break;
                     }
                 }
@@ -170,7 +171,7 @@ void Game::handleEvent(SDL_Event& event) {
                         !isSurroundedByOtherPlayerEntities(clickedHex, currentPlayer, entity->getProtectionLevel())) {
                         moveSuccessful = entity->move(grid, clickedHex, currentPlayer.getColor());
                         
-                        // Move to the next player's turn only if the move was successful
+                        // We flag the entity as moved if the move was successful
                         if (moveSuccessful) {
                             entity->setMoved(true);
                         }
@@ -180,6 +181,34 @@ void Game::handleEvent(SDL_Event& event) {
                 selectedEntityIndex = -1;
             }
         }
+    // Si on veut drag & drop (le vrai)
+    // } else if (event.type == SDL_MOUSEBUTTONUP) {
+    //     int mouseX, mouseY;
+    //     SDL_GetMouseState(&mouseX, &mouseY);
+    //     Hex clickedHex = grid.pixelToHex(mouseX, mouseY);
+
+    //     if(entitySelected) {
+    //         bool moveSuccessful = false;
+    //         if (grid.hexExists(clickedHex)) {
+    //             Player& currentPlayer = players[playerTurn];
+    //             auto entity = currentPlayer.getEntities()[selectedEntityIndex];
+                
+    //             if ((entity) && 
+    //                 !isSurroundedByOtherPlayerEntities(clickedHex, currentPlayer, entity->getProtectionLevel())) {
+    //                 moveSuccessful = entity->move(grid, clickedHex, currentPlayer.getColor());
+    //                 printf("Move successful\n");
+                    
+    //                 // We flag the entity as moved if the move was successful
+    //                 if (moveSuccessful) {
+    //                     entity->setMoved(true);
+    //                 }
+    //             }
+    //         }
+    //         entitySelected = false;
+    //         selectedEntityIndex = -1;
+    //     }
+            
+    
     } else if (event.type == SDL_MOUSEMOTION) {
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
@@ -211,10 +240,28 @@ void Game::render(SDL_Renderer* renderer) const {
         render_entity(renderer, *bandit, textures[iconsMap.at("bandit")]);
     }
 
+    Player currentPlayer = players[playerTurn];
+
+    // Render of the entity on the cursor if selected
+    if(entitySelected) {
+        const auto& playerEntities = currentPlayer.getEntities();
+        const Entity& selectedEntity = *playerEntities[selectedEntityIndex];
+        SDL_Rect entityRect = entityToRect(selectedEntity);
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        entityRect.x = mouseX - entityRect.w / 2;
+        entityRect.y = mouseY - entityRect.h / 2;
+        SDL_RenderCopy(renderer, textures[iconsMap.at(selectedEntity.getName())], NULL, &entityRect);
+    }
+
     // Render all players' entities
     for (size_t i = 0; i < players.size(); i++) {
         const auto& player = players[i];
         for (const auto& entity : player.getEntities()) {
+            // Skip rendering the selected entity if it belongs to the current player
+            if(entitySelected && entity == currentPlayer.getEntities()[selectedEntityIndex]) {
+                continue;
+            }
             // Determine the texture based on entity type
             std::string textureKey = entity->getName();
             
