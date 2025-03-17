@@ -35,6 +35,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
       selectedEntityIndex(-1)
 {
     std::cout << "Game constructor started" << std::endl;
+    turn = 0;
 
     // Load all textures from the icons directory
     std::cout << "Loading textures..." << std::endl;
@@ -148,32 +149,37 @@ void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed, change player
     if (event.type == SDL_KEYDOWN) {
         if (event.key.keysym.sym == SDLK_e) {
+            // Change player
+            playerTurn = (playerTurn + 1) % players.size();
+
             // BANDIT ACTIONS HERE
             if (playerTurn == 0) {
-                for (const auto& bandit : bandits) {
-                    bandit->move(grid);
+                turn++;
+                if(turn > 0) {
+                    for (const auto& bandit : bandits) {
+                        bandit->move(grid);
+                    }
                 }
             }
             // END OF BANDIT ACTIONS
 
-            // Change player
-            playerTurn = (playerTurn + 1) % players.size();
             Player& currentPlayer = players[playerTurn];
+            if(turn > 0) {
+                // land income
+                currentPlayer.addCoins(grid.getNbCasesColor(currentPlayer.getColor()));
 
-            // land income
-            currentPlayer.addCoins(grid.getNbCasesColor(currentPlayer.getColor()));
-
-            // Pay upkeep for each entity
-            for(auto& entity : currentPlayer.getEntities()) {
-                entity->setMoved(false);
-                int currentUpkeep = entity->getUpkeep();
-                if(currentPlayer.getCoins() >= currentUpkeep) {
-                    currentPlayer.removeCoins(currentUpkeep);
-                } else {
-                    // If cannot pay upkeep, replace by bandit
-                    Hex entityHex = entity->getHex();
-                    currentPlayer.removeEntity(entity);
-                    addBandit(entityHex);
+                // Pay upkeep for each entity
+                for(auto& entity : currentPlayer.getEntities()) {
+                    entity->setMoved(false);
+                    int currentUpkeep = entity->getUpkeep();
+                    if(currentPlayer.getCoins() >= currentUpkeep) {
+                        currentPlayer.removeCoins(currentUpkeep);
+                    } else {
+                        // If cannot pay upkeep, replace by bandit
+                        Hex entityHex = entity->getHex();
+                        currentPlayer.removeEntity(entity);
+                        addBandit(entityHex);
+                    }
                 }
             }
         }

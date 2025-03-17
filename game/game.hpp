@@ -40,6 +40,7 @@ class Game {
     std::vector<SDL_Texture*> textures;
     int selectedEntityIndex;
     int nbplayers;
+    int turn;
 };
 
 #endif

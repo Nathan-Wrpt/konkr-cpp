@@ -1,7 +1,7 @@
 #include "player.hpp"
 
 Player::Player(SDL_Color color) : color(color) {
-    coins = 12;
+    coins = 10;
 }
 
 void Player::addEntity(std::shared_ptr<Entity> entity) {
