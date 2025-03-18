@@ -1,19 +1,21 @@
 #include "building.hpp"
 
-// --- Building Class Implementation ---
-Building::Building(Hex hex, std::string name) 
-    : hex(hex), name(name) {}
-
-Building::~Building() {}
-
 // --- Town Class Implementation ---
 Town::Town(Hex hex) 
-    : Building(hex, "town") {}
+    : Entity(hex, 1, "town", 0) {}
 
 Town::~Town() {}
 
+bool Town::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) {
+    return false;
+}
+
 // --- Tower Class Implementation ---
 Tower::Tower(Hex hex) 
-    : Building(hex, "tower") {}
+    : Entity(hex, 2, "tower", 2) {}
 
 Tower::~Tower() {}
+
+bool Tower::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) {
+    return false;
+}

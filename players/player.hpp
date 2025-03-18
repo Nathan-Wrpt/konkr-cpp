@@ -14,7 +14,6 @@ class Player {
 private:
     SDL_Color color;
     std::vector<std::shared_ptr<Entity>> entities;
-    std::vector<std::shared_ptr<Building>> buildings;
     int coins;
     bool alive;
 public:
@@ -23,12 +22,9 @@ public:
 
     SDL_Color getColor() const { return color; }
     const std::vector<std::shared_ptr<Entity>>& getEntities() const { return entities; }
-    const std::vector<std::shared_ptr<Building>>& getBuildings() const { return buildings; }
 
     void addEntity(std::shared_ptr<Entity> entity);
     void removeEntity(std::shared_ptr<Entity> entity);
-    void addBuilding(std::shared_ptr<Building> building);
-    void removeBuilding(std::shared_ptr<Building> building);
     int getCoins() const { return coins; }
     void addCoins(int amount) { coins += amount; }
     void removeCoins(int amount) { coins -= amount; }

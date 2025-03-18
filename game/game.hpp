@@ -9,6 +9,7 @@
 
 #include "../core/grid.hpp"
 #include "../entities/entity.hpp"
+#include "../entities/building.hpp"
 #include "../players/player.hpp"
 #include "../ui/button.hpp"
 

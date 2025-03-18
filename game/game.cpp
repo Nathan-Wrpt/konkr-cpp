@@ -128,7 +128,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
             // Create a villager and add it to the player
             auto villager = std::make_shared<Villager>(randomHexVillager);
             player.addEntity(villager);
-            auto  pikeman = std::make_shared<Pikeman>(randomHexPikeman);
+            auto  pikeman = std::make_shared<Town>(randomHexPikeman);
             player.addEntity(pikeman);
         }
     }    

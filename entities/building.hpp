@@ -4,35 +4,22 @@
 #include <string>
 #include <iostream>
 
-#include "../core/grid.hpp"
+#include "entity.hpp"
 
-class Building {
-protected:
-    Hex hex;
-    std::string name;
+class Town : public Entity {
 public:
-    Building(Hex hex, std::string name);
-    virtual ~Building();
-
-    // Getter for hex
-    Hex getHex() const { return hex; }
-
-    // Getter for texture path
-    std::string getTexturePath() const { return name; }
-};
-
-class Town : public Building {
-public:
-    Town() : Building(Hex(0, 0, 0), "town") {} // Default constructor
+    Town() : Entity(Hex(0, 0, 0), 1, "town") {} // Default constructor
     Town(Hex hex);
     virtual ~Town();
+    bool move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor);
 };
     
-class Tower : public Building {
+class Tower : public Entity {
 public:
-    Tower() : Building(Hex(0, 0, 0), "tower") {} // Default constructor
+    Tower() : Entity(Hex(0, 0, 0), 2, "tower") {} // Default constructor
     Tower(Hex hex);
     virtual ~Tower();
+    bool move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor);
 };
 
 #endif // BUILDINGS_HPP

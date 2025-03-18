@@ -16,14 +16,3 @@ void Player::removeEntity(std::shared_ptr<Entity> entity) {
         entities.erase(it);
     }
 }
-
-void Player::addBuilding(std::shared_ptr<Building> building) {
-    buildings.push_back(building);
-}
-
-void Player::removeBuilding(std::shared_ptr<Building> building) {
-    auto it = std::find(buildings.begin(), buildings.end(), building);
-    if (it != buildings.end()) {
-        buildings.erase(it);
-    }
-}
