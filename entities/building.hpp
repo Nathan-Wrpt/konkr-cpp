@@ -6,20 +6,26 @@
 
 #include "entity.hpp"
 
-class Town : public Entity {
+class Building : public Entity {
 public:
-    Town() : Entity(Hex(0, 0, 0), 1, "town") {} // Default constructor
-    Town(Hex hex);
-    virtual ~Town();
+    Building() : Entity(Hex(0, 0, 0), 1, "building") {} // Default constructor
+    Building(Hex hex, int protection_level, std::string name, int upkeep = 0);
+    virtual ~Building();
     bool move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor);
 };
-    
-class Tower : public Entity {
+
+class Town : public Building {
 public:
-    Tower() : Entity(Hex(0, 0, 0), 2, "tower") {} // Default constructor
+    Town() : Building(Hex(0, 0, 0), 1, "town") {} // Default constructor
+    Town(Hex hex);
+    virtual ~Town();
+};
+    
+class Tower : public Building {
+public:
+    Tower() : Building(Hex(0, 0, 0), 2, "tower") {} // Default constructor
     Tower(Hex hex);
     virtual ~Tower();
-    bool move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor);
 };
 
 #endif // BUILDINGS_HPP
