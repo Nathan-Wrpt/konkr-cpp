@@ -258,8 +258,9 @@ void Game::handleEvent(SDL_Event& event) {
                 // coins stolen by bandits
                 currentPlayer.removeCoins(nbBanditsOnColor(currentPlayer.getColor()));
 
-                // Pay upkeep for each entity
-                for(auto& entity : currentPlayer.getEntities()) {
+                // Pay upkeep for each entity in reverse order (because we remove entities)
+                for(auto it = currentPlayer.getEntities().rbegin(); it != currentPlayer.getEntities().rend(); ++it) {
+                    auto& entity = *it;
                     entity->setMoved(false);
                     int currentUpkeep = entity->getUpkeep();
                     if(currentPlayer.getCoins() >= currentUpkeep) {
