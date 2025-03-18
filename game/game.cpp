@@ -241,6 +241,11 @@ void Game::handleEvent(SDL_Event& event) {
         if (event.key.keysym.sym == SDLK_e) {
             // Change player
             playerTurn = (playerTurn + 1) % players.size();
+            Player& currentPlayer = players[playerTurn];
+            while(!currentPlayer.isAlive()) {
+                playerTurn = (playerTurn + 1) % players.size();
+                currentPlayer = players[playerTurn];
+            }
 
             // BANDIT ACTIONS HERE
             if (playerTurn == 0) {
@@ -251,7 +256,6 @@ void Game::handleEvent(SDL_Event& event) {
             }
             // END OF BANDIT ACTIONS
 
-            Player& currentPlayer = players[playerTurn];
             if(turn > 0) {
                 // land income
                 currentPlayer.addCoins(grid.getNbCasesColor(currentPlayer.getColor()));
@@ -261,15 +265,28 @@ void Game::handleEvent(SDL_Event& event) {
                 // Pay upkeep for each entity in reverse order (because we remove entities)
                 for(auto it = currentPlayer.getEntities().rbegin(); it != currentPlayer.getEntities().rend(); ++it) {
                     auto& entity = *it;
-                    entity->setMoved(false);
+                    bool building = false;
+                    if(entity->getName() == "tower" || entity->getName() == "town") {
+                        building = true;
+                    }
+                    if(!building) {
+                        entity->setMoved(false);
+                    }
                     int currentUpkeep = entity->getUpkeep();
+
+
                     if(currentPlayer.getCoins() >= currentUpkeep) {
                         currentPlayer.removeCoins(currentUpkeep);
                     } else {
-                        // If cannot pay upkeep, replace by bandit
-                        Hex entityHex = entity->getHex();
-                        currentPlayer.removeEntity(entity);
-                        addBandit(entityHex);
+                        if(building) {
+                            currentPlayer.removeEntity(entity);
+                            // add bandit camp
+                        } else {
+                            // If cannot pay upkeep, replace by bandit
+                            Hex entityHex = entity->getHex();
+                            currentPlayer.removeEntity(entity);
+                            addBandit(entityHex);
+                        }
                     }
                 }
             }

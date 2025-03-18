@@ -16,6 +16,7 @@ private:
     std::vector<std::shared_ptr<Entity>> entities;
     std::vector<std::shared_ptr<Building>> buildings;
     int coins;
+    bool alive;
 public:
     Player(SDL_Color color);
     ~Player() = default;
@@ -31,6 +32,7 @@ public:
     int getCoins() const { return coins; }
     void addCoins(int amount) { coins += amount; }
     void removeCoins(int amount) { coins -= amount; }
+    bool isAlive() const { return alive; }
 };
 
 #endif

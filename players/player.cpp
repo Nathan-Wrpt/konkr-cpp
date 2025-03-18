@@ -2,6 +2,7 @@
 
 Player::Player(SDL_Color color) : color(color) {
     coins = 10;
+    alive = true;
 }
 
 void Player::addEntity(std::shared_ptr<Entity> entity) {
