@@ -16,3 +16,13 @@ void Player::removeEntity(std::shared_ptr<Entity> entity) {
         entities.erase(it);
     }
 }
+
+bool Player::checkAlive() {
+    for (const auto& entity : entities) {
+        if (entity->getName() == "town") {
+            return true;
+        }
+    }
+    alive = false;
+    return false;
+}

@@ -29,6 +29,7 @@ public:
     void addCoins(int amount) { coins += amount; }
     void removeCoins(int amount) { coins -= amount; }
     bool isAlive() const { return alive; }
+    bool checkAlive(); 
 };
 
 #endif

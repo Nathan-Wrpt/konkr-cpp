@@ -126,7 +126,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
             Hex randomHexPikeman = playerHexes[randomIndexPikeman];
             
             // Create a villager and add it to the player
-            auto villager = std::make_shared<Villager>(randomHexVillager);
+            auto villager = std::make_shared<Pikeman>(randomHexVillager);
             player.addEntity(villager);
             auto  pikeman = std::make_shared<Town>(randomHexPikeman);
             player.addEntity(pikeman);
@@ -239,6 +239,24 @@ void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed, change player
     if (event.type == SDL_KEYDOWN) {
         if (event.key.keysym.sym == SDLK_e) {
+            selectedEntityIndex = -1;
+            entitySelected = false;
+
+            for(Player& player : players) {
+                if(!player.checkAlive()) {
+                    // all of the player's entities become bandits
+                    for(auto& entity : player.getEntities()) {
+                        if(dynamic_cast<Building*>(entity.get())) {
+                            // addBanditCamp(entity->getHex());
+                            player.removeEntity(entity);
+                        } else {
+                            addBandit(entity->getHex());
+                            player.removeEntity(entity);
+                        }
+                    }
+                }
+            }
+
             // Change player
             playerTurn = (playerTurn + 1) % players.size();
             Player& currentPlayer = players[playerTurn];
@@ -265,10 +283,8 @@ void Game::handleEvent(SDL_Event& event) {
                 // Pay upkeep for each entity in reverse order (because we remove entities)
                 for(auto it = currentPlayer.getEntities().rbegin(); it != currentPlayer.getEntities().rend(); ++it) {
                     auto& entity = *it;
-                    bool building = false;
-                    if(entity->getName() == "tower" || entity->getName() == "town") {
-                        building = true;
-                    }
+                    bool building = dynamic_cast<Building*>(entity.get());
+
                     if(!building) {
                         entity->setMoved(false);
                     }
@@ -305,6 +321,10 @@ void Game::handleEvent(SDL_Event& event) {
                 
                 for (size_t i = 0; i < playerEntities.size(); ++i) {
                     if (!playerEntities[i]->hasMoved() && playerEntities[i]->getHex() == clickedHex) {
+                        // if the entity is of the class Town, we can't move it then continue, without doing getName
+                        if(dynamic_cast<Building*>(playerEntities[i].get())) {
+                            continue;
+                        }
                         selectedEntityIndex = i;
                         entitySelected = true;
                         break;
