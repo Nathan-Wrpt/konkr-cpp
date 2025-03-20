@@ -13,6 +13,7 @@
 #include "../entities/building.hpp"
 #include "../players/player.hpp"
 #include "../ui/button.hpp"
+#include "../ui/data.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>

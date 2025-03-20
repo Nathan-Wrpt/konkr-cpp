@@ -496,14 +496,29 @@ void Game::render(SDL_Renderer* renderer) const {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderDrawRect(renderer, &colorRect);
     }
-    std::string coinsnumber = std::to_string(currentPlayer->getCoins());
     // coinTexture = textures[iconsMap.at("coin")];
-    SDL_Rect coinRect = {10, 50, 50, 30};
-    SDL_RenderCopy(renderer, textures[iconsMap.at("coin")], NULL, &coinRect);
     TTF_Font* font = TTF_OpenFont("assets/OpenSans.ttf", 24);
-    SDL_Color textColor = {255, 255, 255, 255};
-    SDL_Rect textRect = {70, 50, 50, 30};
-    SDL_RenderCopy(renderer, SDL_CreateTextureFromSurface(renderer, TTF_RenderText_Solid(font, coinsnumber.c_str(), textColor)), NULL, &textRect);
+    RenderData renderData(renderer, font, textures, iconsMap);
+
+    // Remplacez le code existant par un appel à renderImageWithText
+    std::string coinsnumber = std::to_string(currentPlayer->getCoins());
+    SDL_Rect coinRect = {10, 60, 50, 30};
+    if (currentPlayer->getCoins() < 50) {
+        renderData.renderImageWithText(coinRect, "coin", coinsnumber);
+    } else {
+        renderData.renderImageWithText(coinRect, "coins", coinsnumber);
+    }
+    int totalupkeep = grid.getNbCasesColor(currentPlayer->getColor());
+    for (const auto& entity : currentPlayer->getEntities()) {
+        totalupkeep -= entity->getUpkeep();
+    }
+    std::string stringupkeep = std::to_string(totalupkeep);
+    SDL_Rect upkeepRect = {10, 100, 50, 60};
+    if (totalupkeep < 0) {
+        renderData.renderImageWithText(upkeepRect, "deficit", stringupkeep);
+    } else {
+        renderData.renderImageWithText(upkeepRect, "surplus", stringupkeep);
+    }
     TTF_CloseFont(font);
 
     // Render all buttons
