@@ -303,6 +303,26 @@ void Game::handleEvent(SDL_Event& event) {
         SDL_GetMouseState(&mouseX, &mouseY);
         Hex clickedHex = grid.pixelToHex(mouseX, mouseY);
 
+        // Check if a button was clicked
+        for (auto& button : unitButtons) {
+            if (button.containsPoint(mouseX, mouseY)) {
+                if (button.getCost() <= players[playerTurn]->getCoins()) {
+                    if (button.getIconName() == "villager") {
+                        players[playerTurn]->addEntity(std::make_shared<Villager>(clickedHex));
+                    } else if (button.getIconName() == "pikeman") {
+                        players[playerTurn]->addEntity(std::make_shared<Pikeman>(clickedHex
+                        ));
+                    } else if (button.getIconName() == "knight") {
+                        players[playerTurn]->addEntity(std::make_shared<Knight>(clickedHex));
+                    } else if (button.getIconName() == "hero") {
+                        players[playerTurn]->addEntity(std::make_shared<Hero>(clickedHex));
+                    }
+                    players[playerTurn]->removeCoins(button.getCost());
+                }
+            }
+        }
+
+
         if (playerTurn >= 0 && playerTurn < players.size()) {
             if (!entitySelected) {
                 auto& currentPlayer = players[playerTurn];
