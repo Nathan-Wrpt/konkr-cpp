@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <mutex>
 
 #include "../core/grid.hpp"
 #include "../entities/entity.hpp"
@@ -38,12 +39,14 @@ class Game {
     int nbBanditsOnColor(const SDL_Color& color);
     void upgradeEntity(const Hex& hex);
     void renderButton(SDL_Renderer* renderer, const Button& button) const;
+    void removePlayer(std::shared_ptr<Player> player);
 
   private:
     HexagonalGrid grid;
-    std::vector<Player> players;
+    std::vector<std::shared_ptr<Player>> players;
     std::vector<std::shared_ptr<Bandit>> bandits;
     size_t playerTurn;
+    std::mutex playersMutex;
     bool entitySelected;
     std::vector<SDL_Texture*> textures;
     int selectedEntityIndex;

@@ -40,7 +40,7 @@ public:
 
 class Bandit : public Entity {
 public:
-    Bandit() : Entity(Hex(0, 0, 0), 1, "bandit") {} // Default constructor
+    Bandit();
     Bandit(Hex hex);
     virtual ~Bandit();        
     bool move(HexagonalGrid& grid, Hex target);
@@ -49,28 +49,28 @@ public:
     
 class Villager : public Entity {
 public:
-    Villager() : Entity(Hex(0, 0, 0), 1, "villager", 2) {} // Default constructor
+    Villager();
     Villager(Hex hex);
     virtual ~Villager();
 };
 
 class Pikeman : public Entity {
 public:
-    Pikeman() : Entity(Hex(0, 0, 0), 2, "pikeman", 6) {} // Default constructor
+    Pikeman();
     Pikeman(Hex hex);
     virtual ~Pikeman();
 };
 
 class Knight : public Entity {
     public:
-        Knight() : Entity(Hex(0, 0, 0), 3, "knight") {} // Default constructor
+        Knight();
         Knight(Hex hex);
         virtual ~Knight();
     };
     
 class Hero : public Entity {
     public:
-        Hero() : Entity(Hex(0, 0, 0), 4, "hero") {} // Default constructor
+        Hero();
         Hero(Hex hex);
         virtual ~Hero();
     };
