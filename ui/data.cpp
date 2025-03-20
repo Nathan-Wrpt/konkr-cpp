@@ -28,8 +28,11 @@ void RenderData::renderImageWithText(const SDL_Rect& imageRect, const std::strin
     // Calculate the text rectangle position
     SDL_Rect textRect;
     textRect.x = imageRect.x + imageRect.w + 10; // 10 pixels to the right of the image
-    textRect.y = imageRect.y;
-    SDL_QueryTexture(textTexture.get(), NULL, NULL, &textRect.w, &textRect.h);
+    textRect.h = 30; // Set the height to 30 pixels
+    textRect.y = imageRect.y + (imageRect.h - textRect.h) / 2; // Center the text vertically
+
+    // Calculate the width of the text
+    SDL_QueryTexture(textTexture.get(), NULL, NULL, &textRect.w, NULL);
 
     // Render the text
     SDL_RenderCopy(renderer, textTexture.get(), NULL, &textRect);

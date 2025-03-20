@@ -6,7 +6,6 @@
 #include <vector>
 #include <memory>
 #include <map>
-#include <mutex>
 
 #include "../core/grid.hpp"
 #include "../entities/entity.hpp"
@@ -47,7 +46,6 @@ class Game {
     std::vector<std::shared_ptr<Player>> players;
     std::vector<std::shared_ptr<Bandit>> bandits;
     size_t playerTurn;
-    std::mutex playersMutex;
     bool entitySelected;
     std::vector<SDL_Texture*> textures;
     int selectedEntityIndex;

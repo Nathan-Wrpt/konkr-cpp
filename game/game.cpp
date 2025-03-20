@@ -126,7 +126,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
             Hex randomHexPikeman = playerHexes[randomIndexPikeman];
 
             // Create a villager and add it to the player
-            auto villager = std::make_shared<Pikeman>(randomHexVillager);
+            auto villager = std::make_shared<Villager>(randomHexVillager);
             player->addEntity(villager);
             auto pikeman = std::make_shared<Town>(randomHexPikeman);
             player->addEntity(pikeman);
@@ -242,18 +242,21 @@ void Game::handleEvent(SDL_Event& event) {
         if (event.key.keysym.sym == SDLK_e) {
             selectedEntityIndex = -1;
             entitySelected = false;
+            
+            // Change player
+            playerTurn = (playerTurn + 1) % players.size();
+            auto& currentPlayer = players[playerTurn];
 
             // Remove dead players
             for (auto it = players.rbegin(); it != players.rend(); ++it) {
                 auto& player = *it;
                 if (!player->isAlive()) {
                     removePlayer(player);
+                    while (!(currentPlayer->getColor() == players[playerTurn]->getColor())) {
+                        playerTurn = (playerTurn + 1) % players.size();
+                    }
                 }
             }            
-
-            // Change player
-            playerTurn = (playerTurn + 1) % players.size();
-            auto& currentPlayer = players[playerTurn];
 
             // BANDIT ACTIONS HERE
             if (playerTurn == 0) {
@@ -615,13 +618,6 @@ void Game::removePlayer(std::shared_ptr<Player> player) {
     auto it = std::find(players.begin(), players.end(), player);
     if (it != players.end()) {
         players.erase(it);
-
-        // Ajuster playerTurn si nécessaire
-        if (playerTurn >= players.size()) {
-            playerTurn = players.size() - 1;
-        } else {
-            playerTurn--;
-        }
     } else {
         std::cerr << "Error: Player not found in the players vector." << std::endl;
     }
