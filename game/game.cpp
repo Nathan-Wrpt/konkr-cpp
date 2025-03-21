@@ -675,16 +675,27 @@ void Game::removePlayer(std::shared_ptr<Player> player) {
 void Game::checkIfHexConnectedToTown(Player& player) {
     // Get the player's color
     SDL_Color playerColor = player.getColor();
+    SDL_Color originalColor = playerColor; // Store original player color
     
-    // Find all hexes with this player's color
+    // Find all hexes with this player's color or darker versions of it
     std::vector<Hex> playerHexes;
+    std::map<Hex, SDL_Color> currentHexColors; // Store current colors for potential restoration
+    
     for (const auto& pair : grid.getHexColors()) {
-        if (pair.second == playerColor) {
+        const SDL_Color& hexColor = pair.second;
+        // Check if this is the player's color or a darker version of it (not sure about how clean the > * 0.69 is, but it works)
+        if (hexColor == playerColor || 
+            (hexColor.r <= playerColor.r && hexColor.g <= playerColor.g && 
+             hexColor.b <= playerColor.b && 
+             hexColor.r >= playerColor.r * 0.69 && hexColor.g >= playerColor.g * 0.69 && 
+             hexColor.b >= playerColor.b * 0.69)) {
+            
             playerHexes.push_back(pair.first);
+            currentHexColors[pair.first] = hexColor;
         }
     }
     
-    // Find all town hexes (shouldnt be more than 1 but who knows what we gonna do in the future)
+    // Find all town hexes
     std::vector<Hex> townHexes;
     for (const auto& entity : player.getEntities()) {
         if (entity->getName() == "town") {
@@ -721,13 +732,18 @@ void Game::checkIfHexConnectedToTown(Player& player) {
         Hex current = queue.front();
         queue.pop();
         
+        // If current hex has a darker color, restore it to the player's original color
+        if (!(grid.getHexColors().at(current) == playerColor)) {
+            grid.setHexColor(current, originalColor);
+        }
+        
         // Check all adjacent hexes
         for (const Hex& dir : directions) {
             Hex neighbor = current.add(dir);
             
-            // If neighbor is valid, has player's color, and hasn't been visited yet
+            // If neighbor exists and has any version of player's color (original or darker)
             if (grid.hexExists(neighbor) && 
-                grid.getHexColors().at(neighbor) == playerColor &&
+                currentHexColors.find(neighbor) != currentHexColors.end() &&
                 connectedHexes.find(neighbor) == connectedHexes.end()) {
                 
                 connectedHexes.insert(neighbor);
@@ -743,6 +759,7 @@ void Game::checkIfHexConnectedToTown(Player& player) {
         }
     }
 }
+
 
 void Game::disconnectHex(Player& player, const Hex& hex) {
     // Make the color darker
