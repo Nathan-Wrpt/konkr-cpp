@@ -404,7 +404,13 @@ void Game::handleEvent(SDL_Event& event) {
                                             player->setAlive(false);
                                         }
                                         player->removeEntity(entity);
-                                        printf("Entity removed\n");
+                                        break;
+                                    }
+                                }
+                                // remove potential bandits on the hex we are moving to
+                                for (auto& bandit : bandits) {
+                                    if (bandit->getHex() == clickedHex) {
+                                        bandits.erase(std::remove(bandits.begin(), bandits.end(), bandit), bandits.end());
                                         break;
                                     }
                                 }
