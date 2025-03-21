@@ -142,7 +142,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
     unitButtons.emplace_back(startX, buttonY, buttonSize, buttonSize, "villager", 10);
     unitButtons.emplace_back(startX + buttonSize + buttonSpacing, buttonY, buttonSize, buttonSize, "pikeman", 20);
     unitButtons.emplace_back(startX + 2 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "knight", 40);
-    unitButtons.emplace_back(startX + 3 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "hero", 100);
+    unitButtons.emplace_back(startX + 3 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "hero", 80);
 }
 
 Game::~Game() {
@@ -240,6 +240,20 @@ void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed, change player
     if (event.type == SDL_KEYDOWN) {
         if (event.key.keysym.sym == SDLK_e) {
+            // if entities on hex not existing on the grid refund the cost of the entity
+            if(entitySelected) {
+                auto& entity = players[playerTurn]->getEntities()[selectedEntityIndex];
+                Hex entityHex = entity->getHex();
+                if(!(grid.hexExists(entityHex))) {
+                    players[playerTurn]->removeEntity(entity);
+                    // refund the cost of the entity
+                    for(auto& button : unitButtons) {
+                        if(button.getIconName() == entity->getName()) {
+                            players[playerTurn]->addCoins(button.getCost());
+                        }
+                    }
+                }
+            }
             selectedEntityIndex = -1;
             entitySelected = false;
             
@@ -308,7 +322,7 @@ void Game::handleEvent(SDL_Event& event) {
 
         // Check if a button was clicked
         for (auto& button : unitButtons) {
-            if (button.containsPoint(mouseX, mouseY)) {
+            if (button.containsPoint(mouseX, mouseY) && !entitySelected) {
                 if (button.getCost() <= players[playerTurn]->getCoins()) {
                     if (button.getIconName() == "villager") {
                         players[playerTurn]->addEntity(std::make_shared<Villager>(clickedHex));
@@ -333,7 +347,6 @@ void Game::handleEvent(SDL_Event& event) {
 
                 for (size_t i = 0; i < playerEntities.size(); ++i) {
                     if (!playerEntities[i]->hasMoved() && playerEntities[i]->getHex() == clickedHex) {
-                        // if the entity is of the class Town, we can't move it then continue, without doing getName
                         if(dynamic_cast<Building*>(playerEntities[i].get())) {
                             continue;
                         }
@@ -377,6 +390,19 @@ void Game::handleEvent(SDL_Event& event) {
                     } else if (entity && !(entity->getHex() == clickedHex) && entity->getName() == hasSamePlayerEntities(clickedHex, *currentPlayer)) {
                         currentPlayer->removeEntity(entity);
                         upgradeEntity(clickedHex);
+                    }
+                } else {
+                    // handle when the hex in question is on a button (then doesnt exist)
+                    auto& entity = players[playerTurn]->getEntities()[selectedEntityIndex];
+                    Hex entityHex = entity->getHex();
+                    if(!(grid.hexExists(entityHex))) {
+                        players[playerTurn]->removeEntity(entity);
+                        // refund the cost of the entity
+                        for(auto& button : unitButtons) {
+                            if(button.getIconName() == entity->getName()) {
+                                players[playerTurn]->addCoins(button.getCost());
+                            }
+                        }
                     }
                 }
                 entitySelected = false;
