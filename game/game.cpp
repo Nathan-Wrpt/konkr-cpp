@@ -224,14 +224,17 @@ void Game::upgradeEntity(const Hex& hex) {
                     player->removeEntity(entity);
                     player->addEntity(std::make_shared<Pikeman>(hex));
                     player->getEntities().back()->setMoved(hasmoved);
+                    return;
                 } else if (entity->getName() == "pikeman") {
                     player->removeEntity(entity);
                     player->addEntity(std::make_shared<Knight>(hex));
                     player->getEntities().back()->setMoved(hasmoved);
+                    return;
                 } else if (entity->getName() == "knight") {
                     player->removeEntity(entity);
                     player->addEntity(std::make_shared<Hero>(hex));
                     player->getEntities().back()->setMoved(hasmoved);
+                    return;
                 }
             }
         }
