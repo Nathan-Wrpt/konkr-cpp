@@ -377,7 +377,7 @@ void Game::handleEvent(SDL_Event& event) {
                     if ((entity) &&
                         !isSurroundedByOtherPlayerEntities(clickedHex, *currentPlayer, entity->getProtectionLevel()) &&
                         hasSamePlayerEntities(clickedHex, *currentPlayer) == "") {
-                        if(entity->getName() == "castle") {
+                        if(entity->getName() == "castle" && grid.getHexColors().at(clickedHex) == currentPlayer->getColor()) {
                             entity->setHex(clickedHex);
                             entity->setMoved(true);
                         }
