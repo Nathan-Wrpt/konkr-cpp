@@ -16,8 +16,8 @@ Town::Town(Hex hex)
 
 Town::~Town() {}
 
-// --- Tower Class Implementation ---
-Tower::Tower(Hex hex) 
-    : Building(hex, 2, "tower", 2) {}
+// --- Castle Class Implementation ---
+Castle::Castle(Hex hex) 
+    : Building(hex, 2, "castle", 2) {}
 
-Tower::~Tower() {}
+Castle::~Castle() {}

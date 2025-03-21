@@ -36,6 +36,9 @@ public:
 
     // Getter for upkeep
     int getUpkeep() const { return upkeep; }
+
+    // Setter for hex
+    void setHex(Hex hex) { this->hex = hex; }
 };
 
 class Bandit : public Entity {

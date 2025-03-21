@@ -21,11 +21,11 @@ public:
     virtual ~Town();
 };
     
-class Tower : public Building {
+class Castle : public Building {
 public:
-    Tower();
-    Tower(Hex hex);
-    virtual ~Tower();
+    Castle();
+    Castle(Hex hex);
+    virtual ~Castle();
 };
 
 #endif // BUILDINGS_HPP

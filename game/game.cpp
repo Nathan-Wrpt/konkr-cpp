@@ -132,7 +132,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
             player->addEntity(pikeman);
         }
     }
-    int nbButtons = 4;
+    int nbButtons = 5;
     int buttonSize = 50;
     int buttonSpacing = 10;
     int totalWidth = nbButtons * buttonSize + 3 * buttonSpacing;
@@ -143,6 +143,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
     unitButtons.emplace_back(startX + buttonSize + buttonSpacing, buttonY, buttonSize, buttonSize, "pikeman", 20);
     unitButtons.emplace_back(startX + 2 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "knight", 40);
     unitButtons.emplace_back(startX + 3 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "hero", 80);
+    unitButtons.emplace_back(startX + 4 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "castle", 20);
 }
 
 Game::~Game() {
@@ -218,18 +219,19 @@ void Game::upgradeEntity(const Hex& hex) {
     for (auto& player : players) {
         for (auto& entity : player->getEntities()) {
             if (entity->getHex() == hex) {
+                bool hasmoved = entity->hasMoved();
                 if (entity->getName() == "villager") {
                     player->removeEntity(entity);
                     player->addEntity(std::make_shared<Pikeman>(hex));
-                    player->getEntities().back()->setMoved(true);
+                    player->getEntities().back()->setMoved(hasmoved);
                 } else if (entity->getName() == "pikeman") {
                     player->removeEntity(entity);
                     player->addEntity(std::make_shared<Knight>(hex));
-                    player->getEntities().back()->setMoved(true);
+                    player->getEntities().back()->setMoved(hasmoved);
                 } else if (entity->getName() == "knight") {
                     player->removeEntity(entity);
                     player->addEntity(std::make_shared<Hero>(hex));
-                    player->getEntities().back()->setMoved(true);
+                    player->getEntities().back()->setMoved(hasmoved);
                 }
             }
         }
@@ -260,17 +262,22 @@ void Game::handleEvent(SDL_Event& event) {
             // Change player
             playerTurn = (playerTurn + 1) % players.size();
             auto& currentPlayer = players[playerTurn];
+            SDL_Color currentColor = currentPlayer->getColor();
 
             // Remove dead players
             for (auto it = players.rbegin(); it != players.rend(); ++it) {
                 auto& player = *it;
                 if (!player->isAlive()) {
                     removePlayer(player);
-                    while (!(currentPlayer->getColor() == players[playerTurn]->getColor())) {
+                    if(players.size() <= playerTurn){
+                        playerTurn = 0;
+                    }
+                    while (!(currentColor == players[playerTurn]->getColor())) {
                         playerTurn = (playerTurn + 1) % players.size();
                     }
+                    currentPlayer = players[playerTurn];
                 }
-            }            
+            }
 
             // BANDIT ACTIONS HERE
             if (playerTurn == 0) {
@@ -333,6 +340,9 @@ void Game::handleEvent(SDL_Event& event) {
                         players[playerTurn]->addEntity(std::make_shared<Knight>(clickedHex));
                     } else if (button.getIconName() == "hero") {
                         players[playerTurn]->addEntity(std::make_shared<Hero>(clickedHex));
+                    } else if(button.getIconName() == "castle") {
+                        players[playerTurn]->addEntity(std::make_shared<Castle>(clickedHex));
+                        players[playerTurn]->getEntities().back()->setMoved(false);
                     }
                     players[playerTurn]->removeCoins(button.getCost());
                 }
@@ -347,7 +357,7 @@ void Game::handleEvent(SDL_Event& event) {
 
                 for (size_t i = 0; i < playerEntities.size(); ++i) {
                     if (!playerEntities[i]->hasMoved() && playerEntities[i]->getHex() == clickedHex) {
-                        if(dynamic_cast<Building*>(playerEntities[i].get())) {
+                        if(dynamic_cast<Building*>(playerEntities[i].get()) && grid.hexExists(clickedHex)) {
                             continue;
                         }
                         selectedEntityIndex = i;
@@ -364,6 +374,10 @@ void Game::handleEvent(SDL_Event& event) {
                     if ((entity) &&
                         !isSurroundedByOtherPlayerEntities(clickedHex, *currentPlayer, entity->getProtectionLevel()) &&
                         hasSamePlayerEntities(clickedHex, *currentPlayer) == "") {
+                        if(entity->getName() == "castle") {
+                            entity->setHex(clickedHex);
+                            entity->setMoved(true);
+                        }
                         moveSuccessful = entity->move(grid, clickedHex, currentPlayer->getColor());
 
                         // We flag the entity as moved if the move was successful
@@ -387,7 +401,7 @@ void Game::handleEvent(SDL_Event& event) {
                                 }
                             }
                         }
-                    } else if (entity && !(entity->getHex() == clickedHex) && entity->getName() == hasSamePlayerEntities(clickedHex, *currentPlayer)) {
+                    } else if (entity && !(entity->getHex() == clickedHex) && entity->getName() == hasSamePlayerEntities(clickedHex, *currentPlayer) && entity->getName() != "hero") {
                         currentPlayer->removeEntity(entity);
                         upgradeEntity(clickedHex);
                     }
