@@ -415,10 +415,28 @@ void Game::handleEvent(SDL_Event& event) {
                                     }
                                 }
                             }
+                        } else {
+                            if(!(grid.hexExists(entity->getHex()))) {
+                                currentPlayer->removeEntity(entity);
+                                // refund the cost of the entity
+                                for(auto& button : unitButtons) {
+                                    if(button.getIconName() == entity->getName()) {
+                                        currentPlayer->addCoins(button.getCost());
+                                    }
+                                }
+                            }
                         }
                     } else if (entity && !(entity->getHex() == clickedHex) && entity->getName() == hasSamePlayerEntities(clickedHex, *currentPlayer) && entity->getName() != "hero") {
                         currentPlayer->removeEntity(entity);
                         upgradeEntity(clickedHex);
+                    } else if(entity && !grid.hexExists(entity->getHex())) {
+                        currentPlayer->removeEntity(entity);
+                        // refund the cost of the entity
+                        for(auto& button : unitButtons) {
+                            if(button.getIconName() == entity->getName()) {
+                                currentPlayer->addCoins(button.getCost());
+                            }
+                        }
                     }
                 } else {
                     // handle when the hex in question is on a button (then doesnt exist)
