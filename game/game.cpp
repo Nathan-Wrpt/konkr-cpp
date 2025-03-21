@@ -3,6 +3,8 @@
 #include <map>
 #include <filesystem>
 #include <algorithm>
+#include <queue>
+#include <set>
 
 std::map<std::string, int> iconsMap = {
     {"bandit", 0},        {"bandit-camp", 1},
@@ -261,6 +263,10 @@ void Game::handleEvent(SDL_Event& event) {
             }
             selectedEntityIndex = -1;
             entitySelected = false;
+
+            for(auto& player : players) {
+                checkIfHexConnectedToTown(*player);
+            }
             
             // Change player
             playerTurn = (playerTurn + 1) % players.size();
@@ -663,5 +669,101 @@ void Game::removePlayer(std::shared_ptr<Player> player) {
         players.erase(it);
     } else {
         std::cerr << "Error: Player not found in the players vector." << std::endl;
+    }
+}
+
+void Game::checkIfHexConnectedToTown(Player& player) {
+    // Get the player's color
+    SDL_Color playerColor = player.getColor();
+    
+    // Find all hexes with this player's color
+    std::vector<Hex> playerHexes;
+    for (const auto& pair : grid.getHexColors()) {
+        if (pair.second == playerColor) {
+            playerHexes.push_back(pair.first);
+        }
+    }
+    
+    // Find all town hexes (shouldnt be more than 1 but who knows what we gonna do in the future)
+    std::vector<Hex> townHexes;
+    for (const auto& entity : player.getEntities()) {
+        if (entity->getName() == "town") {
+            townHexes.push_back(entity->getHex());
+        }
+    }
+    
+    // If no towns, all hexes are disconnected
+    if (townHexes.empty()) {
+        for (const Hex& hex : playerHexes) {
+            disconnectHex(player, hex);
+        }
+        return;
+    }
+    
+    // Use BFS to find all hexes connected to any town
+    std::set<Hex> connectedHexes;
+    std::queue<Hex> queue;
+    
+    // Start BFS from each town
+    for (const Hex& townHex : townHexes) {
+        queue.push(townHex);
+        connectedHexes.insert(townHex);
+    }
+    
+    // Define directions for adjacent hexes
+    const std::vector<Hex> directions = {
+        Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
+        Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
+    };
+    
+    // BFS traversal
+    while (!queue.empty()) {
+        Hex current = queue.front();
+        queue.pop();
+        
+        // Check all adjacent hexes
+        for (const Hex& dir : directions) {
+            Hex neighbor = current.add(dir);
+            
+            // If neighbor is valid, has player's color, and hasn't been visited yet
+            if (grid.hexExists(neighbor) && 
+                grid.getHexColors().at(neighbor) == playerColor &&
+                connectedHexes.find(neighbor) == connectedHexes.end()) {
+                
+                connectedHexes.insert(neighbor);
+                queue.push(neighbor);
+            }
+        }
+    }
+    
+    // Handle disconnected hexes
+    for (const Hex& hex : playerHexes) {
+        if (connectedHexes.find(hex) == connectedHexes.end()) {
+            disconnectHex(player, hex);
+        }
+    }
+}
+
+void Game::disconnectHex(Player& player, const Hex& hex) {
+    // Make the color darker
+    SDL_Color newHexColor = player.getColor();
+    newHexColor.r = newHexColor.r * 0.7;
+    newHexColor.g = newHexColor.g * 0.7;
+    newHexColor.b = newHexColor.b * 0.7;
+    grid.setHexColor(hex, newHexColor);
+    
+    // Remove potential entity on this hex and replace with bandits
+    std::vector<std::shared_ptr<Entity>> entitiesToRemove;
+    
+    for (auto& entity : player.getEntities()) {
+        if (entity->getHex() == hex) {
+            if (dynamic_cast<Building*>(entity.get())) {
+                //addBanditCamp(hex);
+            } else {
+                addBandit(hex);
+            }
+            player.removeEntity(entity);
+            break;
+        }
     }
 }

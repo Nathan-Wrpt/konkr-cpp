@@ -40,6 +40,8 @@ class Game {
     void upgradeEntity(const Hex& hex);
     void renderButton(SDL_Renderer* renderer, const Button& button) const;
     void removePlayer(std::shared_ptr<Player> player);
+    void checkIfHexConnectedToTown(Player& player);
+    void disconnectHex(Player& player, const Hex& hex);
 
   private:
     HexagonalGrid grid;
