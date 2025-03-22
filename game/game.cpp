@@ -277,6 +277,12 @@ void Game::handleEvent(SDL_Event& event) {
             for (auto it = players.rbegin(); it != players.rend(); ++it) {
                 auto& player = *it;
                 if (!player->isAlive()) {
+                    // Skip player if it is the current player and dead, to avoid infinite loop
+                    if(player->getColor() == currentColor) {
+                        playerTurn = (playerTurn + 1) % players.size();
+                        currentPlayer = players[playerTurn];
+                        currentColor = currentPlayer->getColor();
+                    }
                     removePlayer(player);
                     if(players.size() <= playerTurn){
                         playerTurn = 0;
@@ -288,7 +294,7 @@ void Game::handleEvent(SDL_Event& event) {
                 }
             }
 
-            // BANDIT ACTIONS HERE
+            // BANDIT ACTIONS HEREm
             if (playerTurn == 0) {
                 turn++;
                 if(turn > 0) {
