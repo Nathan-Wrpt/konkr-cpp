@@ -45,7 +45,6 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
     std::string iconsPath = "icons/";
     for (const auto& filename : iconsMap) {
         std::string path = iconsPath + filename.first + ".png";
-        std::cout << "Loading texture: " << path << std::endl;
         SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
         if (!texture) {
             std::cerr << "Error loading texture: " << IMG_GetError() << std::endl;
@@ -275,16 +274,14 @@ void Game::handleEvent(SDL_Event& event) {
 
             // Remove dead players
             std::vector<std::shared_ptr<Player>> toRemove;
-            for (auto it = players.rbegin(); it != players.rend(); ++it) {
-                auto& player = *it;
+            for (auto& player : players) {
                 if (!player->isAlive()) {
-                    // Skip player if it is the current player and dead, to avoid infinite loop
+                    toRemove.push_back(player);
                     if(player->getColor() == currentColor) {
                         playerTurn = (playerTurn + 1) % players.size();
                         currentPlayer = players[playerTurn];
                         currentColor = currentPlayer->getColor();
                     }
-                    toRemove.push_back(player);
                 }
             }
             for (auto& player : toRemove) {
@@ -314,10 +311,9 @@ void Game::handleEvent(SDL_Event& event) {
                 // coins stolen by bandits
                 currentPlayer->removeCoins(nbBanditsOnColor(currentPlayer->getColor()));
 
-                // Pay upkeep for each entity in reverse order (because we remove entities) (not useful anymore, we store the entities to remove and then remove them)
+                // Pay upkeep for each entity in reverse order (because we remove entities)
                 std::vector<std::shared_ptr<Entity>> toRemove;
-                for(auto it = currentPlayer->getEntities().rbegin(); it != currentPlayer->getEntities().rend(); ++it) {
-                    auto& entity = *it;
+                for(auto& entity : currentPlayer->getEntities()) {
                     bool building = dynamic_cast<Building*>(entity.get());
 
                     if(!building) {
@@ -329,9 +325,9 @@ void Game::handleEvent(SDL_Event& event) {
                         currentPlayer->removeCoins(currentUpkeep);
                     } else {
                         if(building) {
-                            // add bandit camp
+                            // replace by bandit camp
                         } else {
-                            // If cannot pay upkeep, replace by bandit
+                            // replace by bandit
                             Hex entityHex = entity->getHex();
                             addBandit(entityHex);
                         }
