@@ -141,7 +141,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
     int buttonSpacing = 10;
     int totalWidth = nbButtons * buttonSize + 3 * buttonSpacing;
     int startX = (windowWidth - totalWidth) / 2;
-    int buttonY = windowHeight - buttonSize - 20;
+    int buttonY = windowHeight - buttonSize - 30;
 
     unitButtons.emplace_back(startX, buttonY, buttonSize, buttonSize, "villager", 10);
     unitButtons.emplace_back(startX + buttonSize + buttonSpacing, buttonY, buttonSize, buttonSize, "pikeman", 20);
