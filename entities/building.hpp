@@ -28,4 +28,11 @@ public:
     virtual ~Castle();
 };
 
+class BanditCamp : public Building {
+public:
+    BanditCamp();
+    BanditCamp(Hex hex);
+    virtual ~BanditCamp();
+};
+
 #endif // BUILDINGS_HPP

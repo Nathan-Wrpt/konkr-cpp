@@ -159,9 +159,18 @@ void Game::addBandit(Hex hex) {
     bandits.push_back(std::make_shared<Bandit>(hex));
 }
 
+void Game::addBanditCamp(Hex hex) {
+    banditCamps.push_back(std::make_shared<BanditCamp>(hex));
+}
+
 bool Game::entityOnHex(const Hex& hex) {
     for(const auto& bandit : bandits) {
         if (bandit->getHex() == hex) {
+            return true;
+        }
+    }
+    for(const auto& banditcamp : banditCamps) {
+        if (banditcamp->getHex() == hex) {
             return true;
         }
     }
@@ -211,6 +220,26 @@ void Game::manageBandits(){
                 moved = true;
             } else {
                 attempts++;
+            }
+        }
+    }
+    for(auto& banditcamp : banditCamps) {
+        // 1/8 chance to spawn a bandit
+        if(std::rand() % 8 == 0) {
+            int maxAttempts = 10;
+            int attempts = 0;
+            bool placed = false;
+            while (!placed && attempts < maxAttempts) {
+                Hex direction = directions[std::rand() % directions.size()];
+
+                Hex newHex = banditcamp->getHex().add(direction);
+
+                if (grid.hexExists(newHex) && !entityOnHex(newHex)) {
+                    addBandit(newHex);
+                    placed = true;
+                } else {
+                    attempts++;
+                }
             }
         }
     }
@@ -424,6 +453,13 @@ void Game::handleEvent(SDL_Event& event) {
                                         break;
                                     }
                                 }
+                                // remove potential bandit camps on the hex we are moving to
+                                for (auto& banditcamp : banditCamps) {
+                                    if (banditcamp->getHex() == clickedHex) {
+                                        banditCamps.erase(std::remove(banditCamps.begin(), banditCamps.end(), banditcamp), banditCamps.end());
+                                        break;
+                                    }
+                                }
                             }
                         } else {
                             if(!(grid.hexExists(entity->getHex()))) {
@@ -559,6 +595,11 @@ void Game::render(SDL_Renderer* renderer) const {
         render_entity(renderer, *bandit, textures[iconsMap.at("bandit")]);
     }
 
+    // Render all bandit camps
+    for (const auto& banditCamp : banditCamps) {
+        render_entity(renderer, *banditCamp, textures[iconsMap.at("bandit-camp")]);
+    }
+
     auto& currentPlayer = players[playerTurn];
 
     // Render of the entity on the cursor if selected
@@ -671,6 +712,11 @@ bool Game::isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& curre
             }
         }
     }
+    for (const auto& banditcamp : banditCamps) {
+        if (banditcamp->getHex() == hex && banditcamp->getProtectionLevel() >= currentLevel) {
+            return true;
+        }
+    }
     return false;
 }
 
@@ -692,7 +738,7 @@ void Game::removePlayer(std::shared_ptr<Player> player) {
     for(auto& entity : entities) {
         if (entity) {
             if (dynamic_cast<Building*>(entity.get())) {
-                // addBanditCamp(entity->getHex());
+                addBanditCamp(entity->getHex());
             } else {
                 addBandit(entity->getHex());
             }
@@ -813,7 +859,7 @@ void Game::disconnectHex(Player& player, const Hex& hex) {
     for (auto& entity : player.getEntities()) {
         if (entity->getHex() == hex) {
             if (dynamic_cast<Building*>(entity.get())) {
-                //addBanditCamp(hex);
+                addBanditCamp(hex);
             } else {
                 addBandit(hex);
             }

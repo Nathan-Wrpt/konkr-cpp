@@ -21,3 +21,9 @@ Castle::Castle(Hex hex)
     : Building(hex, 2, "castle", 2) {}
 
 Castle::~Castle() {}
+
+// --- BanditCamp Class Implementation ---
+BanditCamp::BanditCamp(Hex hex) 
+    : Building(hex, 0, "bandit_camp", 0) {}
+
+BanditCamp::~BanditCamp() {}
