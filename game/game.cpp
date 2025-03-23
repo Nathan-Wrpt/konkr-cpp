@@ -274,6 +274,7 @@ void Game::handleEvent(SDL_Event& event) {
             SDL_Color currentColor = currentPlayer->getColor();
 
             // Remove dead players
+            std::vector<std::shared_ptr<Player>> toRemove;
             for (auto it = players.rbegin(); it != players.rend(); ++it) {
                 auto& player = *it;
                 if (!player->isAlive()) {
@@ -283,16 +284,20 @@ void Game::handleEvent(SDL_Event& event) {
                         currentPlayer = players[playerTurn];
                         currentColor = currentPlayer->getColor();
                     }
-                    removePlayer(player);
-                    if(players.size() <= playerTurn){
-                        playerTurn = 0;
-                    }
-                    while (!(currentColor == players[playerTurn]->getColor())) {
-                        playerTurn = (playerTurn + 1) % players.size();
-                    }
-                    currentPlayer = players[playerTurn];
+                    toRemove.push_back(player);
                 }
             }
+            for (auto& player : toRemove) {
+                removePlayer(player);
+            }
+            if(players.size() <= playerTurn){
+                playerTurn = 0;
+            }
+
+            while (!(currentColor == players[playerTurn]->getColor())) {
+                playerTurn = (playerTurn + 1) % players.size();
+            }
+            currentPlayer = players[playerTurn];
 
             // BANDIT ACTIONS HEREm
             if (playerTurn == 0) {
@@ -309,7 +314,8 @@ void Game::handleEvent(SDL_Event& event) {
                 // coins stolen by bandits
                 currentPlayer->removeCoins(nbBanditsOnColor(currentPlayer->getColor()));
 
-                // Pay upkeep for each entity in reverse order (because we remove entities)
+                // Pay upkeep for each entity in reverse order (because we remove entities) (not useful anymore, we store the entities to remove and then remove them)
+                std::vector<std::shared_ptr<Entity>> toRemove;
                 for(auto it = currentPlayer->getEntities().rbegin(); it != currentPlayer->getEntities().rend(); ++it) {
                     auto& entity = *it;
                     bool building = dynamic_cast<Building*>(entity.get());
@@ -323,15 +329,17 @@ void Game::handleEvent(SDL_Event& event) {
                         currentPlayer->removeCoins(currentUpkeep);
                     } else {
                         if(building) {
-                            currentPlayer->removeEntity(entity);
                             // add bandit camp
                         } else {
                             // If cannot pay upkeep, replace by bandit
                             Hex entityHex = entity->getHex();
-                            currentPlayer->removeEntity(entity);
                             addBandit(entityHex);
                         }
+                        toRemove.push_back(entity);
                     }
+                }
+                for(auto& entity : toRemove) {
+                    currentPlayer->removeEntity(entity);
                 }
             }
         }
@@ -683,16 +691,20 @@ std::string Game::hasSamePlayerEntities(const Hex& hex, const Player& currentPla
 // Remove a player from the game
 void Game::removePlayer(std::shared_ptr<Player> player) {
     auto entities = player->getEntities();
+    // vector "toRemove" to store the entities to remove to avoid modifying the vector while iterating over it
+    std::vector<std::shared_ptr<Entity>> toRemove;
     for(auto& entity : entities) {
         if (entity) {
             if (dynamic_cast<Building*>(entity.get())) {
                 // addBanditCamp(entity->getHex());
-                player->removeEntity(entity);
             } else {
                 addBandit(entity->getHex());
-                player->removeEntity(entity);
             }
+            toRemove.push_back(entity);
         }
+    }
+    for(auto& entity : toRemove) {
+        player->removeEntity(entity);
     }
     auto it = std::find(players.begin(), players.end(), player);
     if (it != players.end()) {
