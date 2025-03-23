@@ -108,9 +108,9 @@ Point HexagonalGrid::hexToPixel(const Hex& hex) const {
     return Point(x, y);
 }
 
-Hex HexagonalGrid::pixelToHex(int x, int y) const {
-    double fx = x - offsetX;
-    double fy = y - offsetY;
+Hex HexagonalGrid::pixelToHex(int x, int y, int cameraX, int cameraY) const {
+    double fx = x - offsetX + cameraX;
+    double fy = y - offsetY + cameraY;
 
     double q = (std::sqrt(3) / 3 * fx - 1.0 / 3 * fy) / hexSize;
     double r = (2.0 / 3 * fy) / hexSize;
@@ -140,8 +140,8 @@ bool HexagonalGrid::hexExists(const Hex& hex) const {
     return hexColors.find(hex) != hexColors.end();
 }
 
-void HexagonalGrid::handleMouseClick(int mouseX, int mouseY) {
-    Hex clickedHex = pixelToHex(mouseX, mouseY);
+void HexagonalGrid::handleMouseClick(int mouseX, int mouseY, int cameraX, int cameraY) {
+    Hex clickedHex = pixelToHex(mouseX, mouseY, cameraX, cameraY);
 
     // Check if the clicked hex is in the grid
     if (hexColors.find(clickedHex) != hexColors.end()) {
@@ -149,8 +149,8 @@ void HexagonalGrid::handleMouseClick(int mouseX, int mouseY) {
     }
 }
 
-void HexagonalGrid::handleMouseMotion(int mouseX, int mouseY) {
-    Hex hovered = pixelToHex(mouseX, mouseY);
+void HexagonalGrid::handleMouseMotion(int mouseX, int mouseY, int cameraX, int cameraY) {
+    Hex hovered = pixelToHex(mouseX, mouseY, cameraX, cameraY);
 
     // Check if the hovered hex is in the grid
     if (hexColors.find(hovered) != hexColors.end()) {
@@ -174,7 +174,7 @@ void HexagonalGrid::handleMouseMotion(int mouseX, int mouseY) {
     }
 }
 
-void HexagonalGrid::draw(SDL_Renderer* renderer) const {
+void HexagonalGrid::draw(SDL_Renderer* renderer, int cameraX, int cameraY) const {
     for (const auto& hex : hexes) {
         Point center = hexToPixel(hex);
 
@@ -186,8 +186,8 @@ void HexagonalGrid::draw(SDL_Renderer* renderer) const {
         Sint16 yPoints[6];
         for (int i = 0; i < 6; ++i) {
             double angle = 2 * M_PI / 6 * (i + 0.5); // Pointy-top hex
-            xPoints[i] = static_cast<Sint16>(center.x + hexSize * std::cos(angle));
-            yPoints[i] = static_cast<Sint16>(center.y + hexSize * std::sin(angle));
+            xPoints[i] = static_cast<Sint16>(center.x + hexSize * std::cos(angle)) - cameraX;
+            yPoints[i] = static_cast<Sint16>(center.y + hexSize * std::sin(angle)) - cameraY;
         }
 
         // Fill the hexagon with the specified color

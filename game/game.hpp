@@ -23,7 +23,7 @@ extern std::map<std::string, int> iconsMap;
 class Game {
   public:
     Game(double hexSize, const std::vector<std::string>& asciiMap,
-         int windowWidth, int windowHeight, SDL_Renderer* renderer);
+         int windowWidth, int windowHeight, SDL_Renderer* renderer, int cameraSpeed);
     ~Game();
 
     void handleEvent(SDL_Event& event);
@@ -57,6 +57,7 @@ class Game {
     int turn;
     std::vector<Button> unitButtons;
     Button* draggedButton;
+    int cameraX, cameraY, cameraSpeed;
 };
 
 #endif

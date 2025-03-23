@@ -2,17 +2,23 @@
 
 int main() {
     TTF_Init();
-    const int windowWidth = 1000;
-    const int windowHeight = 1000;
+    const int windowWidth = 1920;
+    const int windowHeight = 1080;
     const double hexSize = 30.0;
+    const int cameraSpeed = 10;
 
     // ASCII map
     std::vector<std::string> asciiMap = {
-        "oo.............",
-        "..ggg......",
-        "..ggg......",
-        "....rr......",
-        "....r...."
+        "oo..................",
+        "ooo....r..rr..........",
+        "oo......rrrr............",
+        ".oo.....r.rr........",
+        ".o.....................",
+        ".......bbb.........",
+        "......bbbb........",
+        ".....b.b.b.......",
+        "...................",
+        "................",
     };
 
     // Initialize SDL
@@ -51,13 +57,18 @@ int main() {
     }
 
     // Create the game instance
-    Game game(hexSize, asciiMap, windowWidth, windowHeight, renderer);
+    Game game(hexSize, asciiMap, windowWidth, windowHeight, renderer, cameraSpeed);
 
     // Main loop
     bool running = true;
     SDL_Event event;
     while (running) {
         while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_DELETE) {
+                    running = false;
+                }
+            } 
             if (event.type == SDL_QUIT) {
                 running = false;
             } else {

@@ -30,16 +30,19 @@ struct SDL_Color_Compare {
 };
 
 Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
-        int windowWidth, int windowHeight, SDL_Renderer* renderer)
+        int windowWidth, int windowHeight, SDL_Renderer* renderer, int cameraSpeed)
     : grid(hexSize),
     playerTurn(0),
     entitySelected(false),
     selectedEntityIndex(-1),
-    draggedButton(nullptr)
+    draggedButton(nullptr),
+    cameraSpeed(cameraSpeed)
 {
     std::cout << "Game constructor started" << std::endl;
     turn = 0;
 
+    cameraX = 0;
+    cameraY = 0;
     // Load all textures from the icons directory
     std::cout << "Loading textures..." << std::endl;
     std::string iconsPath = "icons/";
@@ -370,10 +373,24 @@ void Game::handleEvent(SDL_Event& event) {
         }
     }
 
+    if (event.key.keysym.sym == SDLK_LEFT) {
+        cameraX -= cameraSpeed;
+    } 
+    if (event.key.keysym.sym == SDLK_RIGHT) {
+        cameraX += cameraSpeed;
+    } 
+    if (event.key.keysym.sym == SDLK_UP) {
+        cameraY -= cameraSpeed;
+    } 
+    if (event.key.keysym.sym == SDLK_DOWN) {
+        cameraY += cameraSpeed;
+    }
+    
+
     if (event.type == SDL_MOUSEBUTTONDOWN) {
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
-        Hex clickedHex = grid.pixelToHex(mouseX, mouseY);
+        Hex clickedHex = grid.pixelToHex(mouseX, mouseY, cameraX, cameraY);
 
         // Check if a button was clicked
         for (auto& button : unitButtons) {
@@ -505,7 +522,7 @@ void Game::handleEvent(SDL_Event& event) {
     } else if (event.type == SDL_MOUSEMOTION) {
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
-        grid.handleMouseMotion(mouseX, mouseY);
+        grid.handleMouseMotion(mouseX, mouseY, cameraX, cameraY);
     }
 }
 
@@ -513,8 +530,8 @@ void Game::update() {
 }
 
 SDL_Rect Game::entityToRect(const Entity& entity) const {
-    int x = static_cast<int>(grid.hexToPixel(entity.getHex()).x - grid.getHexSize() / 2);
-    int y = static_cast<int>(grid.hexToPixel(entity.getHex()).y - grid.getHexSize() / 2);
+    int x = static_cast<int>(grid.hexToPixel(entity.getHex()).x - grid.getHexSize() / 2) - cameraX;
+    int y = static_cast<int>(grid.hexToPixel(entity.getHex()).y - grid.getHexSize() / 2) - cameraY;
     int w_h = static_cast<int>(grid.getHexSize());
     return {x, y, w_h, w_h};
 }
@@ -588,7 +605,7 @@ void Game::renderButton(SDL_Renderer* renderer, const Button& button) const {
 
 void Game::render(SDL_Renderer* renderer) const {
     // Draw the grid
-    grid.draw(renderer);
+    grid.draw(renderer, cameraX, cameraY);
 
     // Render all bandits
     for (const auto& bandit : bandits) {

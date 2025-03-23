@@ -81,19 +81,19 @@ public:
     Point hexToPixel(const Hex& hex) const;
 
     // Convert pixel to hex
-    Hex pixelToHex(int x, int y) const;
+    Hex pixelToHex(int x, int y, int cameraX, int cameraY) const;
 
     // Check if a hex exists in the grid
     bool hexExists(const Hex& hex) const; 
 
     // Handle mouse click
-    void handleMouseClick(int mouseX, int mouseY);
+    void handleMouseClick(int mouseX, int mouseY, int cameraX, int cameraY);
 
     // Handle mouse motion
-    void handleMouseMotion(int mouseX, int mouseY);
+    void handleMouseMotion(int mouseX, int mouseY, int cameraX, int cameraY);
 
     // Draw the grid
-    void draw(SDL_Renderer* renderer) const;
+    void draw(SDL_Renderer* renderer, int cameraX, int cameraY) const;
 
     // Getter for hexes
     const std::vector<Hex>& getHexes() const { return hexes; }
