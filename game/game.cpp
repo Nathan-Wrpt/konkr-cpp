@@ -309,10 +309,16 @@ void Game::handleEvent(SDL_Event& event) {
             for (auto& player : players) {
                 if (!player->isAlive()) {
                     toRemove.push_back(player);
+                    if(player->getColor() == currentColor) {
+                        playerTurn = (playerTurn + 1) % players.size();
+                    }
                 }
             }
             for (auto& player : toRemove) {
                 removePlayer(player);
+            }
+            if(players.size() <= playerTurn){
+                playerTurn = 0;
             }
 
             currentPlayer = players[playerTurn];
@@ -763,10 +769,6 @@ void Game::removePlayer(std::shared_ptr<Player> player) {
     auto it = std::find(players.begin(), players.end(), player);
     if (it != players.end()) {
         players.erase(it);
-        int index = std::distance(players.begin(), it);
-        if (playerTurn == index) {
-            playerTurn = (playerTurn + 1) % players.size();
-        }
     } else {
         std::cerr << "Error: Player not found in the players vector." << std::endl;
     }
