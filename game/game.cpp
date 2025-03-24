@@ -299,27 +299,21 @@ void Game::handleEvent(SDL_Event& event) {
                 checkIfHexConnectedToTown(*player);
             }
             
-            // Change player
-            playerTurn = (playerTurn + 1) % players.size();
-            auto& currentPlayer = players[playerTurn];
-            SDL_Color currentColor = currentPlayer->getColor();
 
             // Remove dead players
             std::vector<std::shared_ptr<Player>> toRemove;
             for (auto& player : players) {
                 if (!player->isAlive()) {
                     toRemove.push_back(player);
-                    if(player->getColor() == currentColor) {
-                        playerTurn = (playerTurn + 1) % players.size();
-                    }
                 }
             }
             for (auto& player : toRemove) {
                 removePlayer(player);
             }
-            if(players.size() <= playerTurn){
-                playerTurn = 0;
-            }
+            // Change player
+            playerTurn = (playerTurn + 1) % players.size();
+            auto& currentPlayer = players[playerTurn];
+            SDL_Color currentColor = currentPlayer->getColor();
 
             currentPlayer = players[playerTurn];
             currentColor = currentPlayer->getColor();
@@ -766,13 +760,11 @@ void Game::removePlayer(std::shared_ptr<Player> player) {
     for(auto& entity : toRemove) {
         player->removeEntity(entity);
     }
-    auto it = std::find(players.begin(), players.end(), player);
-    if (it != players.end()) {
-        players.erase(it);
-    } else {
-        std::cerr << "Error: Player not found in the players vector." << std::endl;
-    }
+
+    players.erase(std::remove(players.begin(), players.end(), player), players.end());
+    nbplayers--;
 }
+
 
 void Game::checkIfHexConnectedToTown(Player& player) {
     // Get the player's color
