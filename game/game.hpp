@@ -26,6 +26,79 @@ class Game {
          int windowWidth, int windowHeight, SDL_Renderer* renderer, int cameraSpeed);
     ~Game();
 
+    // Copy constructor
+    Game(const Game& other) :
+        grid(other.grid),
+        players(),
+        bandits(),
+        banditCamps(),
+        textures(other.textures),
+        playerTurn(other.playerTurn),
+        entitySelected(other.entitySelected),
+        selectedEntityIndex(other.selectedEntityIndex),
+        nbplayers(other.nbplayers),
+        turn(other.turn),
+        unitButtons(other.unitButtons),
+        draggedButton(nullptr),
+        cameraX(other.cameraX),
+        cameraY(other.cameraY),
+        cameraSpeed(other.cameraSpeed)
+    {
+
+        //  copy players
+        for (const auto& player : other.players) {
+            players.push_back(std::make_shared<Player>(*player));
+        }
+
+        //  copy bandits
+        for (const auto& bandit : other.bandits) {
+            bandits.push_back(std::make_shared<Bandit>(*bandit));
+        }
+
+        // copy banditCamps
+        for (const auto& banditCamp : other.banditCamps) {
+            banditCamps.push_back(std::make_shared<BanditCamp>(*banditCamp));
+        }
+
+    }
+
+    // Assignment operator
+    Game& operator=(const Game& other) {
+        if (this != &other) {
+            grid = other.grid;
+            playerTurn = other.playerTurn;
+            entitySelected = other.entitySelected;
+            selectedEntityIndex = other.selectedEntityIndex;
+            textures = other.textures;
+            nbplayers = other.nbplayers;
+            turn = other.turn;
+            unitButtons = other.unitButtons;
+            draggedButton = nullptr;
+            cameraX = other.cameraX;
+            cameraY = other.cameraY;
+            cameraSpeed = other.cameraSpeed;
+
+            // copy players
+            players.clear();
+            for (const auto& player : other.players) {
+                players.push_back(std::make_shared<Player>(*player));
+            }
+
+            // copy bandits
+            bandits.clear();
+            for (const auto& bandit : other.bandits) {
+                bandits.push_back(std::make_shared<Bandit>(*bandit));
+            }
+
+            // copy banditCamps
+            banditCamps.clear();
+            for (const auto& banditCamp : other.banditCamps) {
+                banditCamps.push_back(std::make_shared<BanditCamp>(*banditCamp));
+            }
+        }
+        return *this;
+    }
+
     void handleEvent(SDL_Event& event);
     void update();
     SDL_Rect entityToRect(const Entity& entity) const;

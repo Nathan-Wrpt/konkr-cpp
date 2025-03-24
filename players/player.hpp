@@ -16,9 +16,65 @@ private:
     std::vector<std::shared_ptr<Entity>> entities;
     int coins;
     bool alive;
+
 public:
     Player(SDL_Color color);
     ~Player() = default;
+
+    // Copy constructor
+    Player(const Player& other) : color(other.color), coins(other.coins), alive(other.alive) {
+        entities.reserve(other.entities.size());
+        for (const auto& entity : other.entities) {
+            if (entity->getName() == "Bandit") {
+                entities.push_back(std::make_shared<Bandit>(*dynamic_cast<Bandit*>(entity.get())));
+            } else if (entity->getName() == "Villager") {
+                entities.push_back(std::make_shared<Villager>(*dynamic_cast<Villager*>(entity.get())));
+            } else if (entity->getName() == "Pikeman") {
+                entities.push_back(std::make_shared<Pikeman>(*dynamic_cast<Pikeman*>(entity.get())));
+            } else if (entity->getName() == "Knight") {
+                entities.push_back(std::make_shared<Knight>(*dynamic_cast<Knight*>(entity.get())));
+            } else if (entity->getName() == "Hero") {
+                entities.push_back(std::make_shared<Hero>(*dynamic_cast<Hero*>(entity.get())));
+            } else if (entity->getName() == "BanditCamp") {
+                entities.push_back(std::make_shared<BanditCamp>(*dynamic_cast<BanditCamp*>(entity.get())));
+            } else {
+                entities.push_back(entity->clone());
+            }
+        }
+    }
+    // Assignment operator
+    Player& operator=(const Player& other) {
+        if (this != &other) {
+            color = other.color;
+            coins = other.coins;
+            alive = other.alive;
+
+            // Clear existing entities
+            entities.clear();
+            entities.reserve(other.entities.size());
+
+            // Deep copy entities
+             for (const auto& entity : other.entities) {
+                if (entity->getName() == "Bandit") {
+                    entities.push_back(std::make_shared<Bandit>(*dynamic_cast<Bandit*>(entity.get())));
+                } else if (entity->getName() == "Villager") {
+                    entities.push_back(std::make_shared<Villager>(*dynamic_cast<Villager*>(entity.get())));
+                } else if (entity->getName() == "Pikeman") {
+                    entities.push_back(std::make_shared<Pikeman>(*dynamic_cast<Pikeman*>(entity.get())));
+                } else if (entity->getName() == "Knight") {
+                    entities.push_back(std::make_shared<Knight>(*dynamic_cast<Knight*>(entity.get())));
+                } else if (entity->getName() == "Hero") {
+                    entities.push_back(std::make_shared<Hero>(*dynamic_cast<Hero*>(entity.get())));
+                } else if (entity->getName() == "BanditCamp") {
+                    entities.push_back(std::make_shared<BanditCamp>(*dynamic_cast<BanditCamp*>(entity.get())));
+                } else {
+                    // Handle other entity types appropriately (e.g., Buildings)
+                    entities.push_back(entity->clone()); // Use the clone method to create a copy
+                }
+            }
+        }
+        return *this;
+    }
 
     SDL_Color getColor() const { return color; }
     const std::vector<std::shared_ptr<Entity>>& getEntities() const { return entities; }

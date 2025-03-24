@@ -59,6 +59,8 @@ int main() {
     // Create the game instance
     Game game(hexSize, asciiMap, windowWidth, windowHeight, renderer, cameraSpeed);
 
+    Game gamecopy = game;
+
     // Main loop
     bool running = true;
     SDL_Event event;
@@ -67,13 +69,17 @@ int main() {
             if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_DELETE) {
                     running = false;
-                }
-            } 
-            if (event.type == SDL_QUIT) {
+                } else if (event.key.keysym.sym == SDLK_e) {
+                    game.handleEvent(event);
+                    gamecopy = game;
+                    continue;
+                } else if (event.key.keysym.sym == SDLK_BACKSPACE) {
+                    game = gamecopy;
+                } 
+            } else if (event.type == SDL_QUIT) {
                 running = false;
-            } else {
-                game.handleEvent(event);
             }
+            game.handleEvent(event);
         }
 
         game.update();
