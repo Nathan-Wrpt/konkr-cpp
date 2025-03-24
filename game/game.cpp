@@ -141,7 +141,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap,
     int buttonSpacing = 10;
     int totalWidth = nbButtons * buttonSize + 3 * buttonSpacing;
     int startX = (windowWidth - totalWidth) / 2;
-    int buttonY = windowHeight - buttonSize - 30;
+    int buttonY = windowHeight - buttonSize - 20 - buttonSpacing;
 
     unitButtons.emplace_back(startX, buttonY, buttonSize, buttonSize, "villager", 10);
     unitButtons.emplace_back(startX + buttonSize + buttonSpacing, buttonY, buttonSize, buttonSize, "pikeman", 20);
@@ -309,26 +309,21 @@ void Game::handleEvent(SDL_Event& event) {
             for (auto& player : players) {
                 if (!player->isAlive()) {
                     toRemove.push_back(player);
-                    if(player->getColor() == currentColor) {
-                        playerTurn = (playerTurn + 1) % players.size();
-                        currentPlayer = players[playerTurn];
-                        currentColor = currentPlayer->getColor();
-                    }
                 }
             }
             for (auto& player : toRemove) {
                 removePlayer(player);
             }
-            if(players.size() <= playerTurn){
-                playerTurn = 0;
-            }
+
+            currentPlayer = players[playerTurn];
+            currentColor = currentPlayer->getColor();
 
             while (!(currentColor == players[playerTurn]->getColor())) {
                 playerTurn = (playerTurn + 1) % players.size();
             }
             currentPlayer = players[playerTurn];
 
-            // BANDIT ACTIONS HEREm
+            // BANDIT ACTIONS HERE
             if (playerTurn == 0) {
                 turn++;
                 if(turn > 0) {
@@ -768,6 +763,10 @@ void Game::removePlayer(std::shared_ptr<Player> player) {
     auto it = std::find(players.begin(), players.end(), player);
     if (it != players.end()) {
         players.erase(it);
+        int index = std::distance(players.begin(), it);
+        if (playerTurn == index) {
+            playerTurn = (playerTurn + 1) % players.size();
+        }
     } else {
         std::cerr << "Error: Player not found in the players vector." << std::endl;
     }
