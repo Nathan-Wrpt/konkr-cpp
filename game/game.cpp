@@ -315,14 +315,6 @@ void Game::handleEvent(SDL_Event& event) {
             auto& currentPlayer = players[playerTurn];
             SDL_Color currentColor = currentPlayer->getColor();
 
-            currentPlayer = players[playerTurn];
-            currentColor = currentPlayer->getColor();
-
-            while (!(currentColor == players[playerTurn]->getColor())) {
-                playerTurn = (playerTurn + 1) % players.size();
-            }
-            currentPlayer = players[playerTurn];
-
             // BANDIT ACTIONS HERE
             if (playerTurn == 0) {
                 turn++;
