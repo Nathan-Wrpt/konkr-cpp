@@ -342,11 +342,12 @@ void Game::handleEvent(SDL_Event& event) {
                     if(currentPlayer->getCoins() >= currentUpkeep) {
                         currentPlayer->removeCoins(currentUpkeep);
                     } else {
+                        Hex entityHex = entity->getHex();
                         if(building) {
                             // replace by bandit camp
+                            addBanditCamp(entityHex);
                         } else {
                             // replace by bandit
-                            Hex entityHex = entity->getHex();
                             addBandit(entityHex);
                         }
                         toRemove.push_back(entity);

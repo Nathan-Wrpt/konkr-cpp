@@ -2,7 +2,7 @@
 
 // --- Building Class Implementation ---
 Building::Building(Hex hex, int protection_level, std::string name, int upkeep) 
-    : Entity(hex, protection_level, name, 0) {}
+    : Entity(hex, protection_level, name, upkeep) {}
 
 Building::~Building() {}
 
