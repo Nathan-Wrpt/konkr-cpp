@@ -422,6 +422,7 @@ void Game::handleEvent(SDL_Event& event) {
                 if (grid.hexExists(clickedHex)) {
                     auto& currentPlayer = players[playerTurn];
                     auto entity = currentPlayer->getEntities()[selectedEntityIndex];
+                    SDL_Color targetColor = grid.getHexColors().at(clickedHex);
 
                     if ((entity) &&
                         !isSurroundedByOtherPlayerEntities(clickedHex, *currentPlayer, entity->getProtectionLevel()) &&
@@ -434,7 +435,7 @@ void Game::handleEvent(SDL_Event& event) {
 
                         // We flag the entity as moved if the move was successful
                         if (moveSuccessful) {
-                            bool movedOnSameColor = grid.getHexColors().at(clickedHex) == currentPlayer->getColor();
+                            bool movedOnSameColor = targetColor == currentPlayer->getColor();
 
                             // remove potential bandits on the hex we are moving to
                             for (auto& bandit : bandits) {
