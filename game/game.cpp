@@ -225,11 +225,35 @@ void Game::manageBandits(){
                 attempts++;
             }
         }
+        Hex banditHex = bandit->getHex();
+        SDL_Color hexColor = grid.getHexColors().at(banditHex);
+        for(auto& player : players) {
+            if(hexColor == player->getColor()) {
+                // steal a coin from the player
+                player->removeCoins(1);
+
+                // locate the nearest bandit camp
+                int minDistance = 1000;
+                std::shared_ptr<BanditCamp> nearestBanditCamp = nullptr;
+                for(auto& banditcamp : banditCamps) {
+                    int distance = banditHex.distance(banditcamp->getHex());
+                    if(distance < minDistance) {
+                        minDistance = distance;
+                        nearestBanditCamp = banditcamp;
+                    }
+                }
+                if(nearestBanditCamp) {
+                    // give the stolen coin to the nearest bandit camp if it exists
+                    nearestBanditCamp->addCoins(1);
+                }
+            }
+        }
     }
+    int banditCost = 5;
     for(auto& banditcamp : banditCamps) {
-        // 1/8 chance to spawn a bandit
-        if(std::rand() % 8 == 0) {
-            int maxAttempts = 10;
+        if(banditcamp->getCoins() >= banditCost){
+            // spawn a bandit
+            int maxAttempts = 100;
             int attempts = 0;
             bool placed = false;
             while (!placed && attempts < maxAttempts) {
@@ -239,6 +263,7 @@ void Game::manageBandits(){
 
                 if (grid.hexExists(newHex) && !entityOnHex(newHex)) {
                     addBandit(newHex);
+                    banditcamp->removeCoins(banditCost);
                     placed = true;
                 } else {
                     attempts++;
@@ -326,8 +351,6 @@ void Game::handleEvent(SDL_Event& event) {
             if(turn > 0) {
                 // land income
                 currentPlayer->addCoins(grid.getNbCasesColor(currentPlayer->getColor()));
-                // coins stolen by bandits
-                currentPlayer->removeCoins(nbBanditsOnColor(currentPlayer->getColor()));
 
                 // Pay upkeep for each entity in reverse order (because we remove entities)
                 std::vector<std::shared_ptr<Entity>> toRemove;
