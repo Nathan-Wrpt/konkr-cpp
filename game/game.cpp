@@ -434,34 +434,41 @@ void Game::handleEvent(SDL_Event& event) {
 
                         // We flag the entity as moved if the move was successful
                         if (moveSuccessful) {
-                            entity->setMoved(true);
+                            bool movedOnSameColor = grid.getHexColors().at(clickedHex) == currentPlayer->getColor();
 
-                            // remove potential entity on the hex we are moving to
-                            for (auto& player : players) {
-                                if (player->getColor() == currentPlayer->getColor()) {
-                                    continue;
+                            // remove potential bandits on the hex we are moving to
+                            for (auto& bandit : bandits) {
+                                if (bandit->getHex() == clickedHex) {
+                                    bandits.erase(std::remove(bandits.begin(), bandits.end(), bandit), bandits.end());
+                                    entity->setMoved(true);
+                                    break;
                                 }
-                                for (auto& entity : player->getEntities()) {
-                                    if (entity->getHex() == clickedHex) {
-                                        if (entity->getName() == "town") {
-                                            player->setAlive(false);
+                            }
+
+                            // remove potential bandit camps on the hex we are moving to
+                            for (auto& banditcamp : banditCamps) {
+                                if (banditcamp->getHex() == clickedHex) {
+                                    banditCamps.erase(std::remove(banditCamps.begin(), banditCamps.end(), banditcamp), banditCamps.end());
+                                    entity->setMoved(true);
+                                    break;
+                                }
+                            }
+
+                            if(!movedOnSameColor) {
+                                entity->setMoved(true);
+                                // remove potential entity on the hex we are moving to
+                                for (auto& player : players) {
+                                    if (player->getColor() == currentPlayer->getColor()) {
+                                        continue;
+                                    }
+                                    for (auto& entity : player->getEntities()) {
+                                        if (entity->getHex() == clickedHex) {
+                                            if (entity->getName() == "town") {
+                                                player->setAlive(false);
+                                            }
+                                            player->removeEntity(entity);
+                                            break;
                                         }
-                                        player->removeEntity(entity);
-                                        break;
-                                    }
-                                }
-                                // remove potential bandits on the hex we are moving to
-                                for (auto& bandit : bandits) {
-                                    if (bandit->getHex() == clickedHex) {
-                                        bandits.erase(std::remove(bandits.begin(), bandits.end(), bandit), bandits.end());
-                                        break;
-                                    }
-                                }
-                                // remove potential bandit camps on the hex we are moving to
-                                for (auto& banditcamp : banditCamps) {
-                                    if (banditcamp->getHex() == clickedHex) {
-                                        banditCamps.erase(std::remove(banditCamps.begin(), banditCamps.end(), banditcamp), banditCamps.end());
-                                        break;
                                     }
                                 }
                             }

@@ -20,8 +20,8 @@ bool Entity::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) 
             if (targetColor == ownerColor) {
                 // Move the entity to the target hex
                 hex = target;
-                // Return false because the entity can be moved again
-                return false;
+                // Nothing else to do
+                return true;
             } else {
                 // Check if the target is a valid position on the grid
                 if (grid.hasNeighborWithColor(target, ownerColor)) {
