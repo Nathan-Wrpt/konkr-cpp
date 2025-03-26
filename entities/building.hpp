@@ -43,4 +43,14 @@ private:
     int coins;
 };
 
+class Treasure : public Building {
+public:
+    Treasure(int value);
+    Treasure(Hex hex, int value);
+    virtual ~Treasure();
+    int getValue() const { return value; }
+private:
+    int value;
+};
+
 #endif // BUILDINGS_HPP

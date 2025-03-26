@@ -158,12 +158,42 @@ Game::~Game() {
     }
 }
 
+Hex Game::randomfreeHex() {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(0, grid.getHexes().size() - 1);
+    int randomIndex = distrib(gen);
+    Hex randomHex = grid.getHexes()[randomIndex];
+    SDL_Color hexColor = grid.getHexColors().at(randomHex);
+    std::vector<SDL_Color> playerColors;
+    for(auto& player : players) {
+        playerColors.push_back(player->getColor());
+    }
+    // check that the Hex is not occupated and not owned by a player
+    int maxAttempts = 100;
+    int attempts = 0;
+    while(entityOnHex(randomHex) || (std::find(playerColors.begin(), playerColors.end(), hexColor) != playerColors.end())) {
+        randomIndex = distrib(gen);
+        randomHex = grid.getHexes()[randomIndex];
+        hexColor = grid.getHexColors().at(randomHex);
+        attempts++;
+        if(attempts >= maxAttempts) {
+            return Hex(-1, -1, -1);
+        }
+    }
+    return randomHex;
+}
+
 void Game::addBandit(Hex hex) {
     bandits.push_back(std::make_shared<Bandit>(hex));
 }
 
 void Game::addBanditCamp(Hex hex) {
     banditCamps.push_back(std::make_shared<BanditCamp>(hex));
+}
+
+void Game::addTreasure(Hex hex, int value) {
+    treasures.push_back(std::make_shared<Treasure>(hex, value));
 }
 
 bool Game::entityOnHex(const Hex& hex) {
@@ -339,14 +369,24 @@ void Game::handleEvent(SDL_Event& event) {
             playerTurn = (playerTurn + 1) % players.size();
             auto& currentPlayer = players[playerTurn];
 
-            // BANDIT ACTIONS HERE
+            // BANDIT AND TREASURE ACTIONS HERE
             if (playerTurn == 0) {
                 turn++;
                 if(turn > 0) {
                     manageBandits();
                 }
+                if(treasures.empty()) {
+                    int treasureValue = std::rand() % 10 + 1;
+                    if(std::rand() % 4 == 0) {
+                        Hex treasureHex = randomfreeHex();
+                        if(treasureHex.getQ() != -1 && treasureHex.getR() != -1 && treasureHex.getS() != -1) {
+                            addTreasure(treasureHex, treasureValue);
+                        }
+                    }
+                }
             }
-            // END OF BANDIT ACTIONS
+
+            // END OF BANDIT AND TREASURE ACTIONS
 
             if(turn > 0) {
                 // land income
@@ -495,6 +535,18 @@ void Game::handleEvent(SDL_Event& event) {
                                         }
                                     }
                                 }
+                                // check if a player is on a treasure, give the coins to the player and remove the treasure
+                                for(auto& treasure : treasures) {
+                                    for (auto& player : players) {
+                                        for (auto& entity : player->getEntities()) {
+                                            if(treasure->getHex() == entity->getHex()) {
+                                                player->addCoins(treasure->getValue());
+                                                treasures.erase(std::remove(treasures.begin(), treasures.end(), treasure), treasures.end());
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         } else {
                             if(!(grid.hexExists(entity->getHex()))) {
@@ -633,6 +685,11 @@ void Game::render(SDL_Renderer* renderer) const {
     // Render all bandit camps
     for (const auto& banditCamp : banditCamps) {
         render_entity(renderer, *banditCamp, textures[iconsMap.at("bandit-camp")]);
+    }
+
+    // Render treasure(s)
+    for (const auto& treasure : treasures) {
+        render_entity(renderer, *treasure, textures[iconsMap.at("treasury")]);
     }
 
     auto& currentPlayer = players[playerTurn];

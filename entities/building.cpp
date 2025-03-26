@@ -29,3 +29,9 @@ BanditCamp::BanditCamp(Hex hex)
 }
 
 BanditCamp::~BanditCamp() {}
+
+// --- Treasure Class Implementation ---
+Treasure::Treasure(Hex hex, int value) 
+    : Building(hex, 0, "treasure", 0), value(value) {}
+
+Treasure::~Treasure() {}

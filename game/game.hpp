@@ -108,6 +108,7 @@ class Game {
     std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
     void addBandit(Hex hex);
     void addBanditCamp(Hex hex);
+    void addTreasure(Hex hex, int value);
     bool entityOnHex(const Hex& hex);
     void manageBandits();
     int nbBanditsOnColor(const SDL_Color& color);
@@ -116,12 +117,14 @@ class Game {
     void removePlayer(std::shared_ptr<Player> player);
     void checkIfHexConnectedToTown(Player& player);
     void disconnectHex(Player& player, const Hex& hex);
+    Hex randomfreeHex();
 
   private:
     HexagonalGrid grid;
     std::vector<std::shared_ptr<Player>> players;
     std::vector<std::shared_ptr<Bandit>> bandits;
     std::vector<std::shared_ptr<BanditCamp>> banditCamps;
+    std::vector<std::shared_ptr<Treasure>> treasures;
     size_t playerTurn;
     bool entitySelected;
     std::vector<SDL_Texture*> textures;
