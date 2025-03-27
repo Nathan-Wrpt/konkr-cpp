@@ -398,6 +398,9 @@ void Game::handleEvent(SDL_Event& event) {
                     bool building = dynamic_cast<Building*>(entity.get());
 
                     if(!building) {
+                        if(entity->getName() == "town") {
+                            printf("problème hein\n");
+                        }
                         entity->setMoved(false);
                     }
                     int currentUpkeep = entity->getUpkeep();
@@ -435,16 +438,34 @@ void Game::handleEvent(SDL_Event& event) {
     if (event.key.keysym.sym == SDLK_DOWN) {
         cameraY += cameraSpeed;
     }
-    
+    std::string entityToBuy = "";
 
-    if (event.type == SDL_MOUSEBUTTONDOWN) {
+    if(event.key.keysym.sym == SDLK_1 || event.key.keysym.sym == SDLK_AMPERSAND) { // AZERTY: '&'
+        entityToBuy = "villager";
+    }
+    if(event.key.keysym.sym == SDLK_2 || event.key.keysym.sym == SDLK_QUOTEDBL) { // AZERTY: 'é'
+        entityToBuy = "pikeman";
+    }
+    if(event.key.keysym.sym == SDLK_3 || event.key.keysym.sym == SDLK_QUOTE) { // AZERTY: '"'
+        entityToBuy = "knight";
+    }
+    if(event.key.keysym.sym == SDLK_4 || event.key.keysym.sym == SDLK_LEFTPAREN) { // AZERTY: '''
+        entityToBuy = "hero";
+    }
+    if(event.key.keysym.sym == SDLK_5 || event.key.keysym.sym == SDLK_MINUS) { // AZERTY: '('
+        entityToBuy = "castle";
+    }
+
+    if (event.type == SDL_MOUSEBUTTONDOWN || entityToBuy != "") {
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
         Hex clickedHex = grid.pixelToHex(mouseX, mouseY, cameraX, cameraY);
 
+        if(entityToBuy != "") clickedHex = grid.pixelToHex(0, 0, cameraX, cameraY);
+
         // Check if a button was clicked
         for (auto& button : unitButtons) {
-            if (button.containsPoint(mouseX, mouseY) && !entitySelected) {
+            if ((button.containsPoint(mouseX, mouseY) || button.getIconName() == entityToBuy)&& !entitySelected) {
                 if (button.getCost() <= players[playerTurn]->getCoins()) {
                     if (button.getIconName() == "villager") {
                         players[playerTurn]->addEntity(std::make_shared<Villager>(clickedHex));
