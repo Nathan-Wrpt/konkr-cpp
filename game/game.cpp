@@ -211,15 +211,15 @@ Game::Game(const Game& other)
       bandits(),
       banditCamps(),
       treasures(),
-      textures(other.textures),
       playerTurn(other.playerTurn),
       entitySelected(other.entitySelected),
+      textures(other.textures),
       selectedEntityIndex(other.selectedEntityIndex),
       nbplayers(other.nbplayers),
       turn(other.turn),
       unitButtons(other.unitButtons),
       draggedButton(nullptr),
-      cameraX(other.cameraX),
+      cameraX(other.cameraX),     
       cameraY(other.cameraY),
       cameraSpeed(other.cameraSpeed)
 {
