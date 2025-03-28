@@ -22,6 +22,17 @@ int main() {
         ".....................",
     };
 
+    std::vector<std::string> entityMap = {
+        ".....................",
+        ".....................",
+        ".....................",
+        ".......T......V......",
+        "......C........C.....",
+        ".......V......T......",
+        ".....................",
+        ".....................",
+    };
+
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         SDL_Log("Unable to initialize SDL: %s", SDL_GetError());
@@ -58,7 +69,7 @@ int main() {
     }
 
     // Create the game instance
-    Game game(hexSize, asciiMap, windowWidth, windowHeight, renderer, cameraSpeed);
+    Game game(hexSize, asciiMap, entityMap, windowWidth, windowHeight, renderer, cameraSpeed);
 
     Game gamecopy = game;
 
