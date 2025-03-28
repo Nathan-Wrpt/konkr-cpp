@@ -43,7 +43,6 @@ void Game::generateEntities(const std::vector<std::string>& entityMap, const std
         }
     }
 
-    // Loop through every row in the entity map.
     for (size_t row = 0; row < entityMap.size(); ++row) {
         const std::string& line = entityMap[row];
         for (size_t col = 0; col < line.size(); ++col) {
@@ -53,7 +52,7 @@ void Game::generateEntities(const std::vector<std::string>& entityMap, const std
                 continue;
             }
 
-            // Convert (col, row) to axial coordinates.
+            // Convert (col, row) to hex coordinates.
             int q = static_cast<int>(col) - (static_cast<int>(row) / 2);
             int r = static_cast<int>(row);
             int s = -q - r;
@@ -80,13 +79,11 @@ void Game::generateEntities(const std::vector<std::string>& entityMap, const std
                 continue;
             }
 
-            // Get the color of the hex.
             SDL_Color hexColor = grid.getHexColors().at(hex);
 
-            // Find the player whose color matches this hex.
+            // Find the player whose color matches with hex.
             std::shared_ptr<Player> playerForEntity = nullptr;
             for (auto& player : players) {
-                // Assuming an exact match of SDL_Color (or your criteria for "owned")
                 if (player->getColor() == hexColor) {
                     playerForEntity = player;
                     break;
@@ -213,6 +210,7 @@ Game::Game(const Game& other)
       players(),
       bandits(),
       banditCamps(),
+      treasures(),
       textures(other.textures),
       playerTurn(other.playerTurn),
       entitySelected(other.entitySelected),
@@ -534,9 +532,6 @@ void Game::handleEvent(SDL_Event& event) {
                     bool building = dynamic_cast<Building*>(entity.get());
 
                     if(!building) {
-                        if(entity->getName() == "town") {
-                            printf("problème hein\n");
-                        }
                         entity->setMoved(false);
                     }
                     int currentUpkeep = entity->getUpkeep();

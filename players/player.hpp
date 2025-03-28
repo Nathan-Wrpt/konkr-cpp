@@ -25,21 +25,19 @@ public:
     Player(const Player& other) : color(other.color), coins(other.coins), alive(other.alive) {
         entities.reserve(other.entities.size());
         for (const auto& entity : other.entities) {
-            if (entity->getName() == "Bandit") {
-                entities.push_back(std::make_shared<Bandit>(*dynamic_cast<Bandit*>(entity.get())));
-            } else if (entity->getName() == "Villager") {
+            if (entity->getName() == "villager") {
                 entities.push_back(std::make_shared<Villager>(*dynamic_cast<Villager*>(entity.get())));
-            } else if (entity->getName() == "Pikeman") {
+            } else if (entity->getName() == "pikeman") {
                 entities.push_back(std::make_shared<Pikeman>(*dynamic_cast<Pikeman*>(entity.get())));
-            } else if (entity->getName() == "Knight") {
+            } else if (entity->getName() == "knight") {
                 entities.push_back(std::make_shared<Knight>(*dynamic_cast<Knight*>(entity.get())));
-            } else if (entity->getName() == "Hero") {
+            } else if (entity->getName() == "hero") {
                 entities.push_back(std::make_shared<Hero>(*dynamic_cast<Hero*>(entity.get())));
-            } else if (entity->getName() == "BanditCamp") {
-                entities.push_back(std::make_shared<BanditCamp>(*dynamic_cast<BanditCamp*>(entity.get())));
-            } else {
-                entities.push_back(entity->clone());
-            }
+            } else if (entity->getName() == "town") {
+                entities.push_back(std::make_shared<Town>(*dynamic_cast<Town*>(entity.get())));
+            } else if (entity->getName() == "castle") {
+                entities.push_back(std::make_shared<Castle>(*dynamic_cast<Castle*>(entity.get())));
+            } 
         }
     }
     // Assignment operator
