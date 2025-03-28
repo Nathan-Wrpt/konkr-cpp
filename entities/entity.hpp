@@ -77,7 +77,7 @@ public:
     std::shared_ptr<Entity> clone() const override {
         return std::make_shared<Bandit>(*this);
     }
-    bool move(HexagonalGrid& grid, Hex target);
+    bool moveBandit(HexagonalGrid& grid, Hex target);
 };
         
     

@@ -383,7 +383,7 @@ void Game::manageBandits(){
 
             // Vérifier si la nouvelle position est valide
             if (grid.hexExists(newHex) && !entityOnHex(newHex) && !treasureonHex) {
-                bandit->move(grid, newHex);
+                bandit->moveBandit(grid, newHex);
                 moved = true;
             } else {
                 attempts++;

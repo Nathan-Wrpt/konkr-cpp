@@ -47,7 +47,7 @@ Bandit::Bandit(Hex hex)
 
 Bandit::~Bandit() {}
 
-bool Bandit::move(HexagonalGrid& grid, Hex target) {
+bool Bandit::moveBandit(HexagonalGrid& grid, Hex target) {
     if(grid.hexExists(target)) {
         hex = target;
         return true;
