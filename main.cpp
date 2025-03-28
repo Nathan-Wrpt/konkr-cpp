@@ -36,7 +36,7 @@ int main() {
     }
 
     // Create the SDL window
-    SDL_Window* window = SDL_CreateWindow("Hexagonal Grid",
+    SDL_Window* window = SDL_CreateWindow("C++ Konkr by Nathan W & Antoine B",
                                           SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED,
                                           windowWidth, windowHeight,
