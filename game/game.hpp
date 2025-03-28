@@ -32,6 +32,7 @@ class Game {
     // Assignment operator
     Game& operator=(const Game& other);
 
+    void generateEntities(const std::vector<std::string>& entityMap, const std::vector<std::string>& asciiMap);
     void handleEvent(SDL_Event& event);
     void update();
     SDL_Rect entityToRect(const Entity& entity) const;

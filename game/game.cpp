@@ -29,6 +29,94 @@ struct SDL_Color_Compare {
     }
 };
 
+void Game::generateEntities(const std::vector<std::string>& entityMap, const std::vector<std::string>& asciiMap) {
+
+    // Check if the entity map has the same number of characters on each row as the ASCII map
+    if (entityMap.size() != asciiMap.size()) {
+        std::cerr << "Error: Entity map and ASCII map have different number of rows." << std::endl;
+        return;
+    }
+    for (size_t i = 0; i < entityMap.size(); ++i) {
+        if (entityMap[i].size() != asciiMap[i].size()) {
+            std::cerr << "Error: Entity map and ASCII map have different number of columns on row " << i << "." << std::endl;
+            return;
+        }
+    }
+
+    // Loop through every row in the entity map.
+    for (size_t row = 0; row < entityMap.size(); ++row) {
+        const std::string& line = entityMap[row];
+        for (size_t col = 0; col < line.size(); ++col) {
+            char c = line[col];
+            // Skip if no entity is present.
+            if (c == '.') {
+                continue;
+            }
+
+            // Convert (col, row) to axial coordinates.
+            int q = static_cast<int>(col) - (static_cast<int>(row) / 2);
+            int r = static_cast<int>(row);
+            int s = -q - r;
+            Hex hex(q, r, s);
+
+            // Make sure the hex exists in the grid.
+            if (!grid.hexExists(hex)) {
+                continue;
+            }
+
+            if(c == 'B'){
+                addBandit(hex);
+                continue;
+            }
+
+            if(c == 'c'){
+                addBanditCamp(hex);
+                continue;
+            }
+
+            if(c == 't'){
+                int treasureValue = std::rand() % 10 + 1;
+                addTreasure(hex, treasureValue);
+                continue;
+            }
+
+            // Get the color of the hex.
+            SDL_Color hexColor = grid.getHexColors().at(hex);
+
+            // Find the player whose color matches this hex.
+            std::shared_ptr<Player> playerForEntity = nullptr;
+            for (auto& player : players) {
+                // Assuming an exact match of SDL_Color (or your criteria for "owned")
+                if (player->getColor() == hexColor) {
+                    playerForEntity = player;
+                    break;
+                }
+            }
+
+            if (!playerForEntity) {
+                continue;
+            }
+
+            // Add entity
+            if (c == 'T') {
+                playerForEntity->addEntity(std::make_shared<Town>(hex));
+            } else if (c == 'V') {
+                playerForEntity->addEntity(std::make_shared<Villager>(hex));
+            } else if (c == 'C') {
+                playerForEntity->addEntity(std::make_shared<Castle>(hex));
+            }
+            else if (c == 'P') {
+                playerForEntity->addEntity(std::make_shared<Pikeman>(hex));
+            } else if (c == 'K') {
+                playerForEntity->addEntity(std::make_shared<Knight>(hex));
+            } else if (c == 'H') {
+                playerForEntity->addEntity(std::make_shared<Hero>(hex));
+            }
+        }
+    }
+}
+
+
 Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector<std::string>& entityMap,
         int windowWidth, int windowHeight, SDL_Renderer* renderer, int cameraSpeed)
     : grid(hexSize),
@@ -102,40 +190,10 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
         hexesByColor[color].push_back(pair.first);
     }
 
-    // Initialize villagers for each player
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    // Generate entities based on the entityMap
+    std::cout << "Generating entities..." << std::endl;
+    generateEntities(entityMap, asciiMap);
 
-    for (auto& player : players) {
-        SDL_Color playerColor = player->getColor();
-        auto it = hexesByColor.find(playerColor);
-
-        if (it != hexesByColor.end()) {
-            std::vector<Hex>& playerHexes = it->second;
-            if (playerHexes.empty()) {
-            std::cerr << "No hexes found for player color: " << playerColor.r << ", " << playerColor.g << ", " << playerColor.b << std::endl;
-            continue;
-            }
-
-            // Choose a random hex for the villager
-            std::uniform_int_distribution<> distrib(0, playerHexes.size() - 1);
-            int randomIndexVillager = distrib(gen);
-            Hex randomHexVillager = playerHexes[randomIndexVillager];
-
-            // Choose a random hex for the pikeman (different)
-            int randomIndexPikeman = distrib(gen);
-            while(randomIndexPikeman == randomIndexVillager) {
-                randomIndexPikeman = distrib(gen);
-            }
-            Hex randomHexPikeman = playerHexes[randomIndexPikeman];
-
-            // Create a villager and add it to the player
-            auto villager = std::make_shared<Villager>(randomHexVillager);
-            player->addEntity(villager);
-            auto pikeman = std::make_shared<Town>(randomHexPikeman);
-            player->addEntity(pikeman);
-        }
-    }
     int nbButtons = 5;
     int buttonSize = 50;
     int buttonSpacing = 10;
