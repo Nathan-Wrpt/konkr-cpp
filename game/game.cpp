@@ -247,6 +247,14 @@ void Game::manageBandits(){
             // Calculer la nouvelle position
             Hex newHex = bandit->getHex().add(direction);
 
+            // Check if there's a treasure on the new hex
+            for(auto& treasure : treasures) {
+                if(treasure->getHex() == newHex) {
+                    attempts++;
+                    continue;
+                }
+            }
+
             // Vérifier si la nouvelle position est valide
             if (grid.hexExists(newHex) && !entityOnHex(newHex)) {
                 bandit->move(grid, newHex);
