@@ -7,6 +7,9 @@ int main() {
     const double hexSize = 30.0;
     const int cameraSpeed = 10;
 
+    const int FPS = 240;
+    const int frameDelay = 1000 / FPS;
+
     // ASCII map
     std::vector<std::string> asciiMap = {
         ".....................",
@@ -63,6 +66,7 @@ int main() {
     bool running = true;
     SDL_Event event;
     while (running) {
+        Uint32 frameStart = SDL_GetTicks();
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_DELETE) {
@@ -91,6 +95,12 @@ int main() {
 
         // Present the rendered frame
         SDL_RenderPresent(renderer);
+
+        // Cap the frame rate
+        Uint32 frameTime = SDL_GetTicks() - frameStart;
+        if (frameDelay > frameTime) {
+            SDL_Delay(frameDelay - frameTime);
+        }
     }
 
     // Clean up
