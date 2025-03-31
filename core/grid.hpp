@@ -9,6 +9,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 
+const SDL_Color defaultColor = {0, 125, 0, SDL_ALPHA_OPAQUE}; // Dark green
+
 // matching between the colors like "r" to the color value
 extern const std::map<char, SDL_Color> colorMap;
 

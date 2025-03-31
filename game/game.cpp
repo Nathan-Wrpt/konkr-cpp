@@ -157,28 +157,13 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
                 break;
             }
         }
-        if (!found && !(color == SDL_Color{255, 255, 255, 255})) {
+        if (!found && !(color == defaultColor)) {
             nbplayers++;
             players.emplace_back(std::make_shared<Player>(color));
             uniqueColors.push_back(color);
         }
     }
     std::cout << "Number of players: " << nbplayers << std::endl;
-
-    // Initialize a bandit at a random white hex
-    Hex initialBanditHex = grid.getHexes()[0];
-    bool banditHexFound = false;
-    for (const auto& pair : grid.getHexColors()) {
-        if (pair.second == SDL_Color{255, 255, 255, 255}) {
-            initialBanditHex = pair.first;
-            banditHexFound = true;
-            break;
-        }
-    }
-    if (!banditHexFound && !grid.getHexes().empty()) {
-        initialBanditHex = grid.getHexes()[0];
-    }
-    bandits.push_back(std::make_shared<Bandit>(initialBanditHex));
 
     // Create a map to store hexes by color
     std::map<SDL_Color, std::vector<Hex>, SDL_Color_Compare> hexesByColor;
