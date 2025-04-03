@@ -666,6 +666,8 @@ void Game::handleEvent(SDL_Event& event) {
                                         if (entity->getHex() == clickedHex) {
                                             if (entity->getName() == "town") {
                                                 player->setAlive(false);
+                                                int coinsOfDeadPlayer = player->getCoins();
+                                                currentPlayer->addCoins(coinsOfDeadPlayer);
                                             }
                                             player->removeEntity(entity);
                                             break;
