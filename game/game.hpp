@@ -38,7 +38,7 @@ class Game {
     SDL_Rect entityToRect(const Entity& entity) const;
     void render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Texture* texture) const;
     void render(SDL_Renderer* renderer) const;
-    bool isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel);
+    bool isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) const;
     std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
     void addBandit(Hex hex);
     void addBanditCamp(Hex hex);
@@ -52,6 +52,7 @@ class Game {
     void checkIfHexConnectedToTown(Player& player);
     void disconnectHex(Player& player, const Hex& hex);
     Hex randomfreeHex();
+    bool HexNotOnTerritoryAndAccessible(const std::shared_ptr<Entity>& entity, const Hex& targetHex) const;
 
   private:
     HexagonalGrid grid;

@@ -448,6 +448,35 @@ void Game::upgradeEntity(const Hex& hex) {
     }
 }
 
+bool Game::HexNotOnTerritoryAndAccessible(const std::shared_ptr<Entity>& entity, const Hex& targetHex) const {
+    // Check if the hex exists in the grid
+    if (!grid.hexExists(targetHex)) {
+        return false;
+    }
+
+    // Get the current player
+    auto& currentPlayer = players[playerTurn];
+
+    // Check if hex is adjacent to the owner's territory
+    SDL_Color ownerColor = currentPlayer->getColor();
+    if (!grid.hasNeighborWithColor(targetHex, ownerColor)) {
+        return false;
+    }
+
+    // Check if the hex is not on the player's territory
+    if (grid.getHexColors().at(targetHex) == currentPlayer->getColor()) {
+        return false;
+    }
+
+    // Check if the hex is surrounded by stronger entities from other players
+    if (isSurroundedByOtherPlayerEntities(targetHex, *currentPlayer, entity->getProtectionLevel())) {
+        return false;
+    }
+
+    return true;
+}
+
+
 void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed, change player
     if (event.type == SDL_KEYDOWN) {
@@ -892,6 +921,7 @@ void Game::render(SDL_Renderer* renderer) const {
     // Render of the entity on the cursor if selected
     if(entitySelected) {
         const auto& playerEntities = currentPlayer->getEntities();
+        const std::shared_ptr<Entity>& selectedEntityptr = playerEntities[selectedEntityIndex];
         const Entity& selectedEntity = *playerEntities[selectedEntityIndex];
         SDL_Rect entityRect = entityToRect(selectedEntity);
         int mouseX, mouseY;
@@ -899,6 +929,24 @@ void Game::render(SDL_Renderer* renderer) const {
         entityRect.x = mouseX - entityRect.w / 2;
         entityRect.y = mouseY - entityRect.h / 2;
         SDL_RenderCopy(renderer, textures[iconsMap.at(selectedEntity.getName())], NULL, &entityRect);
+
+        // Draw yellow small rectangles on accessible hexes
+        for (const auto& hex : grid.getHexes()) {
+            if (HexNotOnTerritoryAndAccessible(selectedEntityptr, hex)) {
+                Point hexPos = grid.hexToPixel(hex);
+                SDL_Rect hexRect;
+                hexRect.x = static_cast<int>(hexPos.x - grid.getHexSize() / 2);
+                hexRect.y = static_cast<int>(hexPos.y - grid.getHexSize() / 2);
+                // Adjust the position based on camera as usual
+                hexRect.x -= cameraX;
+                hexRect.y -= cameraY;
+                hexRect.w = static_cast<int>(grid.getHexSize());
+                hexRect.h = static_cast<int>(grid.getHexSize());
+                // Draw the yellow not filled hex
+                SDL_SetRenderDrawColor(renderer, 150, 150, 0, 100); // Yellow color with transparency
+                SDL_RenderDrawRect(renderer, &hexRect);
+            }
+        }
     }
 
     // Render all players' entities
@@ -961,7 +1009,7 @@ void Game::render(SDL_Renderer* renderer) const {
     }
 }
 
-bool Game::isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) {
+bool Game::isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) const {
     // Define the directions to the six neighbors
     const std::vector<Hex> directions = {
         Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
@@ -980,7 +1028,6 @@ bool Game::isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& curre
                     if (entity->getHex() == neighbor &&
                         entity->getProtectionLevel() >= currentLevel &&
                         grid.getHexColors().at(hex) == player->getColor()) {
-                        std::cout << "Hex protected by another player's entity" << std::endl;
                         return true;
                     }
                 }
@@ -991,7 +1038,6 @@ bool Game::isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& curre
             if (entity->getHex() == hex &&
                 grid.getHexColors().at(hex) == player->getColor()) {
                 if (entity->getProtectionLevel() >= currentLevel) {
-                    std::cout << "Too weak to beat this enemy" << std::endl;
                     return true;
                 } else {
                     return false;
