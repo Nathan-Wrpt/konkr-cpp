@@ -9,7 +9,7 @@ const std::map<char, SDL_Color> colorMap = {
     {'g', {0, 255, 0, SDL_ALPHA_OPAQUE}},   // Green
     {'b', {0, 0, 255, SDL_ALPHA_OPAQUE}},   // Blue
     {'y', {255, 255, 0, SDL_ALPHA_OPAQUE}}, // Yellow
-    {'.', {0, 125, 0, SDL_ALPHA_OPAQUE}}, // Dark green
+    {'.', defaultColor},                 // Default color (soil)
     {'k', {0, 0, 0, SDL_ALPHA_OPAQUE}},     // Black
     {'c', {0, 255, 255, SDL_ALPHA_OPAQUE}}, // Cyan
     {'m', {255, 0, 255, SDL_ALPHA_OPAQUE}}, // Magenta
