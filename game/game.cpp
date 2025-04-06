@@ -736,10 +736,8 @@ void Game::handleEvent(SDL_Event& event) {
 }
 
 void Game::update() {
-    // Jumping animation
     for (auto& player : players) {
         if (player != players[playerTurn]) {
-            // put entities on the ground
             for (auto& entity : player->getEntities()) {
                 if (!entity->hasMoved() && !dynamic_cast<Building*>(entity.get())) {
                     entity->setYOffset(0.0f);
@@ -749,52 +747,51 @@ void Game::update() {
             }
             continue;
         }
-        bool foundsync = false;
+
         float syncY = 0.0f;
+        bool foundSync = false;
+
         for (auto& entity : player->getEntities()) {
-            if(foundsync) {
-                if (!entity->hasMoved() && !dynamic_cast<Building*>(entity.get()))
-                    entity->setYOffset(syncY);
-            } else {
-                // Check if the entity hasnt moved and isnt a building
-                if (!entity->hasMoved() && !dynamic_cast<Building*>(entity.get())) {
-                    foundsync = true;
-                    if (!entity->isJumping() && !entity-> isFalling()) {
-                        entity->setJumping(true); // Start jumping animation
-                        entity->setJumpSpeed(0.5f);
-                    }
+            if (entity->hasMoved() || dynamic_cast<Building*>(entity.get())) {
+                entity->setYOffset(0.0f);
+                continue;
+            }
 
-                    if (entity->isJumping()) {
-                        entity->setYOffset(entity->getYOffset() + entity->getJumpSpeed()); // Move up
-                        syncY = entity->getYOffset();
-                        // reduce jump speed
-                        entity->setJumpSpeed(entity->getJumpSpeed() - 0.01f);
+            if (!foundSync) {
+                foundSync = true;
 
-                        if (entity->getYOffset() > 5.0f) {
-                            entity->setJumping(false); // Stop jumping animation
-                            entity->setFalling(true); // Start falling animation
-                            entity->setYOffset(5.0f);
-                            syncY = entity->getYOffset();
-                        }
-                    } else if (entity->isFalling()) {
-                        if(entity->getJumpSpeed() < 0.5f) {
-                            entity->setJumpSpeed(entity->getJumpSpeed() + 0.01f);
-                        }
-                        if (entity->getYOffset() < 0.0f) {
-                            entity->setFalling(false);
-                            entity->setYOffset(0.0f);
-                            syncY = 0.0f;
-                        }
-                        entity->setYOffset(entity->getYOffset() - entity->getJumpSpeed()); // Move down
-                        syncY = entity->getYOffset();
-                    }
-                } else {
-                    entity->setYOffset(0.0f);
+                if (!entity->isJumping() && !entity->isFalling()) {
+                    entity->setJumping(true);
+                    entity->setJumpSpeed(0.5f);
                 }
+
+                if (entity->isJumping()) {
+                    entity->setYOffset(entity->getYOffset() + entity->getJumpSpeed());
+                    entity->setJumpSpeed(entity->getJumpSpeed() - 0.01f);
+
+                    if (entity->getYOffset() > 5.0f) {
+                        entity->setJumping(false);
+                        entity->setFalling(true);
+                        entity->setYOffset(5.0f);
+                    }
+                } else if (entity->isFalling()) {
+                    entity->setJumpSpeed(std::min(entity->getJumpSpeed() + 0.01f, 0.5f));
+                    entity->setYOffset(entity->getYOffset() - entity->getJumpSpeed());
+
+                    if (entity->getYOffset() <= 0.0f) {
+                        entity->setFalling(false);
+                        entity->setYOffset(0.0f);
+                    }
+                }
+
+                syncY = entity->getYOffset();
+            } else {
+                entity->setYOffset(syncY);
             }
         }
     }
 }
+
 
 
 SDL_Rect Game::entityToRect(const Entity& entity) const {
