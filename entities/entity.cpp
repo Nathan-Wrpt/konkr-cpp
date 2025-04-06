@@ -2,10 +2,16 @@
 
 // --- Entity Class Implementation ---
 
-Entity::Entity(Hex hex, int protection_level, std::string name, int upkeep) 
-    : hex(hex), protection_level(protection_level), name(name), upkeep(upkeep) {
-        moved = false;
-    }
+Entity::Entity(Hex hex, int protection_level, std::string name, int upkeep) :
+    hex(hex),
+    protection_level(protection_level),
+    moved(false),
+    name(name),
+    upkeep(upkeep),
+    yOffset(0.0f),
+    jumpSpeed(0.5f),
+    jumping(false) {}
+
 
 Entity::~Entity() {}
 

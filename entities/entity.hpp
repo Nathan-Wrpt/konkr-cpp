@@ -7,59 +7,82 @@
 #include "../core/grid.hpp"
 
 class Entity {
-protected:
-    Hex hex;
-    int protection_level;
-    bool moved;
-    std::string name;
-    int upkeep;
-public:
-    Entity(Hex hex, int protection_level, std::string name, int upkeep = 0);
-    virtual ~Entity();
+    protected:
+        Hex hex;
+        int protection_level;
+        bool moved;
+        std::string name;
+        int upkeep;
+        float yOffset;
+        float jumpSpeed;
+        bool jumping;
+        bool falling;
 
-    // Copy constructor
-    Entity(const Entity& other) : hex(other.hex), protection_level(other.protection_level), moved(other.moved), name(other.name), upkeep(other.upkeep) {}
     
-    // Assignment operator
-    Entity& operator=(const Entity& other) {
-        if (this != &other) {
-            hex = other.hex;
-            protection_level = other.protection_level;
-            moved = other.moved;
-            name = other.name;
-            upkeep = other.upkeep;
+    public:
+        Entity(Hex hex, int protection_level, std::string name, int upkeep = 0);
+        virtual ~Entity();
+    
+        // Copy constructor
+        Entity(const Entity& other) : hex(other.hex), protection_level(other.protection_level), moved(other.moved), name(other.name), upkeep(other.upkeep),
+            yOffset(other.yOffset),
+            jumpSpeed(other.jumpSpeed),
+            jumping(other.jumping)
+         {}
+        
+        // Assignment operator
+        Entity& operator=(const Entity& other) {
+            if (this != &other) {
+                hex = other.hex;
+                protection_level = other.protection_level;
+                moved = other.moved;
+                name = other.name;
+                upkeep = other.upkeep;
+                yOffset = other.yOffset;
+                jumpSpeed = other.jumpSpeed;
+                jumping = other.jumping;
+            }
+            return *this;
         }
-        return *this;
-    }
-
-    //Virtual clone method
-    virtual std::shared_ptr<Entity> clone() const {
-        return std::make_shared<Entity>(*this);
-    }
-
-    // Getter for hex
-    Hex getHex() const { return hex; }
-
-    // Getter for name
-    std::string getName() const { return name; }
-
-    // Getter for protection level
-    int getProtectionLevel() const { return protection_level; }
-
-    // Getter for moved
-    bool hasMoved() const { return moved; }
-
-    // Setter for moved
-    void setMoved(bool moved) { this->moved = moved; }
     
-    virtual bool move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor);
-
-    // Getter for upkeep
-    int getUpkeep() const { return upkeep; }
-
-    // Setter for hex
-    void setHex(Hex hex) { this->hex = hex; }
+        //Virtual clone method
+        virtual std::shared_ptr<Entity> clone() const {
+            return std::make_shared<Entity>(*this);
+        }
+    
+        // Getter for hex
+        Hex getHex() const { return hex; }
+    
+        // Getter for name
+        std::string getName() const { return name; }
+    
+        // Getter for protection level
+        int getProtectionLevel() const { return protection_level; }
+    
+        // Getter for moved
+        bool hasMoved() const { return moved; }
+    
+        // Setter for moved
+        void setMoved(bool moved) { this->moved = moved; }
+        
+        virtual bool move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor);
+    
+        // Getter for upkeep
+        int getUpkeep() const { return upkeep; }
+    
+        // Setter for hex
+        void setHex(Hex hex) { this->hex = hex; }
+    
+        float getYOffset() const { return yOffset; }
+        void setYOffset(const float& newYOffset) { yOffset = newYOffset; }
+        float getJumpSpeed() const { return jumpSpeed; }
+        void setJumpSpeed(const float& newJumpSpeed) { jumpSpeed = newJumpSpeed; }
+        bool isJumping() const { return jumping; }
+        void setJumping(const bool& newJumping) { jumping = newJumping; }
+        bool isFalling() const { return falling; }
+        void setFalling(const bool& newFalling) { falling = newFalling; }
 };
+    
 
 class Bandit : public Entity {
 public:
