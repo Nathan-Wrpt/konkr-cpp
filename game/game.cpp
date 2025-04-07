@@ -765,22 +765,24 @@ void Game::handleEvent(SDL_Event& event) {
 }
 
 void Game::update() {
+    const float initjumpSpeed = 0.25f;
+    const float maxJumpHeight = 5.0f;
+    const float minJumpHeight = 0.0f;
+    const float jumpSpeedDecrease = initjumpSpeed / 50.0f;
+    const float jumpSpeedIncrease = jumpSpeedDecrease;
+
     for (auto& player : players) {
         if (player != players[playerTurn]) {
             for (auto& entity : player->getEntities()) {
                 if (!entity->hasMoved() && !dynamic_cast<Building*>(entity.get())) {
-                    entity->setYOffset(0.0f);
+                    entity->setYOffset(minJumpHeight);
                     entity->setJumping(false);
                     entity->setFalling(false);
+                    entity->setJumpSpeed(initjumpSpeed);
                 }
             }
             continue;
         }
-        const float initjumpSpeed = 0.25f;
-        const float maxJumpHeight = 5.0f;
-        const float minJumpHeight = 0.0f;
-        const float jumpSpeedDecrease = initjumpSpeed / 50.0f;
-        const float jumpSpeedIncrease = jumpSpeedDecrease;
         float syncY = 0.0f;
         bool foundSync = false;
 
