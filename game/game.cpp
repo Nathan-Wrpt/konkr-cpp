@@ -656,11 +656,10 @@ void Game::handleEvent(SDL_Event& event) {
                     if ((entity) &&
                         !isSurroundedByOtherPlayerEntities(clickedHex, *currentPlayer, entity->getProtectionLevel()) &&
                         hasSamePlayerEntities(clickedHex, *currentPlayer) == "") {
-                        if(entity->getName() == "castle" && grid.getHexColors().at(clickedHex) == currentPlayer->getColor()) {
+                        if(entity->getName() == "castle" && !entityOnHex(clickedHex) && grid.getHexColors().at(clickedHex) == currentPlayer->getColor()) {
                             entity->setHex(clickedHex);
                             entity->setMoved(true);
                         }
-                        moveSuccessful = entity->move(grid, clickedHex, currentPlayer->getColor());
 
                         // We flag the entity as moved if the move was successful
                         if (moveSuccessful) {
