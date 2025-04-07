@@ -776,7 +776,11 @@ void Game::update() {
             }
             continue;
         }
-
+        const float initjumpSpeed = 0.25f;
+        const float maxJumpHeight = 5.0f;
+        const float minJumpHeight = 0.0f;
+        const float jumpSpeedDecrease = initjumpSpeed / 50.0f;
+        const float jumpSpeedIncrease = jumpSpeedDecrease;
         float syncY = 0.0f;
         bool foundSync = false;
 
@@ -791,25 +795,25 @@ void Game::update() {
 
                 if (!entity->isJumping() && !entity->isFalling()) {
                     entity->setJumping(true);
-                    entity->setJumpSpeed(0.5f);
+                    entity->setJumpSpeed(initjumpSpeed);
                 }
 
                 if (entity->isJumping()) {
                     entity->setYOffset(entity->getYOffset() + entity->getJumpSpeed());
-                    entity->setJumpSpeed(entity->getJumpSpeed() - 0.01f);
+                    entity->setJumpSpeed(entity->getJumpSpeed() - jumpSpeedDecrease);
 
-                    if (entity->getYOffset() > 5.0f) {
+                    if (entity->getYOffset() > maxJumpHeight) {
                         entity->setJumping(false);
                         entity->setFalling(true);
-                        entity->setYOffset(5.0f);
+                        entity->setYOffset(maxJumpHeight);
                     }
                 } else if (entity->isFalling()) {
-                    entity->setJumpSpeed(std::min(entity->getJumpSpeed() + 0.01f, 0.5f));
+                    entity->setJumpSpeed(std::min(entity->getJumpSpeed() + jumpSpeedIncrease, initjumpSpeed));
                     entity->setYOffset(entity->getYOffset() - entity->getJumpSpeed());
 
-                    if (entity->getYOffset() <= 0.0f) {
+                    if (entity->getYOffset() <= minJumpHeight) {
                         entity->setFalling(false);
-                        entity->setYOffset(0.0f);
+                        entity->setYOffset(minJumpHeight);
                     }
                 }
 
