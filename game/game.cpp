@@ -16,7 +16,8 @@ std::map<std::string, int> iconsMap = {
     {"pikeman", 12},      {"silver-trophy", 13},
     {"surplus", 14},      {"town", 15},
     {"treasury", 16},     {"upkeep", 17},
-    {"villager", 18},     {"zwords", 19}
+    {"villager", 18},     {"zwords", 19},
+    {"zznext", 20}
 };
 
 // Custom comparison function for SDL_Color
@@ -120,6 +121,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     playerTurn(0),
     entitySelected(false),
     selectedEntityIndex(-1),
+    turnButton(0, 0, 0, 0, "", 0),
     draggedButton(nullptr),
     cameraSpeed(cameraSpeed)
 {
@@ -188,6 +190,10 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     unitButtons.emplace_back(startX + 2 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "knight", 40);
     unitButtons.emplace_back(startX + 3 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "hero", 80);
     unitButtons.emplace_back(startX + 4 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "castle", 20);
+
+    // turn button on the bottom right corner
+    int turnButtonWidth = buttonSize * 2;
+    turnButton = Button(windowWidth - turnButtonWidth- 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zznext", 0);
 }
 
 Game::Game(const Game& other)
@@ -203,6 +209,7 @@ Game::Game(const Game& other)
       nbplayers(other.nbplayers),
       turn(other.turn),
       unitButtons(other.unitButtons),
+      turnButton(other.turnButton),
       draggedButton(nullptr),
       cameraX(other.cameraX),     
       cameraY(other.cameraY),
@@ -239,6 +246,7 @@ Game& Game::operator=(const Game& other) {
         nbplayers = other.nbplayers;
         turn = other.turn;
         unitButtons = other.unitButtons;
+        turnButton = other.turnButton;
         draggedButton = nullptr;
         cameraX = other.cameraX;
         cameraY = other.cameraY;
@@ -489,95 +497,93 @@ bool Game::HexNotOnTerritoryAndAccessible(const std::shared_ptr<Entity>& entity,
 
 
 void Game::handleEvent(SDL_Event& event) {
-    // if 'E' is pressed, change player
-    if (event.type == SDL_KEYDOWN) {
-        if (event.key.keysym.sym == SDLK_e) {
-            // if entities on hex not existing on the grid refund the cost of the entity
-            if(entitySelected) {
-                auto& entity = players[playerTurn]->getEntities()[selectedEntityIndex];
-                Hex entityHex = entity->getHex();
-                if(!(grid.hexExists(entityHex))) {
-                    players[playerTurn]->removeEntity(entity);
-                    // refund the cost of the entity
-                    for(auto& button : unitButtons) {
-                        if(button.getIconName() == entity->getName()) {
-                            players[playerTurn]->addCoins(button.getCost());
-                        }
+    // if 'E' is pressed or turnbutton clicked, change player
+    if ((event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) || (event.type == SDL_MOUSEBUTTONDOWN && turnButton.containsPoint(event.button.x, event.button.y))) {
+        // if entities on hex not existing on the grid refund the cost of the entity
+        if(entitySelected) {
+            auto& entity = players[playerTurn]->getEntities()[selectedEntityIndex];
+            Hex entityHex = entity->getHex();
+            if(!(grid.hexExists(entityHex))) {
+                players[playerTurn]->removeEntity(entity);
+                // refund the cost of the entity
+                for(auto& button : unitButtons) {
+                    if(button.getIconName() == entity->getName()) {
+                        players[playerTurn]->addCoins(button.getCost());
                     }
                 }
             }
-            selectedEntityIndex = -1;
-            entitySelected = false;
+        }
+        selectedEntityIndex = -1;
+        entitySelected = false;
 
-            for(auto& player : players) {
-                checkIfHexConnectedToTown(*player);
+        for(auto& player : players) {
+            checkIfHexConnectedToTown(*player);
+        }
+        
+
+        // Remove dead players
+        std::vector<std::shared_ptr<Player>> toRemove;
+        for (auto& player : players) {
+            if (!player->isAlive()) {
+                toRemove.push_back(player);
             }
-            
+        }
+        for (auto& player : toRemove) {
+            removePlayer(player);
+        }
+        // Change player
+        playerTurn = (playerTurn + 1) % players.size();
+        auto& currentPlayer = players[playerTurn];
 
-            // Remove dead players
-            std::vector<std::shared_ptr<Player>> toRemove;
-            for (auto& player : players) {
-                if (!player->isAlive()) {
-                    toRemove.push_back(player);
-                }
-            }
-            for (auto& player : toRemove) {
-                removePlayer(player);
-            }
-            // Change player
-            playerTurn = (playerTurn + 1) % players.size();
-            auto& currentPlayer = players[playerTurn];
-
-            // BANDIT AND TREASURE ACTIONS HERE
-            if (playerTurn == 0) {
-                turn++;
-                if(turn > 0) {
-                    manageBandits();
-                }
-                if(treasures.empty()) {
-                    int treasureValue = std::rand() % 10 + 1;
-                    if(std::rand() % 4 == 0) {
-                        Hex treasureHex = randomfreeHex();
-                        if(treasureHex.getQ() != -1 && treasureHex.getR() != -1 && treasureHex.getS() != -1) {
-                            addTreasure(treasureHex, treasureValue);
-                        }
-                    }
-                }
-            }
-
-            // END OF BANDIT AND TREASURE ACTIONS
-
+        // BANDIT AND TREASURE ACTIONS HERE
+        if (playerTurn == 0) {
+            turn++;
             if(turn > 0) {
-                // land income
-                currentPlayer->addCoins(grid.getNbCasesColor(currentPlayer->getColor()));
-
-                // Pay upkeep for each entity in reverse order (because we remove entities)
-                std::vector<std::shared_ptr<Entity>> toRemove;
-                for(auto& entity : currentPlayer->getEntities()) {
-                    bool building = dynamic_cast<Building*>(entity.get());
-
-                    if(!building) {
-                        entity->setMoved(false);
+                manageBandits();
+            }
+            if(treasures.empty()) {
+                int treasureValue = std::rand() % 10 + 1;
+                if(std::rand() % 4 == 0) {
+                    Hex treasureHex = randomfreeHex();
+                    if(treasureHex.getQ() != -1 && treasureHex.getR() != -1 && treasureHex.getS() != -1) {
+                        addTreasure(treasureHex, treasureValue);
                     }
-                    int currentUpkeep = entity->getUpkeep();
+                }
+            }
+        }
 
-                    if(currentPlayer->getCoins() >= currentUpkeep) {
-                        currentPlayer->removeCoins(currentUpkeep);
+        // END OF BANDIT AND TREASURE ACTIONS
+
+        if(turn > 0) {
+            // land income
+            currentPlayer->addCoins(grid.getNbCasesColor(currentPlayer->getColor()));
+
+            // Pay upkeep for each entity in reverse order (because we remove entities)
+            std::vector<std::shared_ptr<Entity>> toRemove;
+            for(auto& entity : currentPlayer->getEntities()) {
+                bool building = dynamic_cast<Building*>(entity.get());
+
+                if(!building) {
+                    entity->setMoved(false);
+                }
+                int currentUpkeep = entity->getUpkeep();
+
+                if(currentPlayer->getCoins() >= currentUpkeep) {
+                    currentPlayer->removeCoins(currentUpkeep);
+                } else {
+                    Hex entityHex = entity->getHex();
+                    if(building) {
+                        // replace by bandit camp
+                        addBanditCamp(entityHex);
                     } else {
-                        Hex entityHex = entity->getHex();
-                        if(building) {
-                            // replace by bandit camp
-                            addBanditCamp(entityHex);
-                        } else {
-                            // replace by bandit
-                            addBandit(entityHex);
-                        }
-                        toRemove.push_back(entity);
+                        // replace by bandit
+                        addBandit(entityHex);
                     }
+                    toRemove.push_back(entity);
                 }
-                for(auto& entity : toRemove) {
-                    currentPlayer->removeEntity(entity);
-                }
+            }
+            for(auto& entity : toRemove) {
+                currentPlayer->removeEntity(entity);
             }
         }
     }
@@ -921,6 +927,29 @@ void Game::renderButton(SDL_Renderer* renderer, const Button& button) const {
     }
 }
 
+void Game::renderTurnButton(SDL_Renderer* renderer) const {
+    SDL_Rect buttonRect = turnButton.getRect();
+
+    // Draw button background
+    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
+    SDL_RenderFillRect(renderer, &buttonRect);
+
+    // Draw button border
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderDrawRect(renderer, &buttonRect);
+
+    // Draw button icon
+    SDL_Texture* iconTexture = textures[iconsMap.at(turnButton.getIconName())];
+
+    SDL_Rect iconRect = {
+        buttonRect.x + (buttonRect.w - buttonRect.h) / 2,
+        buttonRect.y + (buttonRect.h - buttonRect.h) / 2,
+        buttonRect.h,
+        buttonRect.h
+    };
+    SDL_RenderCopy(renderer, iconTexture, NULL, &iconRect);
+}
+
 void Game::render(SDL_Renderer* renderer) const {
     // Draw the grid
     grid.draw(renderer, cameraX, cameraY);
@@ -1048,6 +1077,9 @@ void Game::render(SDL_Renderer* renderer) const {
     for (const auto& button : unitButtons) {
         renderButton(renderer, button);
     }
+
+    // Render the turn button
+    renderTurnButton(renderer);
 }
 
 bool Game::isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) const {

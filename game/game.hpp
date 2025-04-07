@@ -48,6 +48,7 @@ class Game {
     int nbBanditsOnColor(const SDL_Color& color);
     void upgradeEntity(const Hex& hex);
     void renderButton(SDL_Renderer* renderer, const Button& button) const;
+    void renderTurnButton(SDL_Renderer* renderer) const;
     void removePlayer(std::shared_ptr<Player> player);
     void checkIfHexConnectedToTown(Player& player);
     void disconnectHex(Player& player, const Hex& hex);
@@ -67,6 +68,7 @@ class Game {
     int nbplayers;
     int turn;
     std::vector<Button> unitButtons;
+    Button turnButton;
     Button* draggedButton;
     int cameraX, cameraY, cameraSpeed;
 };
