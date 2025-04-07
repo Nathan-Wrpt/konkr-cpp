@@ -222,6 +222,11 @@ Game::Game(const Game& other)
     for (const auto& banditCamp : other.banditCamps) {
         banditCamps.push_back(std::make_shared<BanditCamp>(*banditCamp));
     }
+
+    // Copy treasures
+    for (const auto& treasure : other.treasures) {
+        treasures.push_back(std::make_shared<Treasure>(*treasure));
+    }
 }
 
 Game& Game::operator=(const Game& other) {
@@ -255,6 +260,12 @@ Game& Game::operator=(const Game& other) {
         banditCamps.clear();
         for (const auto& banditCamp : other.banditCamps) {
             banditCamps.push_back(std::make_shared<BanditCamp>(*banditCamp));
+        }
+
+        // Copy treasures
+        treasures.clear();
+        for (const auto& treasure : other.treasures) {
+            treasures.push_back(std::make_shared<Treasure>(*treasure));
         }
     }
     return *this;
