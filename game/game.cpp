@@ -727,7 +727,7 @@ void Game::handleEvent(SDL_Event& event) {
                                 }
                             }
                         }
-                    } else if (entity && !(entity->getHex() == clickedHex) && entity->getName() == hasSamePlayerEntities(clickedHex, *currentPlayer) && entity->getName() != "hero") {
+                    } else if (entity && !(entity->getHex() == clickedHex) && entity->getName() == hasSamePlayerEntities(clickedHex, *currentPlayer) && entity->getName() != "hero" && entity->getName() != "castle") {
                         currentPlayer->removeEntity(entity);
                         upgradeEntity(clickedHex);
                     } else if(entity && !grid.hexExists(entity->getHex())) {
@@ -944,30 +944,32 @@ void Game::render(SDL_Renderer* renderer) const {
         SDL_RenderCopy(renderer, textures[iconsMap.at(selectedEntity.getName())], NULL, &entityRect);
 
         // Draw yellow small rectangles on accessible hexes
-        for (const auto& hex : grid.getHexes()) {
-            if (HexNotOnTerritoryAndAccessible(selectedEntityptr, hex)) {
-                Point hexPos = grid.hexToPixel(hex);
-                SDL_Rect hexRect;
-                hexRect.x = static_cast<int>(hexPos.x - grid.getHexSize() / 2);
-                hexRect.y = static_cast<int>(hexPos.y - grid.getHexSize() / 2);
-                // Adjust the position based on camera as usual
-                hexRect.x -= cameraX;
-                hexRect.y -= cameraY;
-                hexRect.w = static_cast<int>(grid.getHexSize());
-                hexRect.h = static_cast<int>(grid.getHexSize());
-                // Draw the rectangle, red if the hex is occupied and can be attacked
-                if(entityOnHex(hex)) {
-                    SDL_SetRenderDrawColor(renderer, 150, 0, 0, 100); // Red color
-                    SDL_RenderDrawRect(renderer, &hexRect);
-                    // put the texture "zword" on the hex
-                    SDL_Rect swordRect = {hexRect.x + hexRect.w / 2 - 10, hexRect.y + hexRect.h / 2 - 10, 20, 20};
-                    SDL_RenderCopy(renderer, textures[iconsMap.at("zwords")], NULL, &swordRect);
-                } else {
-                    SDL_SetRenderDrawColor(renderer, 150, 150, 0, 100); // Yellow color
-                    SDL_RenderDrawRect(renderer, &hexRect);
+        if(selectedEntityptr->getName() != "castle") {
+            for (const auto& hex : grid.getHexes()) {
+                if (HexNotOnTerritoryAndAccessible(selectedEntityptr, hex)) {
+                    Point hexPos = grid.hexToPixel(hex);
+                    SDL_Rect hexRect;
+                    hexRect.x = static_cast<int>(hexPos.x - grid.getHexSize() / 2);
+                    hexRect.y = static_cast<int>(hexPos.y - grid.getHexSize() / 2);
+                    // Adjust the position based on camera as usual
+                    hexRect.x -= cameraX;
+                    hexRect.y -= cameraY;
+                    hexRect.w = static_cast<int>(grid.getHexSize());
+                    hexRect.h = static_cast<int>(grid.getHexSize());
+                    // Draw the rectangle, red if the hex is occupied and can be attacked
+                    if(entityOnHex(hex)) {
+                        SDL_SetRenderDrawColor(renderer, 150, 0, 0, 100); // Red color
+                        SDL_RenderDrawRect(renderer, &hexRect);
+                        // put the texture "zword" on the hex
+                        SDL_Rect swordRect = {hexRect.x + hexRect.w / 2 - 10, hexRect.y + hexRect.h / 2 - 10, 20, 20};
+                        SDL_RenderCopy(renderer, textures[iconsMap.at("zwords")], NULL, &swordRect);
+                    } else {
+                        SDL_SetRenderDrawColor(renderer, 150, 150, 0, 100); // Yellow color
+                        SDL_RenderDrawRect(renderer, &hexRect);
+                    }
                 }
             }
-        }
+        } 
     }
 
     // Render all players' entities
