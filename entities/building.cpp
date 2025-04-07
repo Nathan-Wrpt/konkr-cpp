@@ -24,7 +24,7 @@ Castle::~Castle() {}
 
 // --- BanditCamp Class Implementation ---
 BanditCamp::BanditCamp(Hex hex) 
-    : Building(hex, 0, "bandit_camp", 0) {
+    : Building(hex, 1, "bandit_camp", 0) {
     coins = 0;
 }
 
