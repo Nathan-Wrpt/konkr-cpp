@@ -962,7 +962,14 @@ void Game::render(SDL_Renderer* renderer) const {
         // Draw yellow small rectangles on accessible hexes
         if(selectedEntityptr->getName() != "castle") {
             for (const auto& hex : grid.getHexes()) {
-                if (HexNotOnTerritoryAndAccessible(selectedEntityptr, hex)) {
+                bool banditOnHex = false;
+                for (const auto& bandit : bandits) {
+                    if (bandit->getHex() == hex) {
+                        banditOnHex = true;
+                        break;
+                    }
+                }
+                if (HexNotOnTerritoryAndAccessible(selectedEntityptr, hex) || (grid.getHexColors().at(hex) == currentPlayer->getColor() && banditOnHex)) {
                     Point hexPos = grid.hexToPixel(hex);
                     SDL_Rect hexRect;
                     hexRect.x = static_cast<int>(hexPos.x - grid.getHexSize() / 2);
