@@ -788,7 +788,13 @@ void Game::update() {
 
         for (auto& entity : player->getEntities()) {
             if (entity->hasMoved() || dynamic_cast<Building*>(entity.get())) {
-                entity->setYOffset(0.0f);
+                entity->setYOffset(minJumpHeight);
+                entity->setJumping(false);
+                entity->setFalling(false);
+                entity->setJumpSpeed(initjumpSpeed);
+                if (entity->getYOffset() > minJumpHeight) {
+                    entity->setYOffset(minJumpHeight);
+                }
                 continue;
             }
 
@@ -815,6 +821,7 @@ void Game::update() {
 
                     if (entity->getYOffset() <= minJumpHeight) {
                         entity->setFalling(false);
+                        entity->setJumping(true);
                         entity->setYOffset(minJumpHeight);
                     }
                 }
@@ -950,10 +957,10 @@ void Game::render(SDL_Renderer* renderer) const {
                 hexRect.h = static_cast<int>(grid.getHexSize());
                 // Draw the rectangle, red if the hex is occupied and can be attacked
                 if(entityOnHex(hex)) {
-                    SDL_SetRenderDrawColor(renderer, 150, 0, 0, 100); // Red color with transparency
+                    SDL_SetRenderDrawColor(renderer, 150, 0, 0, 100); // Red color
                     SDL_RenderDrawRect(renderer, &hexRect);
                 } else {
-                    SDL_SetRenderDrawColor(renderer, 150, 150, 0, 100); // Yellow color with transparency
+                    SDL_SetRenderDrawColor(renderer, 150, 150, 0, 100); // Yellow color
                     SDL_RenderDrawRect(renderer, &hexRect);
                 }
             }
