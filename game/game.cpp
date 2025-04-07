@@ -661,6 +661,8 @@ void Game::handleEvent(SDL_Event& event) {
                             entity->setMoved(true);
                         }
 
+                        moveSuccessful = entity->move(grid, clickedHex, currentPlayer->getColor());
+
                         // We flag the entity as moved if the move was successful
                         if (moveSuccessful) {
                             bool movedOnSameColor = targetColor == currentPlayer->getColor();
