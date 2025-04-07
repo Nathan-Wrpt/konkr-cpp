@@ -588,7 +588,7 @@ void Game::handleEvent(SDL_Event& event) {
     if(event.key.keysym.sym == SDLK_1 || event.key.keysym.sym == SDLK_AMPERSAND) { // AZERTY: '&'
         entityToBuy = "villager";
     }
-    if(event.key.keysym.sym == SDLK_2 || event.key.keysym.sym == SDLK_QUOTEDBL) { // AZERTY: 'é'
+    if(event.key.keysym.sym == SDLK_2 || event.key.keysym.sym == SDLK_p) { // AZERTY: 'p'
         entityToBuy = "pikeman";
     }
     if(event.key.keysym.sym == SDLK_3 || event.key.keysym.sym == SDLK_QUOTE) { // AZERTY: '"'
@@ -615,8 +615,7 @@ void Game::handleEvent(SDL_Event& event) {
                     if (button.getIconName() == "villager") {
                         players[playerTurn]->addEntity(std::make_shared<Villager>(clickedHex));
                     } else if (button.getIconName() == "pikeman") {
-                        players[playerTurn]->addEntity(std::make_shared<Pikeman>(clickedHex
-                        ));
+                        players[playerTurn]->addEntity(std::make_shared<Pikeman>(clickedHex));
                     } else if (button.getIconName() == "knight") {
                         players[playerTurn]->addEntity(std::make_shared<Knight>(clickedHex));
                     } else if (button.getIconName() == "hero") {
@@ -932,6 +931,22 @@ void Game::render(SDL_Renderer* renderer) const {
 
     auto& currentPlayer = players[playerTurn];
 
+    // Render all players' entities
+    for (size_t i = 0; i < players.size(); i++) {
+        const auto& player = players[i];
+        for (const auto& entity : player->getEntities()) {
+            // Skip rendering the selected entity if it belongs to the current player
+            if(entitySelected && entity == currentPlayer->getEntities()[selectedEntityIndex]) {
+                continue;
+            }
+            // Determine the texture based on entity type
+            std::string textureKey = entity->getName();
+
+            // Render the entity
+            render_entity(renderer, *entity, textures[iconsMap.at(textureKey)]);
+        }
+    }
+
     // Render of the entity on the cursor if selected
     if(entitySelected) {
         const auto& playerEntities = currentPlayer->getEntities();
@@ -971,22 +986,6 @@ void Game::render(SDL_Renderer* renderer) const {
                 }
             }
         } 
-    }
-
-    // Render all players' entities
-    for (size_t i = 0; i < players.size(); i++) {
-        const auto& player = players[i];
-        for (const auto& entity : player->getEntities()) {
-            // Skip rendering the selected entity if it belongs to the current player
-            if(entitySelected && entity == currentPlayer->getEntities()[selectedEntityIndex]) {
-                continue;
-            }
-            // Determine the texture based on entity type
-            std::string textureKey = entity->getName();
-
-            // Render the entity
-            render_entity(renderer, *entity, textures[iconsMap.at(textureKey)]);
-        }
     }
 
     // Display current player's color at the top of the screen
