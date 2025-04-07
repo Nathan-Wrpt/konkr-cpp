@@ -306,7 +306,7 @@ void Game::addTreasure(Hex hex, int value) {
     treasures.push_back(std::make_shared<Treasure>(hex, value));
 }
 
-bool Game::entityOnHex(const Hex& hex) {
+bool Game::entityOnHex(const Hex& hex) const {
     for(const auto& bandit : bandits) {
         if (bandit->getHex() == hex) {
             return true;
@@ -948,9 +948,14 @@ void Game::render(SDL_Renderer* renderer) const {
                 hexRect.y -= cameraY;
                 hexRect.w = static_cast<int>(grid.getHexSize());
                 hexRect.h = static_cast<int>(grid.getHexSize());
-                // Draw the yellow not filled hex
-                SDL_SetRenderDrawColor(renderer, 150, 150, 0, 100); // Yellow color with transparency
-                SDL_RenderDrawRect(renderer, &hexRect);
+                // Draw the rectangle, red if the hex is occupied and can be attacked
+                if(entityOnHex(hex)) {
+                    SDL_SetRenderDrawColor(renderer, 150, 0, 0, 100); // Red color with transparency
+                    SDL_RenderDrawRect(renderer, &hexRect);
+                } else {
+                    SDL_SetRenderDrawColor(renderer, 150, 150, 0, 100); // Yellow color with transparency
+                    SDL_RenderDrawRect(renderer, &hexRect);
+                }
             }
         }
     }

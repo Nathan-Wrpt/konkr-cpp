@@ -43,7 +43,7 @@ class Game {
     void addBandit(Hex hex);
     void addBanditCamp(Hex hex);
     void addTreasure(Hex hex, int value);
-    bool entityOnHex(const Hex& hex);
+    bool entityOnHex(const Hex& hex) const;
     void manageBandits();
     int nbBanditsOnColor(const SDL_Color& color);
     void upgradeEntity(const Hex& hex);
