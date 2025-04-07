@@ -16,7 +16,7 @@ std::map<std::string, int> iconsMap = {
     {"pikeman", 12},      {"silver-trophy", 13},
     {"surplus", 14},      {"town", 15},
     {"treasury", 16},     {"upkeep", 17},
-    {"villager", 18}
+    {"villager", 18},     {"zwords", 19}
 };
 
 // Custom comparison function for SDL_Color
@@ -959,6 +959,9 @@ void Game::render(SDL_Renderer* renderer) const {
                 if(entityOnHex(hex)) {
                     SDL_SetRenderDrawColor(renderer, 150, 0, 0, 100); // Red color
                     SDL_RenderDrawRect(renderer, &hexRect);
+                    // put the texture "zword" on the hex
+                    SDL_Rect swordRect = {hexRect.x + hexRect.w / 2 - 10, hexRect.y + hexRect.h / 2 - 10, 20, 20};
+                    SDL_RenderCopy(renderer, textures[iconsMap.at("zwords")], NULL, &swordRect);
                 } else {
                     SDL_SetRenderDrawColor(renderer, 150, 150, 0, 100); // Yellow color
                     SDL_RenderDrawRect(renderer, &hexRect);
