@@ -537,10 +537,6 @@ void Game::handleEvent(SDL_Event& event) {
         playerTurn = (playerTurn + 1) % players.size();
         auto& currentPlayer = players[playerTurn];
 
-        for(auto& entity : currentPlayer->getEntities()) {
-            printf("Entity %s has moved ? %s\n", entity->getName().c_str(), entity->hasMoved() ? "true" : "false");
-        }
-
         // BANDIT AND TREASURE ACTIONS HERE
         if (playerTurn == 0) {
             turn++;
