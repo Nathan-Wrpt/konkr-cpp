@@ -17,7 +17,7 @@ std::map<std::string, int> iconsMap = {
     {"surplus", 14},      {"town", 15},
     {"treasury", 16},     {"upkeep", 17},
     {"villager", 18},     {"zwords", 19},
-    {"zznext", 20}
+    {"zznext", 20},       {"zznext2", 21},
 };
 
 // Custom comparison function for SDL_Color
@@ -98,10 +98,12 @@ void Game::generateEntities(const std::vector<std::string>& entityMap, const std
             // Add entity
             if (c == 'T') {
                 playerForEntity->addEntity(std::make_shared<Town>(hex));
+                playerForEntity->getEntities().back()->setMoved(true);
             } else if (c == 'V') {
                 playerForEntity->addEntity(std::make_shared<Villager>(hex));
             } else if (c == 'C') {
                 playerForEntity->addEntity(std::make_shared<Castle>(hex));
+                playerForEntity->getEntities().back()->setMoved(true);
             }
             else if (c == 'P') {
                 playerForEntity->addEntity(std::make_shared<Pikeman>(hex));
@@ -192,7 +194,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     unitButtons.emplace_back(startX + 4 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "castle", 20);
 
     // turn button on the bottom right corner
-    int turnButtonWidth = buttonSize * 2;
+    int turnButtonWidth = buttonSize * 3;
     turnButton = Button(windowWidth - turnButtonWidth- 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zznext", 0);
 }
 
@@ -534,6 +536,10 @@ void Game::handleEvent(SDL_Event& event) {
         // Change player
         playerTurn = (playerTurn + 1) % players.size();
         auto& currentPlayer = players[playerTurn];
+
+        for(auto& entity : currentPlayer->getEntities()) {
+            printf("Entity %s has moved ? %s\n", entity->getName().c_str(), entity->hasMoved() ? "true" : "false");
+        }
 
         // BANDIT AND TREASURE ACTIONS HERE
         if (playerTurn == 0) {
@@ -929,25 +935,23 @@ void Game::renderButton(SDL_Renderer* renderer, const Button& button) const {
 
 void Game::renderTurnButton(SDL_Renderer* renderer) const {
     SDL_Rect buttonRect = turnButton.getRect();
-
-    // Draw button background
-    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 255);
-    SDL_RenderFillRect(renderer, &buttonRect);
-
-    // Draw button border
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderDrawRect(renderer, &buttonRect);
-
-    // Draw button icon
+    auto& currentPlayer = players[playerTurn];
+    
+    // if all the ntities of the player have moved, change the color of the button
+    bool allEntitiesMoved = true;
+    for(const auto& entity : currentPlayer->getEntities()) {
+        if(!entity->hasMoved()) {
+            allEntitiesMoved = false;
+            break;
+        }
+    }
     SDL_Texture* iconTexture = textures[iconsMap.at(turnButton.getIconName())];
-
-    SDL_Rect iconRect = {
-        buttonRect.x + (buttonRect.w - buttonRect.h) / 2,
-        buttonRect.y + (buttonRect.h - buttonRect.h) / 2,
-        buttonRect.h,
-        buttonRect.h
-    };
-    SDL_RenderCopy(renderer, iconTexture, NULL, &iconRect);
+    if(allEntitiesMoved && currentPlayer->getCoins() < 10) {
+        printf("all entities moved and not enough coins to buy a new entity\n");
+        iconTexture = textures[iconsMap.at("zznext2")];
+    } 
+    // Draw button icon
+    SDL_RenderCopy(renderer, iconTexture, NULL, &buttonRect);
 }
 
 void Game::render(SDL_Renderer* renderer) const {
