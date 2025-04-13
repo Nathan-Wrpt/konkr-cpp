@@ -949,7 +949,6 @@ void Game::renderTurnButton(SDL_Renderer* renderer) const {
     }
     SDL_Texture* iconTexture = textures[iconsMap.at(turnButton.getIconName())];
     if(allEntitiesMoved && currentPlayer->getCoins() < 10) {
-        printf("all entities moved and not enough coins to buy a new entity\n");
         iconTexture = textures[iconsMap.at("zznext2")];
     } 
     if(players.size() == 1) {
