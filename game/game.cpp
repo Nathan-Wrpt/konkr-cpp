@@ -1071,7 +1071,6 @@ void Game::render(SDL_Renderer* renderer) const {
     } else {
         renderData.renderImageWithText(upkeepRect, "surplus", stringupkeep);
     }
-    TTF_CloseFont(font);
 
     // Render all buttons
     for (const auto& button : unitButtons) {
@@ -1080,7 +1079,97 @@ void Game::render(SDL_Renderer* renderer) const {
 
     // Render the turn button
     renderTurnButton(renderer);
+    
+    // Display game over message if only one player remains
+    if (players.size() == 1) {
+        int windowWidth, windowHeight;
+        SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
+        
+        // Position the message above the unit buttons
+        int buttonY = windowHeight - unitButtons[0].getRect().h - 20 - 10;
+        int messageY = buttonY - 80; // Position above the buttons
+        
+        // background for the message
+        SDL_Rect messageBgRect = {
+            windowWidth / 2 - 190,
+            messageY,
+            390,
+            60
+        };
+        
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+        SDL_RenderFillRect(renderer, &messageBgRect);
+        
+        SDL_SetRenderDrawColor(renderer, 255, 215, 0, 255); // Gold
+        SDL_RenderDrawRect(renderer, &messageBgRect);
+        
+        // Render "Game over!" text
+        if (font) {
+            SDL_Color textColor = {255, 255, 255, 255}; // White text
+            std::string gameOverText = "Game over! Player";
+            
+            SDL_Surface* textSurface = TTF_RenderText_Solid(font, gameOverText.c_str(), textColor);
+            if (textSurface) {
+                SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+                
+                if (textTexture) {
+                    SDL_Rect textRect = {
+                        messageBgRect.x + 20,
+                        messageBgRect.y + (messageBgRect.h - textSurface->h) / 2,
+                        textSurface->w,
+                        textSurface->h
+                    };
+                    
+                    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+                    
+                    // Draw winner's color square
+                    SDL_Rect winnerColorRect = {
+                        textRect.x + textRect.w + 10,
+                        textRect.y + (textRect.h - 30) / 2,
+                        30,
+                        30
+                    };
+                    
+                    SDL_Color winnerColor = players[0]->getColor();
+                    SDL_SetRenderDrawColor(renderer, winnerColor.r, winnerColor.g, winnerColor.b, winnerColor.a);
+                    SDL_RenderFillRect(renderer, &winnerColorRect);
+                    
+                    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                    SDL_RenderDrawRect(renderer, &winnerColorRect);
+                    
+                    // Render "has won!" text
+                    std::string hasWonText = "has won!";
+                    SDL_Surface* wonSurface = TTF_RenderText_Solid(font, hasWonText.c_str(), textColor);
+                    
+                    if (wonSurface) {
+                        SDL_Texture* wonTexture = SDL_CreateTextureFromSurface(renderer, wonSurface);
+                        
+                        if (wonTexture) {
+                            SDL_Rect wonRect = {
+                                winnerColorRect.x + winnerColorRect.w + 10,
+                                textRect.y,
+                                wonSurface->w,
+                                wonSurface->h
+                            };
+                            
+                            SDL_RenderCopy(renderer, wonTexture, NULL, &wonRect);
+                            SDL_DestroyTexture(wonTexture);
+                        }
+                        
+                        SDL_FreeSurface(wonSurface);
+                    }
+                    
+                    SDL_DestroyTexture(textTexture);
+                }
+                
+                SDL_FreeSurface(textSurface);
+            }
+        }
+    }
+    
+    TTF_CloseFont(font);
 }
+
 
 bool Game::isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) const {
     // Define the directions to the six neighbors
