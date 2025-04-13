@@ -15,6 +15,8 @@
 #include "../ui/data.hpp"
 #include "../constants/constants.hpp"
 
+#include "entitymanager.hpp"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
@@ -39,7 +41,6 @@ class Game {
     void render(SDL_Renderer* renderer) const;
     bool isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) const;
     std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
-    void addBandit(Hex hex);
     void addBanditCamp(Hex hex);
     void addTreasure(Hex hex, int value);
     void addDevil(Hex hex);
@@ -56,26 +57,9 @@ class Game {
     bool HexNotOnTerritoryAndAccessible(const std::shared_ptr<Entity>& entity, const Hex& targetHex) const;
     bool isEndGame() const { return endGame; }
 
-    //Getters
-    HexagonalGrid getGrid() const { return grid; }
-    std::vector<std::shared_ptr<Player>> getPlayers() const { return players; }
-    std::vector<std::shared_ptr<Bandit>> getBandits() const { return bandits; }
-    std::vector<std::shared_ptr<BanditCamp>> getBanditCamps() const { return banditCamps; }
-    std::vector<std::shared_ptr<Treasure>> getTreasures() const { return treasures; }
-    int getPlayerTurn() const { return playerTurn; }
-    bool getEntitySelected() const { return entitySelected; }
-    std::vector<SDL_Texture*> getTextures() const { return textures; }
-    int getSelectedEntityIndex() const { return selectedEntityIndex; }
-    int getNbPlayers() const { return nbplayers; }
-    int getTurn() const { return turn; }
-    std::vector<Button> getUnitButtons() const { return unitButtons; }
-    Button* getDraggedButton() const { return draggedButton; }
-    int getCameraX() const { return cameraX; }
-    int getCameraY() const { return cameraY; }
-    int getCameraSpeed() const { return cameraSpeed; }
-
   private:
     HexagonalGrid grid;
+    EntityManager entityManager;
     std::vector<std::shared_ptr<Player>> players;
     std::vector<std::shared_ptr<Bandit>> bandits;
     std::vector<std::shared_ptr<BanditCamp>> banditCamps;

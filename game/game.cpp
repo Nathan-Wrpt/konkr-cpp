@@ -51,7 +51,7 @@ void Game::generateEntities(const std::vector<std::string>& entityMap, const std
             }
 
             if(c == 'B'){
-                addBandit(hex);
+                entityManager.addBandit(hex, bandits);
                 continue;
             }
 
@@ -313,10 +313,6 @@ Hex Game::randomfreeHex() {
     return randomHex;
 }
 
-void Game::addBandit(Hex hex) {
-    bandits.push_back(std::make_shared<Bandit>(hex));
-}
-
 void Game::addBanditCamp(Hex hex) {
     banditCamps.push_back(std::make_shared<BanditCamp>(hex));
 }
@@ -453,7 +449,7 @@ void Game::manageBandits(){
                 Hex newHex = banditcamp->getHex().add(direction);
 
                 if (grid.hexExists(newHex) && !entityOnHex(newHex)) {
-                    addBandit(newHex);
+                    entityManager.addBandit(newHex, bandits);
                     banditcamp->removeCoins(banditCost);
                     placed = true;
                 } else {
@@ -661,7 +657,7 @@ void Game::handleEvent(SDL_Event& event) {
                         addBanditCamp(entityHex);
                     } else {
                         // replace by bandit
-                        addBandit(entityHex);
+                        entityManager.addBandit(entityHex, bandits);
                     }
                     toRemove.push_back(entity);
                 }
@@ -1342,7 +1338,7 @@ void Game::removePlayer(std::shared_ptr<Player> player) {
             if (dynamic_cast<Building*>(entity.get())) {
                 addBanditCamp(entity->getHex());
             } else {
-                addBandit(entity->getHex());
+                entityManager.addBandit(entity->getHex(), bandits);
             }
             toRemove.push_back(entity);
         }
@@ -1461,7 +1457,7 @@ void Game::disconnectHex(Player& player, const Hex& hex) {
             if (dynamic_cast<Building*>(entity.get())) {
                 addBanditCamp(hex);
             } else {
-                addBandit(hex);
+                entityManager.addBandit(hex, bandits);
             }
             player.removeEntity(entity);
             break;
