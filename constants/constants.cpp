@@ -11,5 +11,6 @@ std::map<std::string, int> iconsMap = {
     {"surplus", 14},      {"town", 15},
     {"treasury", 16},     {"upkeep", 17},
     {"villager", 18},     {"zwords", 19},
-    {"zznext", 20}
+    {"zznext", 20},       {"zznext2", 21},
+    {"zzquit", 22},       {"zzzdevil", 23}
 };
