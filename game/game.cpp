@@ -18,6 +18,7 @@ std::map<std::string, int> iconsMap = {
     {"treasury", 16},     {"upkeep", 17},
     {"villager", 18},     {"zwords", 19},
     {"zznext", 20},       {"zznext2", 21},
+    {"zzquit", 22}
 };
 
 // Custom comparison function for SDL_Color
@@ -125,7 +126,8 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     selectedEntityIndex(-1),
     turnButton(0, 0, 0, 0, "", 0),
     draggedButton(nullptr),
-    cameraSpeed(cameraSpeed)
+    cameraSpeed(cameraSpeed),
+    endGame(false)
 {
     std::cout << "Game constructor started" << std::endl;
     turn = 0;
@@ -501,6 +503,10 @@ bool Game::HexNotOnTerritoryAndAccessible(const std::shared_ptr<Entity>& entity,
 void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed or turnbutton clicked, change player
     if ((event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) || (event.type == SDL_MOUSEBUTTONDOWN && turnButton.containsPoint(event.button.x, event.button.y))) {
+        if(players.size() == 1) {
+            endGame = true;
+            return;
+        }
         // if entities on hex not existing on the grid refund the cost of the entity
         if(entitySelected) {
             auto& entity = players[playerTurn]->getEntities()[selectedEntityIndex];
@@ -946,6 +952,9 @@ void Game::renderTurnButton(SDL_Renderer* renderer) const {
         printf("all entities moved and not enough coins to buy a new entity\n");
         iconTexture = textures[iconsMap.at("zznext2")];
     } 
+    if(players.size() == 1) {
+        iconTexture = textures[iconsMap.at("zzquit")];
+    }
     // Draw button icon
     SDL_RenderCopy(renderer, iconTexture, NULL, &buttonRect);
 }

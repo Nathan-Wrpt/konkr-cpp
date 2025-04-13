@@ -54,6 +54,7 @@ class Game {
     void disconnectHex(Player& player, const Hex& hex);
     Hex randomfreeHex();
     bool HexNotOnTerritoryAndAccessible(const std::shared_ptr<Entity>& entity, const Hex& targetHex) const;
+    bool isEndGame() const { return endGame; }
 
   private:
     HexagonalGrid grid;
@@ -71,6 +72,7 @@ class Game {
     Button turnButton;
     Button* draggedButton;
     int cameraX, cameraY, cameraSpeed;
+    bool endGame;
 };
 
 #endif
