@@ -301,7 +301,7 @@ Hex Game::randomfreeHex() {
     // check that the Hex is not occupated and not owned by a player
     int maxAttempts = 100;
     int attempts = 0;
-    while(entityOnHex(randomHex) || (std::find(playerColors.begin(), playerColors.end(), hexColor) != playerColors.end())) {
+    while(entityManager.entityOnHex(randomHex, bandits, banditCamps, treasures, devils, players) || (std::find(playerColors.begin(), playerColors.end(), hexColor) != playerColors.end())) {
         randomIndex = distrib(gen);
         randomHex = grid.getHexes()[randomIndex];
         hexColor = grid.getHexColors().at(randomHex);
@@ -313,37 +313,6 @@ Hex Game::randomfreeHex() {
     return randomHex;
 }
 
-bool Game::entityOnHex(const Hex& hex) const {
-    for(const auto& bandit : bandits) {
-        if (bandit->getHex() == hex) {
-            return true;
-        }
-    }
-    for(const auto& banditcamp : banditCamps) {
-        if (banditcamp->getHex() == hex) {
-            return true;
-        }
-    }
-    for (const auto& player : players) {
-        for (const auto& entity : player->getEntities()) {
-            if (entity->getHex() == hex) {
-                return true;
-            }
-        }
-    }
-    for (const auto& treasure : treasures) {
-        if (treasure->getHex() == hex) {
-            return true;
-        }
-    }
-    for (const auto& devil : devils) {
-        if (devil->getHex() == hex) {
-            return true;
-        }
-    }
-    return false;
-}
-
 int Game::nbBanditsOnColor(const SDL_Color& color) {
     int count = 0;
     for (const auto& bandit : bandits) {
@@ -352,100 +321,6 @@ int Game::nbBanditsOnColor(const SDL_Color& color) {
         }
     }
     return count;
-}
-
-void Game::manageBandits(){
-    // Directions possibles sur une grille hexagonale (pointy-top orientation)
-    const std::vector<Hex> directions = {
-        Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
-        Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
-    };
-
-    for (const auto& bandit : bandits) {
-        bool moved = false;
-        int maxAttempts = 10; // Limite le nombre de tentatives
-        int attempts = 0;
-
-        // Essayer de trouver une position valide
-        while (!moved && attempts < maxAttempts) {
-            // Choisir une direction aléatoire
-            Hex direction = directions[std::rand() % directions.size()];
-
-            // Calculer la nouvelle position
-            Hex newHex = bandit->getHex().add(direction);
-
-            // Check if there's a treasure on the new hex
-            bool treasureonHex = false;
-            for(auto& treasure : treasures) {
-                if(treasure->getHex() == newHex) {
-                    treasureonHex = true;
-                    break;
-                }
-            }
-
-            // CHECK IF DEVIL ON HEX
-            bool devilonHex = false;
-            for(auto& devil : devils) {
-                if(devil->getHex() == newHex) {
-                    devilonHex = true;
-                    break;
-                }
-            }
-
-            // Vérifier si la nouvelle position est valide
-            if (grid.hexExists(newHex) && !entityOnHex(newHex) && !treasureonHex && !devilonHex) {
-                bandit->moveBandit(grid, newHex);
-                moved = true;
-            } else {
-                attempts++;
-            }
-        }
-        Hex banditHex = bandit->getHex();
-        SDL_Color hexColor = grid.getHexColors().at(banditHex);
-        for(auto& player : players) {
-            if(hexColor == player->getColor()) {
-                // steal a coin from the player
-                player->removeCoins(1);
-
-                // locate the nearest bandit camp
-                int minDistance = 1000;
-                std::shared_ptr<BanditCamp> nearestBanditCamp = nullptr;
-                for(auto& banditcamp : banditCamps) {
-                    int distance = banditHex.distance(banditcamp->getHex());
-                    if(distance < minDistance) {
-                        minDistance = distance;
-                        nearestBanditCamp = banditcamp;
-                    }
-                }
-                if(nearestBanditCamp) {
-                    // give the stolen coin to the nearest bandit camp if it exists
-                    nearestBanditCamp->addCoins(1);
-                }
-            }
-        }
-    }
-    int banditCost = 5;
-    for(auto& banditcamp : banditCamps) {
-        if(banditcamp->getCoins() >= banditCost){
-            // spawn a bandit
-            int maxAttempts = 100;
-            int attempts = 0;
-            bool placed = false;
-            while (!placed && attempts < maxAttempts) {
-                Hex direction = directions[std::rand() % directions.size()];
-
-                Hex newHex = banditcamp->getHex().add(direction);
-
-                if (grid.hexExists(newHex) && !entityOnHex(newHex)) {
-                    entityManager.addBandit(newHex, bandits);
-                    banditcamp->removeCoins(banditCost);
-                    placed = true;
-                } else {
-                    attempts++;
-                }
-            }
-        }
-    }
 }
 
 void Game::upgradeEntity(const Hex& hex) {
@@ -550,7 +425,7 @@ void Game::handleEvent(SDL_Event& event) {
         if (playerTurn == 0) {
             turn++;
             if(turn > 0) {
-                manageBandits();
+                entityManager.manageBandits(grid, bandits, banditCamps, treasures, devils, players);
             }
             if(treasures.empty()) {
                 int treasureValue = std::rand() % 10 + 1;
@@ -740,7 +615,7 @@ void Game::handleEvent(SDL_Event& event) {
                     if ((entity) &&
                         !isSurroundedByOtherPlayerEntities(clickedHex, *currentPlayer, entity->getProtectionLevel()) &&
                         hasSamePlayerEntities(clickedHex, *currentPlayer) == "") {
-                        if(entity->getName() == "castle" && !entityOnHex(clickedHex) && grid.getHexColors().at(clickedHex) == currentPlayer->getColor()) {
+                        if(entity->getName() == "castle" && !entityManager.entityOnHex(clickedHex, bandits, banditCamps, treasures, devils, players) && grid.getHexColors().at(clickedHex) == currentPlayer->getColor()) {
                             entity->setHex(clickedHex);
                             entity->setMoved(true);
                         }
@@ -1106,7 +981,7 @@ void Game::render(SDL_Renderer* renderer) const {
                     hexRect.w = static_cast<int>(grid.getHexSize());
                     hexRect.h = static_cast<int>(grid.getHexSize());
                     // Draw the rectangle, red if the hex is occupied and can be attacked
-                    if(entityOnHex(hex)) {
+                    if(entityManager.entityOnHex(hex, bandits, banditCamps, treasures, devils, players)) {
                         SDL_SetRenderDrawColor(renderer, 150, 0, 0, 100); // Red color
                         SDL_RenderDrawRect(renderer, &hexRect);
                         // put the texture "zword" on the hex

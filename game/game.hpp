@@ -41,8 +41,6 @@ class Game {
     void render(SDL_Renderer* renderer) const;
     bool isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) const;
     std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
-    bool entityOnHex(const Hex& hex) const;
-    void manageBandits();
     int nbBanditsOnColor(const SDL_Color& color);
     void upgradeEntity(const Hex& hex);
     void renderButton(SDL_Renderer* renderer, const Button& button) const;
