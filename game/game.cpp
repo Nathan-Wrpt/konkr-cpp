@@ -571,7 +571,7 @@ void Game::handleEvent(SDL_Event& event) {
             for(auto& entity : currentPlayer->getEntities()) {
                 bool building = dynamic_cast<Building*>(entity.get());
 
-                if(!building) {
+                if(!building && players.size() > 1) { // if the player is alone, no need to make the units ready to move
                     entity->setMoved(false);
                 }
                 int currentUpkeep = entity->getUpkeep();
