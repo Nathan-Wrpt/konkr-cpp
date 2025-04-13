@@ -172,4 +172,21 @@ class Hero : public Entity {
     }
 };
 
+class Devil : public Entity {
+    public:
+        Devil();
+        Devil(Hex hex);
+        Devil(const Devil& other) : Entity(other) {}
+        Devil& operator=(const Devil& other) {
+            if (this != &other) {
+                Entity::operator=(other);
+            }
+            return *this;
+        }
+        virtual ~Devil();
+    std::shared_ptr<Entity> clone() const override {
+        return std::make_shared<Devil>(*this);
+    }
+};
+
 #endif // ENTITY_HPP

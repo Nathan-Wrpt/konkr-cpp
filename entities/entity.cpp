@@ -86,3 +86,7 @@ Hero::Hero(Hex hex)
     : Entity(hex, 4, "hero", 54) {}
 
 Hero::~Hero() {}
+
+Devil::Devil(Hex hex) 
+    : Entity(hex, 2, "devil", 100) {}
+Devil::~Devil() {}

@@ -25,7 +25,7 @@ const std::map<char, SDL_Color> colorMap = {
 
 Hex::Hex(int q, int r, int s) : q(q), r(r), s(s) {
     if (q + r + s != 0) {
-        throw std::invalid_argument("Invalid cube coordinates: q + r + s must != 0");
+        throw std::invalid_argument("Invalid cube coordinates: q + r + s must == 0");
     }
 }
 

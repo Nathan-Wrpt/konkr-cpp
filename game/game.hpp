@@ -43,6 +43,7 @@ class Game {
     void addBandit(Hex hex);
     void addBanditCamp(Hex hex);
     void addTreasure(Hex hex, int value);
+    void addDevil(Hex hex);
     bool entityOnHex(const Hex& hex) const;
     void manageBandits();
     int nbBanditsOnColor(const SDL_Color& color);
@@ -62,6 +63,7 @@ class Game {
     std::vector<std::shared_ptr<Bandit>> bandits;
     std::vector<std::shared_ptr<BanditCamp>> banditCamps;
     std::vector<std::shared_ptr<Treasure>> treasures;
+    std::vector<std::shared_ptr<Devil>> devils;
     size_t playerTurn;
     bool entitySelected;
     std::vector<SDL_Texture*> textures;

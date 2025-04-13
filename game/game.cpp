@@ -18,7 +18,7 @@ std::map<std::string, int> iconsMap = {
     {"treasury", 16},     {"upkeep", 17},
     {"villager", 18},     {"zwords", 19},
     {"zznext", 20},       {"zznext2", 21},
-    {"zzquit", 22}
+    {"zzquit", 22},       {"zzzdevil", 23}
 };
 
 // Custom comparison function for SDL_Color
@@ -238,6 +238,11 @@ Game::Game(const Game& other)
     for (const auto& treasure : other.treasures) {
         treasures.push_back(std::make_shared<Treasure>(*treasure));
     }
+
+    // Copy devils
+    for (const auto& devil : other.devils) {
+        devils.push_back(std::make_shared<Devil>(*devil));
+    }
 }
 
 Game& Game::operator=(const Game& other) {
@@ -279,6 +284,12 @@ Game& Game::operator=(const Game& other) {
         for (const auto& treasure : other.treasures) {
             treasures.push_back(std::make_shared<Treasure>(*treasure));
         }
+
+        // Copy devils
+        devils.clear();
+        for (const auto& devil : other.devils) {
+            devils.push_back(std::make_shared<Devil>(*devil));
+        }
     }
     return *this;
 }
@@ -311,7 +322,7 @@ Hex Game::randomfreeHex() {
         hexColor = grid.getHexColors().at(randomHex);
         attempts++;
         if(attempts >= maxAttempts) {
-            return Hex(-1, -1, -1);
+            return Hex(-1000, 0, 1000);
         }
     }
     return randomHex;
@@ -327,6 +338,10 @@ void Game::addBanditCamp(Hex hex) {
 
 void Game::addTreasure(Hex hex, int value) {
     treasures.push_back(std::make_shared<Treasure>(hex, value));
+}
+
+void Game::addDevil(Hex hex) {
+    devils.push_back(std::make_shared<Devil>(hex));
 }
 
 bool Game::entityOnHex(const Hex& hex) const {
@@ -345,6 +360,16 @@ bool Game::entityOnHex(const Hex& hex) const {
             if (entity->getHex() == hex) {
                 return true;
             }
+        }
+    }
+    for (const auto& treasure : treasures) {
+        if (treasure->getHex() == hex) {
+            return true;
+        }
+    }
+    for (const auto& devil : devils) {
+        if (devil->getHex() == hex) {
+            return true;
         }
     }
     return false;
@@ -389,8 +414,17 @@ void Game::manageBandits(){
                 }
             }
 
+            // CHECK IF DEVIL ON HEX
+            bool devilonHex = false;
+            for(auto& devil : devils) {
+                if(devil->getHex() == newHex) {
+                    devilonHex = true;
+                    break;
+                }
+            }
+
             // Vérifier si la nouvelle position est valide
-            if (grid.hexExists(newHex) && !entityOnHex(newHex) && !treasureonHex) {
+            if (grid.hexExists(newHex) && !entityOnHex(newHex) && !treasureonHex && !devilonHex) {
                 bandit->moveBandit(grid, newHex);
                 moved = true;
             } else {
@@ -553,10 +587,67 @@ void Game::handleEvent(SDL_Event& event) {
                 int treasureValue = std::rand() % 10 + 1;
                 if(std::rand() % 4 == 0) {
                     Hex treasureHex = randomfreeHex();
-                    if(treasureHex.getQ() != -1 && treasureHex.getR() != -1 && treasureHex.getS() != -1) {
+                    if(treasureHex.getQ() != -1000 && treasureHex.getR() != 0 && treasureHex.getS() != 1000) {
                         addTreasure(treasureHex, treasureValue);
                     }
                 }
+            }
+
+            if (devils.empty()) {
+                if(std::rand() % 1000 == 0) {
+                    Hex devilHex = randomfreeHex();
+                    if(devilHex.getQ() != -1000 && devilHex.getR() != 0 && devilHex.getS() != 1000) {
+                        addDevil(devilHex);
+                        // kill all the entities around the devil
+                        for(auto& player : players) {
+                            std::vector<std::shared_ptr<Entity>> entitiesToRemove;
+                            for(auto& entity : player->getEntities()) {
+                                if(entity->getHex().distance(devilHex) <= 1 && entity->getName() != "town" && entity->getProtectionLevel() <= 2) {
+                                    entitiesToRemove.push_back(entity);
+                                }
+                            }
+                            for(auto& entity : entitiesToRemove) {
+                                player->removeEntity(entity);
+                            }
+                        }
+                        // remove all the bandits around the devil
+                        std::vector<std::shared_ptr<Bandit>> banditsToRemove;
+                        for(auto& bandit : bandits) {
+                            if(bandit->getHex().distance(devilHex) <= 1) {
+                                banditsToRemove.push_back(bandit);
+                            }
+                        }
+                        for(auto& bandit : banditsToRemove) {
+                            bandits.erase(std::remove(bandits.begin(), bandits.end(), bandit), bandits.end());
+                        }
+                        // remove all the bandit camps around the devil
+                        std::vector<std::shared_ptr<BanditCamp>> banditCampsToRemove;
+                        for(auto& banditcamp : banditCamps) {
+                            if(banditcamp->getHex().distance(devilHex) <= 1) {
+                                banditCampsToRemove.push_back(banditcamp);
+                            }
+                        }
+                        for(auto& banditcamp : banditCampsToRemove) {
+                            banditCamps.erase(std::remove(banditCamps.begin(), banditCamps.end(), banditcamp), banditCamps.end());
+                        }
+                        // remove all the treasures around the devil
+                        std::vector<std::shared_ptr<Treasure>> treasuresToRemove;
+                        for(auto& treasure : treasures) {
+                            if(treasure->getHex().distance(devilHex) <= 1) {
+                                treasuresToRemove.push_back(treasure);
+                            }
+                        }
+                        for(auto& treasure : treasuresToRemove) {
+                            treasures.erase(std::remove(treasures.begin(), treasures.end(), treasure), treasures.end());
+                        }
+                    }
+                }
+            } else {
+                // remove all the devils
+                for(auto& devil : devils) {
+                    devils.erase(std::remove(devils.begin(), devils.end(), devil), devils.end());
+                }
+
             }
         }
 
@@ -735,6 +826,19 @@ void Game::handleEvent(SDL_Event& event) {
                                             if(treasure->getHex() == entity->getHex()) {
                                                 player->addCoins(treasure->getValue());
                                                 treasures.erase(std::remove(treasures.begin(), treasures.end(), treasure), treasures.end());
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // check if a player beat the devil, give the coins to the player and remove the devil
+                                for(auto& devil : devils) {
+                                    for (auto& player : players) {
+                                        for (auto& entity : player->getEntities()) {
+                                            if(devil->getHex() == entity->getHex()) {
+                                                player->addCoins(devil->getUpkeep());
+                                                devils.erase(std::remove(devils.begin(), devils.end(), devil), devils.end());
                                                 break;
                                             }
                                         }
@@ -977,6 +1081,11 @@ void Game::render(SDL_Renderer* renderer) const {
         render_entity(renderer, *treasure, textures[iconsMap.at("treasury")]);
     }
 
+    // Render devil(s)
+    for (const auto& devil : devils) {
+        render_entity(renderer, *devil, textures[iconsMap.at("zzzdevil")]);
+    }
+
     auto& currentPlayer = players[playerTurn];
 
     // Render all players' entities
@@ -1217,6 +1326,11 @@ bool Game::isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& curre
     }
     for (const auto& banditcamp : banditCamps) {
         if (banditcamp->getHex() == hex && banditcamp->getProtectionLevel() >= currentLevel) {
+            return true;
+        }
+    }
+    for (const auto& devil : devils) {
+        if (devil->getHex() == hex && devil->getProtectionLevel() >= currentLevel) {
             return true;
         }
     }
