@@ -56,13 +56,13 @@ void Game::generateEntities(const std::vector<std::string>& entityMap, const std
             }
 
             if(c == 'c'){
-                addBanditCamp(hex);
+                entityManager.addBanditCamp(hex, banditCamps);
                 continue;
             }
 
             if(c == 't'){
                 int treasureValue = std::rand() % 10 + 1;
-                addTreasure(hex, treasureValue);
+                entityManager.addTreasure(hex, treasureValue, treasures);
                 continue;
             }
 
@@ -313,18 +313,6 @@ Hex Game::randomfreeHex() {
     return randomHex;
 }
 
-void Game::addBanditCamp(Hex hex) {
-    banditCamps.push_back(std::make_shared<BanditCamp>(hex));
-}
-
-void Game::addTreasure(Hex hex, int value) {
-    treasures.push_back(std::make_shared<Treasure>(hex, value));
-}
-
-void Game::addDevil(Hex hex) {
-    devils.push_back(std::make_shared<Devil>(hex));
-}
-
 bool Game::entityOnHex(const Hex& hex) const {
     for(const auto& bandit : bandits) {
         if (bandit->getHex() == hex) {
@@ -569,7 +557,7 @@ void Game::handleEvent(SDL_Event& event) {
                 if(std::rand() % 4 == 0) {
                     Hex treasureHex = randomfreeHex();
                     if(treasureHex.getQ() != -1000 && treasureHex.getR() != 0 && treasureHex.getS() != 1000) {
-                        addTreasure(treasureHex, treasureValue);
+                        entityManager.addTreasure(treasureHex, treasureValue, treasures);
                     }
                 }
             }
@@ -578,7 +566,7 @@ void Game::handleEvent(SDL_Event& event) {
                 if(std::rand() % 1000 == 0) {
                     Hex devilHex = randomfreeHex();
                     if(devilHex.getQ() != -1000 && devilHex.getR() != 0 && devilHex.getS() != 1000) {
-                        addDevil(devilHex);
+                        entityManager.addDevil(devilHex, devils);
                         // kill all the entities around the devil
                         for(auto& player : players) {
                             std::vector<std::shared_ptr<Entity>> entitiesToRemove;
@@ -654,7 +642,7 @@ void Game::handleEvent(SDL_Event& event) {
                     Hex entityHex = entity->getHex();
                     if(building) {
                         // replace by bandit camp
-                        addBanditCamp(entityHex);
+                        entityManager.addBanditCamp(entityHex, banditCamps);
                     } else {
                         // replace by bandit
                         entityManager.addBandit(entityHex, bandits);
@@ -1336,7 +1324,7 @@ void Game::removePlayer(std::shared_ptr<Player> player) {
     for(auto& entity : entities) {
         if (entity) {
             if (dynamic_cast<Building*>(entity.get())) {
-                addBanditCamp(entity->getHex());
+                entityManager.addBanditCamp(entity->getHex(), banditCamps);
             } else {
                 entityManager.addBandit(entity->getHex(), bandits);
             }
@@ -1455,7 +1443,7 @@ void Game::disconnectHex(Player& player, const Hex& hex) {
     for (auto& entity : player.getEntities()) {
         if (entity->getHex() == hex) {
             if (dynamic_cast<Building*>(entity.get())) {
-                addBanditCamp(hex);
+                entityManager.addBanditCamp(hex, banditCamps);
             } else {
                 entityManager.addBandit(hex, bandits);
             }
