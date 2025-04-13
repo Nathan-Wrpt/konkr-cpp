@@ -704,7 +704,7 @@ void Game::handleEvent(SDL_Event& event) {
     if(event.key.keysym.sym == SDLK_1 || event.key.keysym.sym == SDLK_AMPERSAND) { // AZERTY: '&'
         entityToBuy = "villager";
     }
-    if(event.key.keysym.sym == SDLK_2 || event.key.keysym.sym == SDLK_p) { // AZERTY: 'p'
+    if(event.key.keysym.sym == SDLK_2 || event.key.keysym.sym == SDLK_QUOTEDBL) { // AZERTY: 'é'
         entityToBuy = "pikeman";
     }
     if(event.key.keysym.sym == SDLK_3 || event.key.keysym.sym == SDLK_QUOTE) { // AZERTY: '"'
