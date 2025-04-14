@@ -7,7 +7,7 @@
 #include <memory>
 #include <map>
 
-#include "../entities/entitymanager.hpp"
+#include "playermanager.hpp"
 #include "rendergame.hpp"
 
 #include <SDL2/SDL.h>
@@ -31,8 +31,6 @@ class Game {
     void renderAll(SDL_Renderer* renderer) const;
     std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
     void removePlayer(std::shared_ptr<Player> player);
-    void checkIfHexConnectedToTown(Player& player);
-    void disconnectHex(Player& player, const Hex& hex);
     Hex randomfreeHex();
     bool isEndGame() const { return endGame; }
 
@@ -40,6 +38,7 @@ class Game {
     HexagonalGrid grid;
     EntityManager entityManager;
     RenderGame renderGame;
+    PlayerManager playerManager;
     std::vector<std::shared_ptr<Player>> players;
     std::vector<std::shared_ptr<Bandit>> bandits;
     std::vector<std::shared_ptr<BanditCamp>> banditCamps;
