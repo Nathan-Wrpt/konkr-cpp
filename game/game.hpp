@@ -15,7 +15,7 @@
 #include "../ui/data.hpp"
 #include "../constants/constants.hpp"
 
-#include "entitymanager.hpp"
+#include "../entities/entitymanager.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -32,7 +32,7 @@ class Game {
 
     // Assignment operator
     Game& operator=(const Game& other);
-    
+
     void handleEvent(SDL_Event& event);
     void update();
     SDL_Rect entityToRect(const Entity& entity) const;
