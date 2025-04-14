@@ -1,3 +1,6 @@
+#ifndef DATA_HPP
+#define DATA_HPP
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
@@ -23,3 +26,5 @@ private:
     const std::vector<SDL_Texture*>& textures;
     const std::map<std::string, int>& iconsMap;
 };
+
+#endif // DATA_HPP

@@ -7,15 +7,8 @@
 #include <memory>
 #include <map>
 
-#include "../core/grid.hpp"
-#include "../entities/entity.hpp"
-#include "../entities/building.hpp"
-#include "../players/player.hpp"
-#include "../ui/button.hpp"
-#include "../ui/data.hpp"
-#include "../constants/constants.hpp"
-
 #include "../entities/entitymanager.hpp"
+#include "rendergame.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -35,12 +28,8 @@ class Game {
 
     void handleEvent(SDL_Event& event);
     void update();
-    SDL_Rect entityToRect(const Entity& entity) const;
-    void render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Texture* texture) const;
-    void render(SDL_Renderer* renderer) const;
+    void renderAll(SDL_Renderer* renderer) const;
     std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
-    void renderButton(SDL_Renderer* renderer, const Button& button) const;
-    void renderTurnButton(SDL_Renderer* renderer) const;
     void removePlayer(std::shared_ptr<Player> player);
     void checkIfHexConnectedToTown(Player& player);
     void disconnectHex(Player& player, const Hex& hex);
@@ -50,6 +39,7 @@ class Game {
   private:
     HexagonalGrid grid;
     EntityManager entityManager;
+    RenderGame renderGame;
     std::vector<std::shared_ptr<Player>> players;
     std::vector<std::shared_ptr<Bandit>> bandits;
     std::vector<std::shared_ptr<BanditCamp>> banditCamps;
@@ -68,4 +58,4 @@ class Game {
     bool endGame;
 };
 
-#endif
+#endif // GAME_HPP
