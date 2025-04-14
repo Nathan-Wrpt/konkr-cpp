@@ -16,6 +16,7 @@
 #include "../constants/constants.hpp"
 
 #include "../entities/entitymanager.hpp"
+#include "rendergame.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -35,8 +36,6 @@ class Game {
 
     void handleEvent(SDL_Event& event);
     void update();
-    SDL_Rect entityToRect(const Entity& entity) const;
-    void render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Texture* texture) const;
     void render(SDL_Renderer* renderer) const;
     std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
     void renderButton(SDL_Renderer* renderer, const Button& button) const;
@@ -50,6 +49,7 @@ class Game {
   private:
     HexagonalGrid grid;
     EntityManager entityManager;
+    RenderGame renderGame;
     std::vector<std::shared_ptr<Player>> players;
     std::vector<std::shared_ptr<Bandit>> bandits;
     std::vector<std::shared_ptr<BanditCamp>> banditCamps;
@@ -68,4 +68,4 @@ class Game {
     bool endGame;
 };
 
-#endif
+#endif // GAME_HPP

@@ -654,20 +654,6 @@ void Game::update() {
     }
 }
 
-
-
-SDL_Rect Game::entityToRect(const Entity& entity) const {
-    int x = static_cast<int>(grid.hexToPixel(entity.getHex()).x - grid.getHexSize() / 2) - cameraX;
-    int y = static_cast<int>(grid.hexToPixel(entity.getHex()).y - grid.getHexSize() / 2 - entity.getYOffset()) - cameraY;
-    int w_h = static_cast<int>(grid.getHexSize());
-    return {x, y, w_h, w_h};
-}
-
-void Game::render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Texture* texture) const {
-    SDL_Rect entityRect = entityToRect(entity);
-    SDL_RenderCopy(renderer, texture, NULL, &entityRect);
-}
-
 void Game::renderButton(SDL_Renderer* renderer, const Button& button) const {
     SDL_Rect buttonRect = button.getRect();
 
@@ -759,22 +745,22 @@ void Game::render(SDL_Renderer* renderer) const {
 
     // Render all bandits
     for (const auto& bandit : bandits) {
-        render_entity(renderer, *bandit, textures[iconsMap.at("bandit")]);
+        renderGame.render_entity(renderer, *bandit, textures[iconsMap.at("bandit")], grid, cameraX, cameraY);
     }
 
     // Render all bandit camps
     for (const auto& banditCamp : banditCamps) {
-        render_entity(renderer, *banditCamp, textures[iconsMap.at("bandit-camp")]);
+        renderGame.render_entity(renderer, *banditCamp, textures[iconsMap.at("bandit-camp")], grid, cameraX, cameraY);
     }
 
     // Render treasure(s)
     for (const auto& treasure : treasures) {
-        render_entity(renderer, *treasure, textures[iconsMap.at("treasury")]);
+        renderGame.render_entity(renderer, *treasure, textures[iconsMap.at("treasury")], grid, cameraX, cameraY);
     }
 
     // Render devil(s)
     for (const auto& devil : devils) {
-        render_entity(renderer, *devil, textures[iconsMap.at("zzzdevil")]);
+        renderGame.render_entity(renderer, *devil, textures[iconsMap.at("zzzdevil")], grid, cameraX, cameraY);
     }
 
     auto& currentPlayer = players[playerTurn];
@@ -791,7 +777,7 @@ void Game::render(SDL_Renderer* renderer) const {
             std::string textureKey = entity->getName();
 
             // Render the entity
-            render_entity(renderer, *entity, textures[iconsMap.at(textureKey)]);
+            renderGame.render_entity(renderer, *entity, textures[iconsMap.at(textureKey)], grid, cameraX, cameraY);
         }
     }
 
@@ -800,7 +786,7 @@ void Game::render(SDL_Renderer* renderer) const {
         const auto& playerEntities = currentPlayer->getEntities();
         const std::shared_ptr<Entity>& selectedEntityptr = playerEntities[selectedEntityIndex];
         const Entity& selectedEntity = *playerEntities[selectedEntityIndex];
-        SDL_Rect entityRect = entityToRect(selectedEntity);
+        SDL_Rect entityRect = renderGame.entityToRect(selectedEntity, grid, cameraX, cameraY);
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
         entityRect.x = mouseX - entityRect.w / 2;
