@@ -39,9 +39,7 @@ class Game {
     SDL_Rect entityToRect(const Entity& entity) const;
     void render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Texture* texture) const;
     void render(SDL_Renderer* renderer) const;
-    bool isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) const;
     std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
-    int nbBanditsOnColor(const SDL_Color& color);
     void upgradeEntity(const Hex& hex);
     void renderButton(SDL_Renderer* renderer, const Button& button) const;
     void renderTurnButton(SDL_Renderer* renderer) const;
@@ -49,7 +47,6 @@ class Game {
     void checkIfHexConnectedToTown(Player& player);
     void disconnectHex(Player& player, const Hex& hex);
     Hex randomfreeHex();
-    bool HexNotOnTerritoryAndAccessible(const std::shared_ptr<Entity>& entity, const Hex& targetHex) const;
     bool isEndGame() const { return endGame; }
 
   private:

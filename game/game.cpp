@@ -313,16 +313,6 @@ Hex Game::randomfreeHex() {
     return randomHex;
 }
 
-int Game::nbBanditsOnColor(const SDL_Color& color) {
-    int count = 0;
-    for (const auto& bandit : bandits) {
-        if (grid.getHexColors().at(bandit->getHex()) == color) {
-            count++;
-        }
-    }
-    return count;
-}
-
 void Game::upgradeEntity(const Hex& hex) {
     for (auto& player : players) {
         for (auto& entity : player->getEntities()) {
@@ -348,35 +338,6 @@ void Game::upgradeEntity(const Hex& hex) {
         }
     }
 }
-
-bool Game::HexNotOnTerritoryAndAccessible(const std::shared_ptr<Entity>& entity, const Hex& targetHex) const {
-    // Check if the hex exists in the grid
-    if (!grid.hexExists(targetHex)) {
-        return false;
-    }
-
-    // Get the current player
-    auto& currentPlayer = players[playerTurn];
-
-    // Check if hex is adjacent to the owner's territory
-    SDL_Color ownerColor = currentPlayer->getColor();
-    if (!grid.hasNeighborWithColor(targetHex, ownerColor)) {
-        return false;
-    }
-
-    // Check if the hex is not on the player's territory
-    if (grid.getHexColors().at(targetHex) == currentPlayer->getColor()) {
-        return false;
-    }
-
-    // Check if the hex is surrounded by stronger entities from other players
-    if (isSurroundedByOtherPlayerEntities(targetHex, *currentPlayer, entity->getProtectionLevel())) {
-        return false;
-    }
-
-    return true;
-}
-
 
 void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed or turnbutton clicked, change player
@@ -613,7 +574,7 @@ void Game::handleEvent(SDL_Event& event) {
                     SDL_Color targetColor = grid.getHexColors().at(clickedHex);
 
                     if ((entity) &&
-                        !isSurroundedByOtherPlayerEntities(clickedHex, *currentPlayer, entity->getProtectionLevel()) &&
+                        !entityManager.isSurroundedByOtherPlayerEntities(clickedHex, *currentPlayer, entity->getProtectionLevel(), grid, players, banditCamps, devils) &&
                         hasSamePlayerEntities(clickedHex, *currentPlayer) == "") {
                         if(entity->getName() == "castle" && !entityManager.entityOnHex(clickedHex, bandits, banditCamps, treasures, devils, players) && grid.getHexColors().at(clickedHex) == currentPlayer->getColor()) {
                             entity->setHex(clickedHex);
@@ -970,7 +931,7 @@ void Game::render(SDL_Renderer* renderer) const {
                         break;
                     }
                 }
-                if (HexNotOnTerritoryAndAccessible(selectedEntityptr, hex) || (grid.getHexColors().at(hex) == currentPlayer->getColor() && banditOnHex)) {
+                if (entityManager.HexNotOnTerritoryAndAccessible(selectedEntityptr, hex, grid, players, playerTurn, banditCamps, devils) || (grid.getHexColors().at(hex) == currentPlayer->getColor() && banditOnHex)) {
                     Point hexPos = grid.hexToPixel(hex);
                     SDL_Rect hexRect;
                     hexRect.x = static_cast<int>(hexPos.x - grid.getHexSize() / 2);
@@ -1129,56 +1090,6 @@ void Game::render(SDL_Renderer* renderer) const {
     }
     
     TTF_CloseFont(font);
-}
-
-
-bool Game::isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel) const {
-    // Define the directions to the six neighbors
-    const std::vector<Hex> directions = {
-        Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
-        Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
-    };
-
-    for (auto& player : players) {
-        if (player->getColor() == currentPlayer.getColor()) {
-            continue;
-        }
-
-        for (const auto& direction : directions) {
-            Hex neighbor = hex.add(direction);
-            if (grid.hexExists(neighbor)) {
-                for (const auto& entity : player->getEntities()) {
-                    if (entity->getHex() == neighbor &&
-                        entity->getProtectionLevel() >= currentLevel &&
-                        grid.getHexColors().at(hex) == player->getColor()) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        for (const auto& entity : player->getEntities()) {
-            if (entity->getHex() == hex &&
-                grid.getHexColors().at(hex) == player->getColor()) {
-                if (entity->getProtectionLevel() >= currentLevel) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-    }
-    for (const auto& banditcamp : banditCamps) {
-        if (banditcamp->getHex() == hex && banditcamp->getProtectionLevel() >= currentLevel) {
-            return true;
-        }
-    }
-    for (const auto& devil : devils) {
-        if (devil->getHex() == hex && devil->getProtectionLevel() >= currentLevel) {
-            return true;
-        }
-    }
-    return false;
 }
 
 // Check if a hex is surrounded other entities of the same player

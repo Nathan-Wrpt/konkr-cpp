@@ -140,3 +140,80 @@ void EntityManager::addTreasure(const Hex& hex, int value, std::vector<std::shar
 void EntityManager::addDevil(const Hex& hex, std::vector<std::shared_ptr<Devil>>& devils) {
     devils.push_back(std::make_shared<Devil>(hex));
 }
+
+bool EntityManager::isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel, const HexagonalGrid& grid, const std::vector<std::shared_ptr<Player>>& players, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Devil>>& devils) const {
+    // Define the directions to the six neighbors
+    const std::vector<Hex> directions = {
+        Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
+        Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
+    };
+
+    for (auto& player : players) {
+        if (player->getColor() == currentPlayer.getColor()) {
+            continue;
+        }
+
+        for (const auto& direction : directions) {
+            Hex neighbor = hex.add(direction);
+            if (grid.hexExists(neighbor)) {
+                for (const auto& entity : player->getEntities()) {
+                    if (entity->getHex() == neighbor &&
+                        entity->getProtectionLevel() >= currentLevel &&
+                        grid.getHexColors().at(hex) == player->getColor()) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        for (const auto& entity : player->getEntities()) {
+            if (entity->getHex() == hex &&
+                grid.getHexColors().at(hex) == player->getColor()) {
+                if (entity->getProtectionLevel() >= currentLevel) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+    }
+    for (const auto& banditcamp : banditCamps) {
+        if (banditcamp->getHex() == hex && banditcamp->getProtectionLevel() >= currentLevel) {
+            return true;
+        }
+    }
+    for (const auto& devil : devils) {
+        if (devil->getHex() == hex && devil->getProtectionLevel() >= currentLevel) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool EntityManager::HexNotOnTerritoryAndAccessible(const std::shared_ptr<Entity>& entity, const Hex& targetHex, const HexagonalGrid& grid, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Devil>>& devils) const {
+    // Check if the hex exists in the grid
+    if (!grid.hexExists(targetHex)) {
+        return false;
+    }
+
+    // Get the current player
+    auto& currentPlayer = players[playerTurn];
+
+    // Check if hex is adjacent to the owner's territory
+    SDL_Color ownerColor = currentPlayer->getColor();
+    if (!grid.hasNeighborWithColor(targetHex, ownerColor)) {
+        return false;
+    }
+
+    // Check if the hex is not on the player's territory
+    if (grid.getHexColors().at(targetHex) == currentPlayer->getColor()) {
+        return false;
+    }
+
+    // Check if the hex is surrounded by stronger entities from other players
+    if (isSurroundedByOtherPlayerEntities(targetHex, *currentPlayer, entity->getProtectionLevel(), grid, players, banditCamps, devils)) {
+        return false;
+    }
+
+    return true;
+}
