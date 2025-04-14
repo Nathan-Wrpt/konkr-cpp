@@ -329,3 +329,29 @@ bool EntityManager::HexNotOnTerritoryAndAccessible(const std::shared_ptr<Entity>
 
     return true;
 }
+
+Hex EntityManager::randomfreeHex(const HexagonalGrid& grid, const std::vector<std::shared_ptr<Player>>& players, const std::vector<std::shared_ptr<Bandit>>& bandits, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Treasure>>& treasures, const std::vector<std::shared_ptr<Devil>>& devils) const {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(0, grid.getHexes().size() - 1);
+    int randomIndex = distrib(gen);
+    Hex randomHex = grid.getHexes()[randomIndex];
+    SDL_Color hexColor = grid.getHexColors().at(randomHex);
+    std::vector<SDL_Color> playerColors;
+    for(auto& player : players) {
+        playerColors.push_back(player->getColor());
+    }
+    // check that the Hex is not occupated and not owned by a player
+    int maxAttempts = 100;
+    int attempts = 0;
+    while(entityOnHex(randomHex, bandits, banditCamps, treasures, devils, players) || (std::find(playerColors.begin(), playerColors.end(), hexColor) != playerColors.end())) {
+        randomIndex = distrib(gen);
+        randomHex = grid.getHexes()[randomIndex];
+        hexColor = grid.getHexColors().at(randomHex);
+        attempts++;
+        if(attempts >= maxAttempts) {
+            return Hex(-1000, 0, 1000);
+        }
+    }
+    return randomHex;
+}

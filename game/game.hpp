@@ -15,44 +15,43 @@
 #include <SDL2/SDL_ttf.h>
 
 class Game {
-  public:
-    Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector<std::string>& entityMap,
-         int windowWidth, int windowHeight, SDL_Renderer* renderer, int cameraSpeed);
-    ~Game();
+public:
+  Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector<std::string>& entityMap,
+        int windowWidth, int windowHeight, SDL_Renderer* renderer, int cameraSpeed);
+  ~Game();
 
-    // Copy constructor
-    Game(const Game& other);
+  // Copy constructor
+  Game(const Game& other);
 
-    // Assignment operator
-    Game& operator=(const Game& other);
+  // Assignment operator
+  Game& operator=(const Game& other);
 
-    void handleEvent(SDL_Event& event);
-    void update();
-    void renderAll(SDL_Renderer* renderer) const;
-    Hex randomfreeHex();
-    bool isEndGame() const { return endGame; }
+  void handleEvent(SDL_Event& event);
+  void update();
+  void renderAll(SDL_Renderer* renderer) const;
+  bool isEndGame() const { return endGame; }
 
-  private:
-    HexagonalGrid grid;
-    EntityManager entityManager;
-    RenderGame renderGame;
-    PlayerManager playerManager;
-    std::vector<std::shared_ptr<Player>> players;
-    std::vector<std::shared_ptr<Bandit>> bandits;
-    std::vector<std::shared_ptr<BanditCamp>> banditCamps;
-    std::vector<std::shared_ptr<Treasure>> treasures;
-    std::vector<std::shared_ptr<Devil>> devils;
-    size_t playerTurn;
-    bool entitySelected;
-    std::vector<SDL_Texture*> textures;
-    int selectedEntityIndex;
-    int nbplayers;
-    int turn;
-    std::vector<Button> unitButtons;
-    Button turnButton;
-    Button* draggedButton;
-    int cameraX, cameraY, cameraSpeed;
-    bool endGame;
+private:
+  HexagonalGrid grid;
+  EntityManager entityManager;
+  RenderGame renderGame;
+  PlayerManager playerManager;
+  std::vector<std::shared_ptr<Player>> players;
+  std::vector<std::shared_ptr<Bandit>> bandits;
+  std::vector<std::shared_ptr<BanditCamp>> banditCamps;
+  std::vector<std::shared_ptr<Treasure>> treasures;
+  std::vector<std::shared_ptr<Devil>> devils;
+  size_t playerTurn;
+  bool entitySelected;
+  std::vector<SDL_Texture*> textures;
+  int selectedEntityIndex;
+  int nbplayers;
+  int turn;
+  std::vector<Button> unitButtons;
+  Button turnButton;
+  Button* draggedButton;
+  int cameraX, cameraY, cameraSpeed;
+  bool endGame;
 };
 
 #endif // GAME_HPP

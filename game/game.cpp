@@ -198,32 +198,6 @@ Game::~Game() {
     }
 }
 
-Hex Game::randomfreeHex() {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(0, grid.getHexes().size() - 1);
-    int randomIndex = distrib(gen);
-    Hex randomHex = grid.getHexes()[randomIndex];
-    SDL_Color hexColor = grid.getHexColors().at(randomHex);
-    std::vector<SDL_Color> playerColors;
-    for(auto& player : players) {
-        playerColors.push_back(player->getColor());
-    }
-    // check that the Hex is not occupated and not owned by a player
-    int maxAttempts = 100;
-    int attempts = 0;
-    while(entityManager.entityOnHex(randomHex, bandits, banditCamps, treasures, devils, players) || (std::find(playerColors.begin(), playerColors.end(), hexColor) != playerColors.end())) {
-        randomIndex = distrib(gen);
-        randomHex = grid.getHexes()[randomIndex];
-        hexColor = grid.getHexColors().at(randomHex);
-        attempts++;
-        if(attempts >= maxAttempts) {
-            return Hex(-1000, 0, 1000);
-        }
-    }
-    return randomHex;
-}
-
 void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed or turnbutton clicked, change player
     if ((event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) || (event.type == SDL_MOUSEBUTTONDOWN && turnButton.containsPoint(event.button.x, event.button.y))) {
@@ -276,7 +250,7 @@ void Game::handleEvent(SDL_Event& event) {
             if(treasures.empty()) {
                 int treasureValue = std::rand() % 10 + 1;
                 if(std::rand() % 4 == 0) {
-                    Hex treasureHex = randomfreeHex();
+                    Hex treasureHex = entityManager.randomfreeHex(grid, players, bandits, banditCamps, treasures, devils);
                     if(treasureHex.getQ() != -1000 && treasureHex.getR() != 0 && treasureHex.getS() != 1000) {
                         entityManager.addTreasure(treasureHex, treasureValue, treasures);
                     }
@@ -285,7 +259,7 @@ void Game::handleEvent(SDL_Event& event) {
 
             if (devils.empty()) {
                 if(std::rand() % 1000 == 0) {
-                    Hex devilHex = randomfreeHex();
+                    Hex devilHex = entityManager.randomfreeHex(grid, players, bandits, banditCamps, treasures, devils);
                     if(devilHex.getQ() != -1000 && devilHex.getR() != 0 && devilHex.getS() != 1000) {
                         entityManager.addDevil(devilHex, devils);
                         // kill all the entities around the devil
