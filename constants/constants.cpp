@@ -1,6 +1,6 @@
 #include "constants.hpp"
 
-std::map<std::string, int> iconsMap = {
+const std::map<std::string, int> iconsMap = {
     {"bandit", 0},        {"bandit-camp", 1},
     {"castle", 2},        {"coin", 3},
     {"coins", 4},         {"deficit", 5},

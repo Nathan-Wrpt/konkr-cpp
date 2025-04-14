@@ -38,8 +38,6 @@ class Game {
     void update();
     void render(SDL_Renderer* renderer) const;
     std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
-    void renderButton(SDL_Renderer* renderer, const Button& button) const;
-    void renderTurnButton(SDL_Renderer* renderer) const;
     void removePlayer(std::shared_ptr<Player> player);
     void checkIfHexConnectedToTown(Player& player);
     void disconnectHex(Player& player, const Hex& hex);
