@@ -7,7 +7,7 @@
 #include <memory>
 #include <map>
 
-#include "playermanager.hpp"
+#include "../players/playermanager.hpp"
 #include "rendergame.hpp"
 
 #include <SDL2/SDL.h>
