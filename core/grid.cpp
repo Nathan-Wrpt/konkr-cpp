@@ -3,52 +3,6 @@
 #include <cmath>
 #include <limits>
 
-// matching between the colors like "r" to the color value
-const std::map<char, SDL_Color> colorMap = {
-    {'r', {255, 0, 0, SDL_ALPHA_OPAQUE}},   // Red
-    {'g', {0, 255, 0, SDL_ALPHA_OPAQUE}},   // Green
-    {'b', {0, 0, 255, SDL_ALPHA_OPAQUE}},   // Blue
-    {'y', {255, 255, 0, SDL_ALPHA_OPAQUE}}, // Yellow
-    {'.', defaultColor},                 // Default color (soil)
-    {'k', {0, 0, 0, SDL_ALPHA_OPAQUE}},     // Black
-    {'c', {0, 255, 255, SDL_ALPHA_OPAQUE}}, // Cyan
-    {'m', {255, 0, 255, SDL_ALPHA_OPAQUE}}, // Magenta
-    {'o', {255, 165, 0, SDL_ALPHA_OPAQUE}}, // Orange
-    {'p', {255, 192, 203, SDL_ALPHA_OPAQUE}}, // Pink
-    {'l', {123, 104, 238, SDL_ALPHA_OPAQUE}}, // Lavender
-    {'n', {0, 128, 128, SDL_ALPHA_OPAQUE}}, // Teal
-    {'t', {0, 206, 209, SDL_ALPHA_OPAQUE}}, // Turquoise
-    {'a', {0, 0, 0, SDL_ALPHA_TRANSPARENT}}  // Transparent
-};
-
-// --- Hex Class Implementation ---
-
-Hex::Hex(int q, int r, int s) : q(q), r(r), s(s) {
-    if (q + r + s != 0) {
-        throw std::invalid_argument("Invalid cube coordinates: q + r + s must == 0");
-    }
-}
-
-Hex Hex::add(const Hex& other) const {
-    return Hex(q + other.q, r + other.r, s + other.s);
-}
-
-Hex Hex::subtract(const Hex& other) const {
-    return Hex(q - other.q, r - other.r, s - other.s);
-}
-
-Hex Hex::scale(int factor) const {
-    return Hex(q * factor, r * factor, s * factor);
-}
-
-int Hex::distance(const Hex& other) const {
-    return (std::abs(q - other.q) + std::abs(r - other.r) + std::abs(s - other.s)) / 2;
-}
-
-bool Hex::operator==(const Hex& other) const {
-    return q == other.q && r == other.r && s == other.s;
-}
-
 // --- HexagonalGrid Class Implementation ---
 
 HexagonalGrid::HexagonalGrid(double hexSize) : hexSize(hexSize), offsetX(0), offsetY(0), hoveredHex(nullptr) {}
@@ -149,31 +103,6 @@ void HexagonalGrid::handleMouseClick(int mouseX, int mouseY, int cameraX, int ca
     }
 }
 
-void HexagonalGrid::handleMouseMotion(int mouseX, int mouseY, int cameraX, int cameraY) {
-    Hex hovered = pixelToHex(mouseX, mouseY, cameraX, cameraY);
-
-    // Check if the hovered hex is in the grid
-    if (hexColors.find(hovered) != hexColors.end()) {
-        // If the hovered hex is different from the previous one
-        if (!hoveredHex || (*hoveredHex == hovered) == false) {
-            // Restore the color of the previously hovered hex
-            // if (hoveredHex) {
-            //     hexColors[*hoveredHex] = {255, 255, 255, SDL_ALPHA_OPAQUE}; // White
-            // }
-
-            // Update the hovered hex and set its color to yellow
-            // hoveredHex = &hexColors.find(hovered)->first;
-            // hexColors[hovered] = {255, 255, 0, SDL_ALPHA_OPAQUE}; // Yellow
-        }
-    } else {
-        // If no hex is hovered, restore the color of the previously hovered hex
-        // if (hoveredHex) {
-        //     hexColors[*hoveredHex] = {255, 255, 255, SDL_ALPHA_OPAQUE}; // White
-        //     hoveredHex = nullptr;
-        // }
-    }
-}
-
 void HexagonalGrid::draw(SDL_Renderer* renderer, int cameraX, int cameraY) const {
     for (const auto& hex : hexes) {
         Point center = hexToPixel(hex);
@@ -206,12 +135,6 @@ void HexagonalGrid::setHexColor(const Hex& hex, const SDL_Color& color) {
 }
 
 bool HexagonalGrid::hasNeighborWithColor(const Hex& hex, const SDL_Color& color) const {
-    // Define the directions to the six neighbors
-    const std::vector<Hex> directions = {
-        Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
-        Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
-    };
-
     // Check each neighbor
     for (const auto& direction : directions) {
         Hex neighbor = hex.add(direction);

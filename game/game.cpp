@@ -581,7 +581,6 @@ void Game::handleEvent(SDL_Event& event) {
     } else if (event.type == SDL_MOUSEMOTION) {
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
-        grid.handleMouseMotion(mouseX, mouseY, cameraX, cameraY);
     }
 }
 
@@ -1061,12 +1060,6 @@ void Game::checkIfHexConnectedToTown(Player& player) {
         queue.push(townHex);
         connectedHexes.insert(townHex);
     }
-    
-    // Define directions for adjacent hexes
-    const std::vector<Hex> directions = {
-        Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
-        Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
-    };
     
     // BFS traversal
     while (!queue.empty()) {

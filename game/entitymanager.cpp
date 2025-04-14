@@ -143,12 +143,6 @@ bool EntityManager::entityOnHex(const Hex& hex, const std::vector<std::shared_pt
 }
 
 void EntityManager::manageBandits(HexagonalGrid& grid, std::vector<std::shared_ptr<Bandit>>& bandits, std::vector<std::shared_ptr<BanditCamp>>& banditCamps, std::vector<std::shared_ptr<Treasure>>& treasures, std::vector<std::shared_ptr<Devil>>& devils, std::vector<std::shared_ptr<Player>>& players) {
-    // Directions possibles sur une grille hexagonale (pointy-top orientation)
-    const std::vector<Hex> directions = {
-        Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
-        Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
-    };
-
     for (const auto& bandit : bandits) {
         bool moved = false;
         int maxAttempts = 10; // Limite le nombre de tentatives
@@ -253,12 +247,6 @@ void EntityManager::addDevil(const Hex& hex, std::vector<std::shared_ptr<Devil>>
 }
 
 bool EntityManager::isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel, const HexagonalGrid& grid, const std::vector<std::shared_ptr<Player>>& players, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Devil>>& devils) const {
-    // Define the directions to the six neighbors
-    const std::vector<Hex> directions = {
-        Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
-        Hex(-1, 0, 1), Hex(-1, 1, 0), Hex(0, 1, -1)
-    };
-
     for (auto& player : players) {
         if (player->getColor() == currentPlayer.getColor()) {
             continue;
