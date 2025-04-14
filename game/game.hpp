@@ -32,15 +32,13 @@ class Game {
 
     // Assignment operator
     Game& operator=(const Game& other);
-
-    void generateEntities(const std::vector<std::string>& entityMap, const std::vector<std::string>& asciiMap);
+    
     void handleEvent(SDL_Event& event);
     void update();
     SDL_Rect entityToRect(const Entity& entity) const;
     void render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Texture* texture) const;
     void render(SDL_Renderer* renderer) const;
     std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
-    void upgradeEntity(const Hex& hex);
     void renderButton(SDL_Renderer* renderer, const Button& button) const;
     void renderTurnButton(SDL_Renderer* renderer) const;
     void removePlayer(std::shared_ptr<Player> player);

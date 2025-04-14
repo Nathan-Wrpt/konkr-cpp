@@ -16,93 +16,6 @@ struct SDL_Color_Compare {
     }
 };
 
-void Game::generateEntities(const std::vector<std::string>& entityMap, const std::vector<std::string>& asciiMap) {
-
-    // Check if the entity map has the same number of characters on each row as the ASCII map
-    if (entityMap.size() != asciiMap.size()) {
-        std::cerr << "Error: Entity map and ASCII map have different number of rows." << std::endl;
-        return;
-    }
-    for (size_t i = 0; i < entityMap.size(); ++i) {
-        if (entityMap[i].size() != asciiMap[i].size()) {
-            std::cerr << "Error: Entity map and ASCII map have different number of columns on row " << i << "." << std::endl;
-            return;
-        }
-    }
-
-    for (size_t row = 0; row < entityMap.size(); ++row) {
-        const std::string& line = entityMap[row];
-        for (size_t col = 0; col < line.size(); ++col) {
-            char c = line[col];
-            // Skip if no entity is present.
-            if (c == '.') {
-                continue;
-            }
-
-            // Convert (col, row) to hex coordinates.
-            int q = static_cast<int>(col) - (static_cast<int>(row) / 2);
-            int r = static_cast<int>(row);
-            int s = -q - r;
-            Hex hex(q, r, s);
-
-            // Make sure the hex exists in the grid.
-            if (!grid.hexExists(hex)) {
-                continue;
-            }
-
-            if(c == 'B'){
-                entityManager.addBandit(hex, bandits);
-                continue;
-            }
-
-            if(c == 'c'){
-                entityManager.addBanditCamp(hex, banditCamps);
-                continue;
-            }
-
-            if(c == 't'){
-                int treasureValue = std::rand() % 10 + 1;
-                entityManager.addTreasure(hex, treasureValue, treasures);
-                continue;
-            }
-
-            SDL_Color hexColor = grid.getHexColors().at(hex);
-
-            // Find the player whose color matches with hex.
-            std::shared_ptr<Player> playerForEntity = nullptr;
-            for (auto& player : players) {
-                if (player->getColor() == hexColor) {
-                    playerForEntity = player;
-                    break;
-                }
-            }
-
-            if (!playerForEntity) {
-                continue;
-            }
-
-            // Add entity
-            if (c == 'T') {
-                playerForEntity->addEntity(std::make_shared<Town>(hex));
-                playerForEntity->getEntities().back()->setMoved(true);
-            } else if (c == 'V') {
-                playerForEntity->addEntity(std::make_shared<Villager>(hex));
-            } else if (c == 'C') {
-                playerForEntity->addEntity(std::make_shared<Castle>(hex));
-                playerForEntity->getEntities().back()->setMoved(true);
-            }
-            else if (c == 'P') {
-                playerForEntity->addEntity(std::make_shared<Pikeman>(hex));
-            } else if (c == 'K') {
-                playerForEntity->addEntity(std::make_shared<Knight>(hex));
-            } else if (c == 'H') {
-                playerForEntity->addEntity(std::make_shared<Hero>(hex));
-            }
-        }
-    }
-}
-
-
 Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector<std::string>& entityMap,
         int windowWidth, int windowHeight, SDL_Renderer* renderer, int cameraSpeed)
     : grid(hexSize),
@@ -165,7 +78,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
 
     // Generate entities based on the entityMap
     std::cout << "Generating entities..." << std::endl;
-    generateEntities(entityMap, asciiMap);
+    entityManager.generateEntities(entityMap, asciiMap, grid, players, bandits, banditCamps, treasures);
 
     int nbButtons = 5;
     int buttonSize = 50;
@@ -311,32 +224,6 @@ Hex Game::randomfreeHex() {
         }
     }
     return randomHex;
-}
-
-void Game::upgradeEntity(const Hex& hex) {
-    for (auto& player : players) {
-        for (auto& entity : player->getEntities()) {
-            if (entity->getHex() == hex) {
-                bool hasmoved = entity->hasMoved();
-                if (entity->getName() == "villager") {
-                    player->removeEntity(entity);
-                    player->addEntity(std::make_shared<Pikeman>(hex));
-                    player->getEntities().back()->setMoved(hasmoved);
-                    return;
-                } else if (entity->getName() == "pikeman") {
-                    player->removeEntity(entity);
-                    player->addEntity(std::make_shared<Knight>(hex));
-                    player->getEntities().back()->setMoved(hasmoved);
-                    return;
-                } else if (entity->getName() == "knight") {
-                    player->removeEntity(entity);
-                    player->addEntity(std::make_shared<Hero>(hex));
-                    player->getEntities().back()->setMoved(hasmoved);
-                    return;
-                }
-            }
-        }
-    }
 }
 
 void Game::handleEvent(SDL_Event& event) {
@@ -663,7 +550,7 @@ void Game::handleEvent(SDL_Event& event) {
                         }
                     } else if (entity && !(entity->getHex() == clickedHex) && entity->getName() == hasSamePlayerEntities(clickedHex, *currentPlayer) && entity->getName() != "hero" && entity->getName() != "castle") {
                         currentPlayer->removeEntity(entity);
-                        upgradeEntity(clickedHex);
+                        entityManager.upgradeEntity(clickedHex, players);
                     } else if(entity && !grid.hexExists(entity->getHex())) {
                         currentPlayer->removeEntity(entity);
                         // refund the cost of the entity
