@@ -460,7 +460,7 @@ void Game::handleEvent(SDL_Event& event) {
 
                     if ((entity) &&
                         !entityManager.isSurroundedByOtherPlayerEntities(clickedHex, *currentPlayer, entity->getProtectionLevel(), grid, players, banditCamps, devils) &&
-                        hasSamePlayerEntities(clickedHex, *currentPlayer) == "") {
+                        playerManager.hasSamePlayerEntities(clickedHex, *currentPlayer) == "") {
                         if(entity->getName() == "castle" && !entityManager.entityOnHex(clickedHex, bandits, banditCamps, treasures, devils, players) && grid.getHexColors().at(clickedHex) == currentPlayer->getColor()) {
                             entity->setHex(clickedHex);
                             entity->setMoved(true);
@@ -546,7 +546,7 @@ void Game::handleEvent(SDL_Event& event) {
                                 }
                             }
                         }
-                    } else if (entity && !(entity->getHex() == clickedHex) && entity->getName() == hasSamePlayerEntities(clickedHex, *currentPlayer) && entity->getName() != "hero" && entity->getName() != "castle") {
+                    } else if (entity && !(entity->getHex() == clickedHex) && entity->getName() == playerManager.hasSamePlayerEntities(clickedHex, *currentPlayer) && entity->getName() != "hero" && entity->getName() != "castle") {
                         currentPlayer->removeEntity(entity);
                         entityManager.upgradeEntity(clickedHex, players);
                     } else if(entity && !grid.hexExists(entity->getHex())) {
@@ -679,14 +679,4 @@ void Game::renderAll(SDL_Renderer* renderer) const {
 
     // Display game over message if only one player remains
     renderGame.renderGameOverMessage(renderer, players, textures, unitButtons);
-}
-
-// Check if a hex is surrounded other entities of the same player
-std::string Game::hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const {
-    for (const auto& entity : currentPlayer.getEntities()) {
-        if (entity->getHex() == hex) {
-            return entity->getName();
-        }
-    }
-    return "";
 }

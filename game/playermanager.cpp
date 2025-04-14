@@ -1,5 +1,15 @@
 #include "playermanager.hpp"
 
+// Check if a hex is surrounded other entities of the same player
+std::string PlayerManager::hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const {
+    for (const auto& entity : currentPlayer.getEntities()) {
+        if (entity->getHex() == hex) {
+            return entity->getName();
+        }
+    }
+    return "";
+}
+
 void PlayerManager::removePlayer(std::shared_ptr<Player> player, std::vector<std::shared_ptr<Player>>& players, int& nbplayers, std::vector<std::shared_ptr<Bandit>>& bandits, std::vector<std::shared_ptr<BanditCamp>>& banditCamps) {
     auto entities = player->getEntities();
     // vector "toRemove" to store the entities to remove to avoid modifying the vector while iterating over it

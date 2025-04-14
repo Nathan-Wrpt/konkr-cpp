@@ -29,7 +29,6 @@ class Game {
     void handleEvent(SDL_Event& event);
     void update();
     void renderAll(SDL_Renderer* renderer) const;
-    std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
     Hex randomfreeHex();
     bool isEndGame() const { return endGame; }
 
