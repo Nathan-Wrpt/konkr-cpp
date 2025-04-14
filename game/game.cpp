@@ -655,7 +655,32 @@ void Game::update() {
 }
 
 void Game::renderAll(SDL_Renderer* renderer) const {
-    renderGame.render(renderer, grid, bandits, banditCamps, treasures, devils, players, playerTurn, cameraX, cameraY, textures, unitButtons, turnButton, entitySelected, selectedEntityIndex);
+    // Draw the grid
+    grid.draw(renderer, cameraX, cameraY);
+
+    // Render all entities
+    renderGame.renderEntities(renderer, bandits, "bandit", grid, cameraX, cameraY, textures);
+    renderGame.renderEntities(renderer, banditCamps, "bandit-camp", grid, cameraX, cameraY, textures);
+    renderGame.renderEntities(renderer, treasures, "treasury", grid, cameraX, cameraY, textures);
+    renderGame.renderEntities(renderer, devils, "zzzdevil", grid, cameraX, cameraY, textures);
+
+    // Render all players' entities
+    renderGame.renderPlayersEntities(renderer, players, playerTurn, grid, cameraX, cameraY, textures, entitySelected, selectedEntityIndex);
+
+    // Render the selected entity if any
+    renderGame.renderSelectedEntity(renderer, players, playerTurn, grid, bandits, banditCamps, treasures, devils, cameraX, cameraY, textures, entitySelected, selectedEntityIndex);
+
+    // Display current player's color and information
+    renderGame.renderPlayerInfo(renderer, players, playerTurn, grid, textures);
+
+    // Render all buttons
+    renderGame.renderAllButtons(renderer, unitButtons, textures);
+
+    // Render the turn button
+    renderGame.renderTurnButton(renderer, turnButton, textures, players, playerTurn);
+
+    // Display game over message if only one player remains
+    renderGame.renderGameOverMessage(renderer, players, textures, unitButtons);
 }
 
 // Check if a hex is surrounded other entities of the same player
