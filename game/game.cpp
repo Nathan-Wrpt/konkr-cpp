@@ -261,7 +261,7 @@ void Game::handleEvent(SDL_Event& event) {
             }
         }
         for (auto& player : toRemove) {
-            removePlayer(player);
+            playerManager.removePlayer(player, players, nbplayers, bandits, banditCamps);
         }
         // Change player
         playerTurn = (playerTurn + 1) % players.size();
@@ -689,27 +689,4 @@ std::string Game::hasSamePlayerEntities(const Hex& hex, const Player& currentPla
         }
     }
     return "";
-}
-
-// Remove a player from the game
-void Game::removePlayer(std::shared_ptr<Player> player) {
-    auto entities = player->getEntities();
-    // vector "toRemove" to store the entities to remove to avoid modifying the vector while iterating over it
-    std::vector<std::shared_ptr<Entity>> toRemove;
-    for(auto& entity : entities) {
-        if (entity) {
-            if (dynamic_cast<Building*>(entity.get())) {
-                entityManager.addBanditCamp(entity->getHex(), banditCamps);
-            } else {
-                entityManager.addBandit(entity->getHex(), bandits);
-            }
-            toRemove.push_back(entity);
-        }
-    }
-    for(auto& entity : toRemove) {
-        player->removeEntity(entity);
-    }
-
-    players.erase(std::remove(players.begin(), players.end(), player), players.end());
-    nbplayers--;
 }

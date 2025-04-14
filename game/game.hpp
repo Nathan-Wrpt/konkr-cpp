@@ -30,7 +30,6 @@ class Game {
     void update();
     void renderAll(SDL_Renderer* renderer) const;
     std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
-    void removePlayer(std::shared_ptr<Player> player);
     Hex randomfreeHex();
     bool isEndGame() const { return endGame; }
 

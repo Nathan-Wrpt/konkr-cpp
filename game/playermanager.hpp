@@ -8,6 +8,7 @@
 
 class PlayerManager {
 public:
+    void removePlayer(std::shared_ptr<Player> player, std::vector<std::shared_ptr<Player>>& players, int& nbplayers, std::vector<std::shared_ptr<Bandit>>& bandits, std::vector<std::shared_ptr<BanditCamp>>& banditCamps);
     void checkIfHexConnectedToTown(Player& player, HexagonalGrid& grid, std::vector<std::shared_ptr<Bandit>>& bandits, std::vector<std::shared_ptr<BanditCamp>>& banditCamps);
 private:
     void disconnectHex(Player& player, const Hex& hex, HexagonalGrid& grid, std::vector<std::shared_ptr<Bandit>>& bandits, std::vector<std::shared_ptr<BanditCamp>>& banditCamps);
