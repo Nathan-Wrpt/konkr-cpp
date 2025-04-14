@@ -1,5 +1,34 @@
 #include "entitymanager.hpp"
 
+void EntityManager::addEntityToPlayer(char entityType, const Hex& hex, std::shared_ptr<Player>& player) {
+    std::shared_ptr<Entity> entity;
+    switch (entityType) {
+        case 'T':
+            entity = std::make_shared<Town>(hex);
+            entity->setMoved(true);
+            break;
+        case 'V':
+            entity = std::make_shared<Villager>(hex);
+            break;
+        case 'C':
+            entity = std::make_shared<Castle>(hex);
+            entity->setMoved(true);
+            break;
+        case 'P':
+            entity = std::make_shared<Pikeman>(hex);
+            break;
+        case 'K':
+            entity = std::make_shared<Knight>(hex);
+            break;
+        case 'H':
+            entity = std::make_shared<Hero>(hex);
+            break;
+        default:
+            return;
+    }
+    player->addEntity(entity);
+}
+
 void EntityManager::generateEntities(const std::vector<std::string>& entityMap, const std::vector<std::string>& asciiMap, HexagonalGrid& grid, std::vector<std::shared_ptr<Player>>& players, std::vector<std::shared_ptr<Bandit>>& bandits, std::vector<std::shared_ptr<BanditCamp>>& banditCamps, std::vector<std::shared_ptr<Treasure>>& treasures) {
     // Check if the entity map has the same number of characters on each row as the ASCII map
     if (entityMap.size() != asciiMap.size()) {
@@ -33,53 +62,36 @@ void EntityManager::generateEntities(const std::vector<std::string>& entityMap, 
                 continue;
             }
 
-            if(c == 'B'){
-                addBandit(hex, bandits);
-                continue;
-            }
-
-            if(c == 'c'){
-                addBanditCamp(hex, banditCamps);
-                continue;
-            }
-
-            if(c == 't'){
-                int treasureValue = std::rand() % 10 + 1;
-                addTreasure(hex, treasureValue, treasures);
-                continue;
-            }
-
-            SDL_Color hexColor = grid.getHexColors().at(hex);
-
-            // Find the player whose color matches with hex.
-            std::shared_ptr<Player> playerForEntity = nullptr;
-            for (auto& player : players) {
-                if (player->getColor() == hexColor) {
-                    playerForEntity = player;
+            switch (c) {
+                case 'B':
+                    addBandit(hex, bandits);
+                    break;
+                case 'c':
+                    addBanditCamp(hex, banditCamps);
+                    break;
+                case 't': {
+                    int treasureValue = std::rand() % 10 + 1;
+                    addTreasure(hex, treasureValue, treasures);
                     break;
                 }
-            }
+                default: {
+                    SDL_Color hexColor = grid.getHexColors().at(hex);
 
-            if (!playerForEntity) {
-                continue;
-            }
-
-            // Add entity
-            if (c == 'T') {
-                playerForEntity->addEntity(std::make_shared<Town>(hex));
-                playerForEntity->getEntities().back()->setMoved(true);
-            } else if (c == 'V') {
-                playerForEntity->addEntity(std::make_shared<Villager>(hex));
-            } else if (c == 'C') {
-                playerForEntity->addEntity(std::make_shared<Castle>(hex));
-                playerForEntity->getEntities().back()->setMoved(true);
-            }
-            else if (c == 'P') {
-                playerForEntity->addEntity(std::make_shared<Pikeman>(hex));
-            } else if (c == 'K') {
-                playerForEntity->addEntity(std::make_shared<Knight>(hex));
-            } else if (c == 'H') {
-                playerForEntity->addEntity(std::make_shared<Hero>(hex));
+                    // Find the player whose color matches with hex.
+                    std::shared_ptr<Player> playerForEntity = nullptr;
+                    for (auto& player : players) {
+                        if (player->getColor() == hexColor) {
+                            playerForEntity = player;
+                            break;
+                        }
+                    }
+                    
+                    // Add the entity to the player.
+                    if (playerForEntity) {
+                        addEntityToPlayer(c, hex, playerForEntity);
+                    }
+                    break;
+                }
             }
         }
     }
@@ -142,90 +154,91 @@ bool EntityManager::entityOnHex(const Hex& hex, const std::vector<std::shared_pt
     return false;
 }
 
-void EntityManager::manageBandits(HexagonalGrid& grid, std::vector<std::shared_ptr<Bandit>>& bandits, std::vector<std::shared_ptr<BanditCamp>>& banditCamps, std::vector<std::shared_ptr<Treasure>>& treasures, std::vector<std::shared_ptr<Devil>>& devils, std::vector<std::shared_ptr<Player>>& players) {
-    for (const auto& bandit : bandits) {
-        bool moved = false;
-        int maxAttempts = 10; // Limite le nombre de tentatives
-        int attempts = 0;
+void EntityManager::moveBanditToNewPosition(HexagonalGrid& grid, std::shared_ptr<Bandit>& bandit, const std::vector<Hex>& directions, const std::vector<std::shared_ptr<Bandit>>& bandits, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Treasure>>& treasures, const std::vector<std::shared_ptr<Devil>>& devils, const std::vector<std::shared_ptr<Player>>& players) {
+    bool moved = false;
+    int maxAttempts = 10;
+    int attempts = 0;
 
-        // Essayer de trouver une position valide
-        while (!moved && attempts < maxAttempts) {
-            // Choisir une direction aléatoire
-            Hex direction = directions[std::rand() % directions.size()];
+    while (!moved && attempts < maxAttempts) {
+        Hex direction = directions[std::rand() % directions.size()];
+        Hex newHex = bandit->getHex().add(direction);
 
-            // Calculer la nouvelle position
-            Hex newHex = bandit->getHex().add(direction);
-
-            // Check if there's a treasure on the new hex
-            bool treasureonHex = false;
-            for(auto& treasure : treasures) {
-                if(treasure->getHex() == newHex) {
-                    treasureonHex = true;
-                    break;
-                }
-            }
-
-            // CHECK IF DEVIL ON HEX
-            bool devilonHex = false;
-            for(auto& devil : devils) {
-                if(devil->getHex() == newHex) {
-                    devilonHex = true;
-                    break;
-                }
-            }
-
-            // Vérifier si la nouvelle position est valide
-            if (grid.hexExists(newHex) && !entityOnHex(newHex, bandits, banditCamps, treasures, devils, players) && !treasureonHex && !devilonHex) {
-                bandit->moveBandit(grid, newHex);
-                moved = true;
-            } else {
-                attempts++;
+        bool treasureOnHex = false;
+        for (const auto& treasure : treasures) {
+            if (treasure->getHex() == newHex) {
+                treasureOnHex = true;
+                break;
             }
         }
-        Hex banditHex = bandit->getHex();
-        SDL_Color hexColor = grid.getHexColors().at(banditHex);
-        for(auto& player : players) {
-            if(hexColor == player->getColor()) {
-                // steal a coin from the player
-                player->removeCoins(1);
 
-                // locate the nearest bandit camp
-                int minDistance = 1000;
-                std::shared_ptr<BanditCamp> nearestBanditCamp = nullptr;
-                for(auto& banditcamp : banditCamps) {
-                    int distance = banditHex.distance(banditcamp->getHex());
-                    if(distance < minDistance) {
-                        minDistance = distance;
-                        nearestBanditCamp = banditcamp;
-                    }
+        bool devilOnHex = false;
+        for (const auto& devil : devils) {
+            if (devil->getHex() == newHex) {
+                devilOnHex = true;
+                break;
+            }
+        }
+
+        if (grid.hexExists(newHex) && !entityOnHex(newHex, bandits, banditCamps, treasures, devils, players) && !treasureOnHex && !devilOnHex) {
+            bandit->moveBandit(grid, newHex);
+            moved = true;
+        } else {
+            attempts++;
+        }
+    }
+}
+
+void EntityManager::stealCoinFromPlayer(HexagonalGrid& grid, const std::shared_ptr<Bandit>& bandit, std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Player>>& players) {
+    Hex banditHex = bandit->getHex();
+    SDL_Color hexColor = grid.getHexColors().at(banditHex);
+    for (const auto& player : players) {
+        if (hexColor == player->getColor()) {
+            player->removeCoins(1);
+
+            std::shared_ptr<BanditCamp> nearestBanditCamp = nullptr;
+            int minDistance = std::numeric_limits<int>::max();
+            for (const auto& banditCamp : banditCamps) {
+                int distance = banditHex.distance(banditCamp->getHex());
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestBanditCamp = banditCamp;
                 }
-                if(nearestBanditCamp) {
-                    // give the stolen coin to the nearest bandit camp if it exists
-                    nearestBanditCamp->addCoins(1);
-                }
+            }
+            if (nearestBanditCamp) {
+                nearestBanditCamp->addCoins(1);
             }
         }
     }
+}
+
+void EntityManager::spawnBanditFromCamp(HexagonalGrid& grid, std::shared_ptr<BanditCamp>& banditCamp, const std::vector<Hex>& directions, std::vector<std::shared_ptr<Bandit>>& bandits, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Treasure>>& treasures, const std::vector<std::shared_ptr<Devil>>& devils, const std::vector<std::shared_ptr<Player>>& players) {
+    int maxAttempts = 100;
+    int attempts = 0;
+    bool placed = false;
+    while (!placed && attempts < maxAttempts) {
+        Hex direction = directions[std::rand() % directions.size()];
+        Hex newHex = banditCamp->getHex().add(direction);
+
+        if (grid.hexExists(newHex) && !entityOnHex(newHex, bandits, banditCamps, treasures, devils, players)) {
+            addBandit(newHex, bandits);
+            banditCamp->removeCoins(5);
+            placed = true;
+        } else {
+            attempts++;
+        }
+    }
+}
+
+void EntityManager::manageBandits(HexagonalGrid& grid, std::vector<std::shared_ptr<Bandit>>& bandits, std::vector<std::shared_ptr<BanditCamp>>& banditCamps, std::vector<std::shared_ptr<Treasure>>& treasures, std::vector<std::shared_ptr<Devil>>& devils, std::vector<std::shared_ptr<Player>>& players) {
+    for (auto& bandit : bandits) {
+        moveBanditToNewPosition(grid, bandit, directions, bandits, banditCamps, treasures, devils, players);
+        stealCoinFromPlayer(grid, bandit, banditCamps, players);
+    }
+
     int banditCost = 5;
-    for(auto& banditcamp : banditCamps) {
-        if(banditcamp->getCoins() >= banditCost){
-            // spawn a bandit
-            int maxAttempts = 100;
-            int attempts = 0;
-            bool placed = false;
-            while (!placed && attempts < maxAttempts) {
-                Hex direction = directions[std::rand() % directions.size()];
-
-                Hex newHex = banditcamp->getHex().add(direction);
-
-                if (grid.hexExists(newHex) && !entityOnHex(newHex, bandits, banditCamps, treasures, devils, players)) {
-                    addBandit(newHex, bandits);
-                    banditcamp->removeCoins(banditCost);
-                    placed = true;
-                } else {
-                    attempts++;
-                }
-            }
+    for (auto& banditCamp : banditCamps) {
+        if (banditCamp->getCoins() >= banditCost) {
+            spawnBanditFromCamp(grid, banditCamp, directions, bandits, banditCamps, treasures, devils, players);
         }
     }
 }

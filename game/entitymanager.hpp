@@ -1,6 +1,8 @@
 #ifndef ENTITYMANAGER_HPP
 #define ENTITYMANAGER_HPP
 
+#include <limits>
+
 #include "../core/grid.hpp"
 #include "../entities/entity.hpp"
 #include "../entities/building.hpp"
@@ -18,6 +20,11 @@ public:
     void addDevil(const Hex& hex, std::vector<std::shared_ptr<Devil>>& devils);
     bool isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel, const HexagonalGrid& grid, const std::vector<std::shared_ptr<Player>>& players, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Devil>>& devils) const;
     bool HexNotOnTerritoryAndAccessible(const std::shared_ptr<Entity>& entity, const Hex& targetHex, const HexagonalGrid& grid, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Devil>>& devils) const;
+private:
+    void addEntityToPlayer(char entityType, const Hex& hex, std::shared_ptr<Player>& player);
+    void moveBanditToNewPosition(HexagonalGrid& grid, std::shared_ptr<Bandit>& bandit, const std::vector<Hex>& directions, const std::vector<std::shared_ptr<Bandit>>& bandits, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Treasure>>& treasures, const std::vector<std::shared_ptr<Devil>>& devils, const std::vector<std::shared_ptr<Player>>& players);
+    void stealCoinFromPlayer(HexagonalGrid& grid, const std::shared_ptr<Bandit>& bandit, std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Player>>& players);
+    void spawnBanditFromCamp(HexagonalGrid& grid, std::shared_ptr<BanditCamp>& banditCamp, const std::vector<Hex>& directions, std::vector<std::shared_ptr<Bandit>>& bandits, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Treasure>>& treasures, const std::vector<std::shared_ptr<Devil>>& devils, const std::vector<std::shared_ptr<Player>>& players);
 };
 
 #endif
