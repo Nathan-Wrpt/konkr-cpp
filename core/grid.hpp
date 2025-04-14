@@ -9,10 +9,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 
-const SDL_Color defaultColor = {0, 125, 0, SDL_ALPHA_OPAQUE}; // Dark green
-
-// matching between the colors like "r" to the color value
-extern const std::map<char, SDL_Color> colorMap;
+#include "hex.hpp"
+#include "../constants/constants.hpp"
 
 // Redéfinition de l'opérateur == pour SDL_Color
 inline bool operator==(const SDL_Color& lhs, const SDL_Color& rhs) {
@@ -21,48 +19,6 @@ inline bool operator==(const SDL_Color& lhs, const SDL_Color& rhs) {
            lhs.b == rhs.b &&
            lhs.a == rhs.a;
 }
-
-// Point structure for rendering
-struct Point {
-    double x, y;
-    Point(double x, double y) : x(x), y(y) {}
-};
-
-// Hex class for cube coordinates
-class Hex {
-private:
-    int q, r, s;
-public:
-    Hex(int q, int r, int s);
-
-    // Basic operations
-    Hex add(const Hex& other) const;
-    Hex subtract(const Hex& other) const;
-    Hex scale(int factor) const;
-
-    // Distance between two hexes
-    int distance(const Hex& other) const;
-
-    // Equality operator
-    bool operator==(const Hex& other) const;
-
-    // Comparison operator for std::map
-    bool operator<(const Hex& other) const {
-        if (q != other.q) return q < other.q;
-        if (r != other.r) return r < other.r;
-        return s < other.s;
-    }
-    // Getters
-    int getQ() const { return q; }
-    int getR() const { return r; }
-    int getS() const { return s; }
-
-    // Setters
-    void setQ(int q) { this->q = q; }
-    void setR(int r) { this->r = r; }
-    void setS(int s) { this->s = s; }
-};
-
 
 // HexagonalGrid class
 class HexagonalGrid {
@@ -90,9 +46,6 @@ public:
 
     // Handle mouse click
     void handleMouseClick(int mouseX, int mouseY, int cameraX, int cameraY);
-
-    // Handle mouse motion
-    void handleMouseMotion(int mouseX, int mouseY, int cameraX, int cameraY);
 
     // Draw the grid
     void draw(SDL_Renderer* renderer, int cameraX, int cameraY) const;
