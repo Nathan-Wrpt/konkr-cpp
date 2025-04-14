@@ -7,14 +7,6 @@
 #include <memory>
 #include <map>
 
-#include "../core/grid.hpp"
-#include "../entities/entity.hpp"
-#include "../entities/building.hpp"
-#include "../players/player.hpp"
-#include "../ui/button.hpp"
-#include "../ui/data.hpp"
-#include "../constants/constants.hpp"
-
 #include "../entities/entitymanager.hpp"
 #include "rendergame.hpp"
 
@@ -36,7 +28,7 @@ class Game {
 
     void handleEvent(SDL_Event& event);
     void update();
-    void render(SDL_Renderer* renderer) const;
+    void renderAll(SDL_Renderer* renderer) const;
     std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
     void removePlayer(std::shared_ptr<Player> player);
     void checkIfHexConnectedToTown(Player& player);

@@ -193,7 +193,7 @@ int main(int argc, char* argv[]) {
         SDL_RenderClear(renderer);
 
         // Render the game
-        game.render(renderer);
+        game.renderAll(renderer);
 
         // Present the rendered frame
         SDL_RenderPresent(renderer);
