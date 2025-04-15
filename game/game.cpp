@@ -95,9 +95,9 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
 
     // turn button on the bottom right corner
     int turnButtonWidth = buttonSize * 3;
-    turnButton = Button(windowWidth - turnButtonWidth- 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zznext", 0);
-    undoButton = Button(windowWidth - 2 * turnButtonWidth - 2 * 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zzzundo", 0);
-    quitButton = Button(20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zzquit", 0);
+    turnButton = Button(windowWidth - turnButtonWidth- 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "next", 0);
+    undoButton = Button(windowWidth - 2 * turnButtonWidth - 2 * 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "undo", 0);
+    quitButton = Button(20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "quit", 0);
 }
 
 Game::Game(const Game& other)
@@ -681,8 +681,8 @@ void Game::renderAll(SDL_Renderer* renderer) const {
     renderGame.renderEntities(renderer, gameEntities.bandits, "bandit", grid, cameraX, cameraY, textures);
     renderGame.renderEntities(renderer, gameEntities.banditCamps, "bandit-camp", grid, cameraX, cameraY, textures);
     renderGame.renderEntities(renderer, gameEntities.treasures, "treasury", grid, cameraX, cameraY, textures);
-    renderGame.renderEntities(renderer, gameEntities.devils, "zzzdevil", grid, cameraX, cameraY, textures);
-    renderGame.renderEntities(renderer, gameEntities.forests, "zzzforest", grid, cameraX, cameraY, textures);
+    renderGame.renderEntities(renderer, gameEntities.devils, "devil", grid, cameraX, cameraY, textures);
+    renderGame.renderEntities(renderer, gameEntities.forests, "forest", grid, cameraX, cameraY, textures);
 
     // Render all players' entities
     renderGame.renderPlayersEntities(renderer, gameEntities.players, playerTurn, grid, cameraX, cameraY, textures, entitySelected, selectedEntityIndex);

@@ -1,14 +1,14 @@
 #include "data.hpp"
 
 void RenderData::renderImageWithText(const SDL_Rect& imageRect, const std::string& iconKey, const std::string& text) {
-    // Check if the iconKey exists in the iconsMap
-    if (iconsMap.find(iconKey) == iconsMap.end()) {
-        std::cerr << "Error: Icon key not found in iconsMap" << std::endl;
+    // Check if the iconKey exists in iconNames
+    if (getIconIndex(iconKey) == -1) {
+        std::cerr << "Error: Icon key not found in iconNames" << std::endl;
         return;
     }
 
-    // Get the texture index from the iconsMap
-    int textureIndex = iconsMap.at(iconKey);
+    // Get the texture index from the iconNames
+    int textureIndex = getIconIndex(iconKey);
 
     // Render the image
     SDL_RenderCopy(renderer, textures[textureIndex], NULL, &imageRect);

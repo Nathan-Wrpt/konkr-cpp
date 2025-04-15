@@ -6,9 +6,9 @@ const std::array<std::string, 26> iconNames = {
     "coins",          "deficit",        "emoji-happy", "face",
     "gold-trophy",    "grave",          "hero",        "knight",
     "pikeman",        "silver-trophy",  "surplus",     "town",
-    "treasury",       "upkeep",         "villager",    "zwords",
-    "zznext",         "zznext2",        "zzquit",      "zzzdevil",
-    "zzzforest",       "zzzundo"
+    "treasury",       "upkeep",         "villager",    "swords",
+    "next",         "nextbright",        "quit",      "devil",
+    "forest",       "undo"
 };
 
 int getIconIndex(const std::string& name) {

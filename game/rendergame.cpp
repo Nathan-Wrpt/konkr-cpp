@@ -98,10 +98,10 @@ SDL_Texture* RenderGame::determineTurnButtonTexture(const std::vector<SDL_Textur
     });
 
     if (allEntitiesMoved && currentPlayer->getCoins() < 10) {
-        iconTexture = textures[getIconIndex("zznext2")];
+        iconTexture = textures[getIconIndex("nextbright")];
     }
     if (players.size() == 1) {
-        iconTexture = textures[getIconIndex("zzquit")];
+        iconTexture = textures[getIconIndex("quit")];
     }
     return iconTexture;
 }
@@ -175,7 +175,7 @@ void RenderGame::drawHexHighlight(SDL_Renderer* renderer, const Hex& hex, const 
         SDL_SetRenderDrawColor(renderer, 150, 0, 0, 100); // Red color
         SDL_RenderDrawRect(renderer, &hexRect);
         SDL_Rect swordRect = {hexRect.x + hexRect.w / 2 - 10, hexRect.y + hexRect.h / 2 - 10, 20, 20};
-        SDL_RenderCopy(renderer, textures[getIconIndex("zwords")], NULL, &swordRect);
+        SDL_RenderCopy(renderer, textures[getIconIndex("swords")], NULL, &swordRect);
     } else {
         SDL_SetRenderDrawColor(renderer, 150, 150, 0, 100); // Yellow color
         SDL_RenderDrawRect(renderer, &hexRect);
