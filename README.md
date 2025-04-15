@@ -28,6 +28,7 @@ Here are the different characters that can be put in the entityMap. All of the p
 | B         | Bandit         | Adds a Bandit to the hex                                          |
 | c         | Bandit Camp    | Adds a Bandit Camp to the hex                                     |
 | t         | Treasure       | Adds a Treasure to the hex (with a random value between 1 and 10)   |
+| f         | Forest         | Adds a Forest to the hex                                          |
 | T         | Town           | Adds a Town to the hex (assigned to the owning player)            |
 | V         | Villager       | Adds a Villager to the hex (assigned to the owning player)          |
 | C         | Castle         | Adds a Castle to the hex (assigned to the owning player)            |
