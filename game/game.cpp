@@ -389,6 +389,17 @@ void Game::handleEvent(SDL_Event& event) {
     if (event.key.keysym.sym == SDLK_DOWN) {
         cameraY += cameraSpeed;
     }
+    // if scrollwheelup, hexSize += 1
+    if (event.type == SDL_MOUSEWHEEL) {
+        int hexSize = grid.getHexSize();
+        if(hexSize > 1) {
+            if (event.wheel.y > 0) {
+                grid.setHexSize(hexSize + 1);
+            } else if (event.wheel.y < 0) {
+                grid.setHexSize(hexSize - 1);
+            }
+        }
+    }
     std::string entityToBuy = "";
 
     if(event.key.keysym.sym == SDLK_1 || event.key.keysym.sym == SDLK_AMPERSAND) { // AZERTY: '&'

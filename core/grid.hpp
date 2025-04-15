@@ -68,6 +68,9 @@ public:
     //Get the number of cases in a certain color
     int getNbCasesColor(const SDL_Color& color) const;
 
+    // set HexSize
+    void setHexSize(double size) { hexSize = size; }
+
 };
 
 #endif // HEXAGONAL_GRID_HPP
