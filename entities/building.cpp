@@ -35,3 +35,9 @@ Treasure::Treasure(Hex hex, int value)
     : Building(hex, 0, "treasure", 0), value(value) {}
 
 Treasure::~Treasure() {}
+
+// --- Forest Class Implementation ---
+Forest::Forest(Hex hex) 
+    : Building(hex, 10, "forest", 0) {}
+    
+Forest::~Forest() {}

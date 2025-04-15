@@ -7,55 +7,54 @@
 #include <memory>
 #include <map>
 
-#include "../entities/entitymanager.hpp"
+#include "../players/playermanager.hpp"
 #include "rendergame.hpp"
+#include "gameentities.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
 class Game {
-  public:
-    Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector<std::string>& entityMap,
-         int windowWidth, int windowHeight, SDL_Renderer* renderer, int cameraSpeed);
-    ~Game();
+public:
+  Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector<std::string>& entityMap,
+        int windowWidth, int windowHeight, SDL_Renderer* renderer, int cameraSpeed);
+  ~Game();
 
-    // Copy constructor
-    Game(const Game& other);
+  // Copy constructor
+  Game(const Game& other);
 
-    // Assignment operator
-    Game& operator=(const Game& other);
+  // Assignment operator
+  Game& operator=(const Game& other);
 
-    void handleEvent(SDL_Event& event);
-    void update();
-    void renderAll(SDL_Renderer* renderer) const;
-    std::string hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const;
-    void removePlayer(std::shared_ptr<Player> player);
-    void checkIfHexConnectedToTown(Player& player);
-    void disconnectHex(Player& player, const Hex& hex);
-    Hex randomfreeHex();
-    bool isEndGame() const { return endGame; }
+  void handleEvent(SDL_Event& event);
+  void update();
+  void renderAll(SDL_Renderer* renderer) const;
+  bool isEndGame() const { return endGame; }
 
-  private:
-    HexagonalGrid grid;
-    EntityManager entityManager;
-    RenderGame renderGame;
-    std::vector<std::shared_ptr<Player>> players;
-    std::vector<std::shared_ptr<Bandit>> bandits;
-    std::vector<std::shared_ptr<BanditCamp>> banditCamps;
-    std::vector<std::shared_ptr<Treasure>> treasures;
-    std::vector<std::shared_ptr<Devil>> devils;
-    size_t playerTurn;
-    bool entitySelected;
-    std::vector<SDL_Texture*> textures;
-    int selectedEntityIndex;
-    int nbplayers;
-    int turn;
-    std::vector<Button> unitButtons;
-    Button turnButton;
-    Button* draggedButton;
-    int cameraX, cameraY, cameraSpeed;
-    bool endGame;
+  bool getUndo() const { return undo; }
+  void setUndo(bool undo) { this->undo = undo; }
+
+private:
+  HexagonalGrid grid;
+  EntityManager entityManager;
+  RenderGame renderGame;
+  PlayerManager playerManager;
+  GameEntities gameEntities;
+  size_t playerTurn;
+  bool entitySelected;
+  std::vector<SDL_Texture*> textures;
+  int selectedEntityIndex;
+  int nbplayers;
+  int turn;
+  std::vector<Button> unitButtons;
+  Button turnButton;
+  Button undoButton;
+  Button quitButton;
+  Button* draggedButton;
+  int cameraX, cameraY, cameraSpeed;
+  bool endGame;
+  bool undo;
 };
 
 #endif // GAME_HPP

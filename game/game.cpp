@@ -3,8 +3,6 @@
 #include <map>
 #include <filesystem>
 #include <algorithm>
-#include <queue>
-#include <set>
 
 // Custom comparison function for SDL_Color
 struct SDL_Color_Compare {
@@ -23,6 +21,8 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     entitySelected(false),
     selectedEntityIndex(-1),
     turnButton(0, 0, 0, 0, "", 0),
+    undoButton(0, 0, 0, 0, "", 0),
+    quitButton(0, 0, 0, 0, "", 0),
     draggedButton(nullptr),
     cameraSpeed(cameraSpeed),
     endGame(false)
@@ -63,7 +63,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
         }
         if (!found && !(color == defaultColor)) {
             nbplayers++;
-            players.emplace_back(std::make_shared<Player>(color));
+            gameEntities.players.emplace_back(std::make_shared<Player>(color));
             uniqueColors.push_back(color);
         }
     }
@@ -78,7 +78,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
 
     // Generate entities based on the entityMap
     std::cout << "Generating entities..." << std::endl;
-    entityManager.generateEntities(entityMap, asciiMap, grid, players, bandits, banditCamps, treasures);
+    entityManager.generateEntities(entityMap, asciiMap, grid, gameEntities);
 
     int nbButtons = 5;
     int buttonSize = 50;
@@ -96,14 +96,13 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     // turn button on the bottom right corner
     int turnButtonWidth = buttonSize * 3;
     turnButton = Button(windowWidth - turnButtonWidth- 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zznext", 0);
+    undoButton = Button(windowWidth - 2 * turnButtonWidth - 2 * 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zzzundo", 0);
+    quitButton = Button(20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zzquit", 0);
 }
 
 Game::Game(const Game& other)
     : grid(other.grid),
-      players(),
-      bandits(),
-      banditCamps(),
-      treasures(),
+      gameEntities(),
       playerTurn(other.playerTurn),
       entitySelected(other.entitySelected),
       textures(other.textures),
@@ -112,34 +111,41 @@ Game::Game(const Game& other)
       turn(other.turn),
       unitButtons(other.unitButtons),
       turnButton(other.turnButton),
+      undoButton(other.undoButton),
+      quitButton(other.quitButton),
       draggedButton(nullptr),
       cameraX(other.cameraX),     
       cameraY(other.cameraY),
       cameraSpeed(other.cameraSpeed)
 {
     // Copy players
-    for (const auto& player : other.players) {
-        players.push_back(std::make_shared<Player>(*player));
+    for (const auto& player : other.gameEntities.players) {
+        gameEntities.players.push_back(std::make_shared<Player>(*player));
     }
 
     // Copy bandits
-    for (const auto& bandit : other.bandits) {
-        bandits.push_back(std::make_shared<Bandit>(*bandit));
+    for (const auto& bandit : other.gameEntities.bandits) {
+        gameEntities.bandits.push_back(std::make_shared<Bandit>(*bandit));
     }
 
     // Copy banditCamps
-    for (const auto& banditCamp : other.banditCamps) {
-        banditCamps.push_back(std::make_shared<BanditCamp>(*banditCamp));
+    for (const auto& banditCamp : other.gameEntities.banditCamps) {
+        gameEntities.banditCamps.push_back(std::make_shared<BanditCamp>(*banditCamp));
     }
 
     // Copy treasures
-    for (const auto& treasure : other.treasures) {
-        treasures.push_back(std::make_shared<Treasure>(*treasure));
+    for (const auto& treasure : other.gameEntities.treasures) {
+        gameEntities.treasures.push_back(std::make_shared<Treasure>(*treasure));
     }
 
     // Copy devils
-    for (const auto& devil : other.devils) {
-        devils.push_back(std::make_shared<Devil>(*devil));
+    for (const auto& devil : other.gameEntities.devils) {
+        gameEntities.devils.push_back(std::make_shared<Devil>(*devil));
+    }
+
+    // Copy forests
+    for (const auto& forest : other.gameEntities.forests) {
+        gameEntities.forests.push_back(std::make_shared<Forest>(*forest));
     }
 }
 
@@ -154,39 +160,47 @@ Game& Game::operator=(const Game& other) {
         turn = other.turn;
         unitButtons = other.unitButtons;
         turnButton = other.turnButton;
+        undoButton = other.undoButton;
+        quitButton = other.quitButton;
         draggedButton = nullptr;
         cameraX = other.cameraX;
         cameraY = other.cameraY;
         cameraSpeed = other.cameraSpeed;
 
         // Copy players
-        players.clear();
-        for (const auto& player : other.players) {
-            players.push_back(std::make_shared<Player>(*player));
+        gameEntities.players.clear();
+        for (const auto& player : other.gameEntities.players) {
+            gameEntities.players.push_back(std::make_shared<Player>(*player));
         }
 
         // Copy bandits
-        bandits.clear();
-        for (const auto& bandit : other.bandits) {
-            bandits.push_back(std::make_shared<Bandit>(*bandit));
+        gameEntities.bandits.clear();
+        for (const auto& bandit : other.gameEntities.bandits) {
+            gameEntities.bandits.push_back(std::make_shared<Bandit>(*bandit));
         }
 
         // Copy banditCamps
-        banditCamps.clear();
-        for (const auto& banditCamp : other.banditCamps) {
-            banditCamps.push_back(std::make_shared<BanditCamp>(*banditCamp));
+        gameEntities.banditCamps.clear();
+        for (const auto& banditCamp : other.gameEntities.banditCamps) {
+            gameEntities.banditCamps.push_back(std::make_shared<BanditCamp>(*banditCamp));
         }
 
         // Copy treasures
-        treasures.clear();
-        for (const auto& treasure : other.treasures) {
-            treasures.push_back(std::make_shared<Treasure>(*treasure));
+        gameEntities.treasures.clear();
+        for (const auto& treasure : other.gameEntities.treasures) {
+            gameEntities.treasures.push_back(std::make_shared<Treasure>(*treasure));
         }
 
         // Copy devils
-        devils.clear();
-        for (const auto& devil : other.devils) {
-            devils.push_back(std::make_shared<Devil>(*devil));
+        gameEntities.devils.clear();
+        for (const auto& devil : other.gameEntities.devils) {
+            gameEntities.devils.push_back(std::make_shared<Devil>(*devil));
+        }
+
+        // Copy forests
+        gameEntities.forests.clear();
+        for (const auto& forest : other.gameEntities.forests) {
+            gameEntities.forests.push_back(std::make_shared<Forest>(*forest));
         }
     }
     return *this;
@@ -200,49 +214,33 @@ Game::~Game() {
     }
 }
 
-Hex Game::randomfreeHex() {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distrib(0, grid.getHexes().size() - 1);
-    int randomIndex = distrib(gen);
-    Hex randomHex = grid.getHexes()[randomIndex];
-    SDL_Color hexColor = grid.getHexColors().at(randomHex);
-    std::vector<SDL_Color> playerColors;
-    for(auto& player : players) {
-        playerColors.push_back(player->getColor());
-    }
-    // check that the Hex is not occupated and not owned by a player
-    int maxAttempts = 100;
-    int attempts = 0;
-    while(entityManager.entityOnHex(randomHex, bandits, banditCamps, treasures, devils, players) || (std::find(playerColors.begin(), playerColors.end(), hexColor) != playerColors.end())) {
-        randomIndex = distrib(gen);
-        randomHex = grid.getHexes()[randomIndex];
-        hexColor = grid.getHexColors().at(randomHex);
-        attempts++;
-        if(attempts >= maxAttempts) {
-            return Hex(-1000, 0, 1000);
-        }
-    }
-    return randomHex;
-}
-
 void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed or turnbutton clicked, change player
-    if ((event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) || (event.type == SDL_MOUSEBUTTONDOWN && turnButton.containsPoint(event.button.x, event.button.y))) {
-        if(players.size() == 1) {
+    if ((event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) 
+    || (event.type == SDL_MOUSEBUTTONDOWN && turnButton.containsPoint(event.button.x, event.button.y))
+    || (event.type == SDL_MOUSEBUTTONDOWN && undoButton.containsPoint(event.button.x, event.button.y))
+    || (event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y))) {
+
+        if (event.type == SDL_MOUSEBUTTONDOWN && undoButton.containsPoint(event.button.x, event.button.y)) {
+            undo = true;
+            return;
+        }
+
+        if(gameEntities.players.size() == 1 || (event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y))) {
             endGame = true;
             return;
         }
+
         // if entities on hex not existing on the grid refund the cost of the entity
         if(entitySelected) {
-            auto& entity = players[playerTurn]->getEntities()[selectedEntityIndex];
+            auto& entity = gameEntities.players[playerTurn]->getEntities()[selectedEntityIndex];
             Hex entityHex = entity->getHex();
             if(!(grid.hexExists(entityHex))) {
-                players[playerTurn]->removeEntity(entity);
+                gameEntities.players[playerTurn]->removeEntity(entity);
                 // refund the cost of the entity
                 for(auto& button : unitButtons) {
                     if(button.getIconName() == entity->getName()) {
-                        players[playerTurn]->addCoins(button.getCost());
+                        gameEntities.players[playerTurn]->addCoins(button.getCost());
                     }
                 }
             }
@@ -250,48 +248,48 @@ void Game::handleEvent(SDL_Event& event) {
         selectedEntityIndex = -1;
         entitySelected = false;
 
-        for(auto& player : players) {
-            checkIfHexConnectedToTown(*player);
+        for(auto& player : gameEntities.players) {
+            playerManager.checkIfHexConnectedToTown(*player, grid, gameEntities.bandits, gameEntities.banditCamps);
         }
         
 
         // Remove dead players
         std::vector<std::shared_ptr<Player>> toRemove;
-        for (auto& player : players) {
+        for (auto& player : gameEntities.players) {
             if (!player->isAlive()) {
                 toRemove.push_back(player);
             }
         }
         for (auto& player : toRemove) {
-            removePlayer(player);
+            playerManager.removePlayer(player, gameEntities.players, nbplayers, gameEntities.bandits, gameEntities.banditCamps);
         }
         // Change player
-        playerTurn = (playerTurn + 1) % players.size();
-        auto& currentPlayer = players[playerTurn];
+        playerTurn = (playerTurn + 1) % gameEntities.players.size();
+        auto& currentPlayer = gameEntities.players[playerTurn];
 
         // BANDIT AND TREASURE ACTIONS HERE
         if (playerTurn == 0) {
             turn++;
             if(turn > 0) {
-                entityManager.manageBandits(grid, bandits, banditCamps, treasures, devils, players);
+                entityManager.manageBandits(grid, gameEntities);
             }
-            if(treasures.empty()) {
+            if(gameEntities.treasures.empty()) {
                 int treasureValue = std::rand() % 10 + 1;
                 if(std::rand() % 4 == 0) {
-                    Hex treasureHex = randomfreeHex();
+                    Hex treasureHex = entityManager.randomfreeHex(grid, gameEntities);
                     if(treasureHex.getQ() != -1000 && treasureHex.getR() != 0 && treasureHex.getS() != 1000) {
-                        entityManager.addTreasure(treasureHex, treasureValue, treasures);
+                        entityManager.addTreasure(treasureHex, treasureValue, gameEntities.treasures);
                     }
                 }
             }
 
-            if (devils.empty()) {
+            if (gameEntities.devils.empty()) {
                 if(std::rand() % 1000 == 0) {
-                    Hex devilHex = randomfreeHex();
+                    Hex devilHex = entityManager.randomfreeHex(grid, gameEntities);
                     if(devilHex.getQ() != -1000 && devilHex.getR() != 0 && devilHex.getS() != 1000) {
-                        entityManager.addDevil(devilHex, devils);
+                        entityManager.addDevil(devilHex, gameEntities.devils);
                         // kill all the entities around the devil
-                        for(auto& player : players) {
+                        for(auto& player : gameEntities.players) {
                             std::vector<std::shared_ptr<Entity>> entitiesToRemove;
                             for(auto& entity : player->getEntities()) {
                                 if(entity->getHex().distance(devilHex) <= 1 && entity->getName() != "town" && entity->getProtectionLevel() <= 2) {
@@ -304,40 +302,40 @@ void Game::handleEvent(SDL_Event& event) {
                         }
                         // remove all the bandits around the devil
                         std::vector<std::shared_ptr<Bandit>> banditsToRemove;
-                        for(auto& bandit : bandits) {
+                        for(auto& bandit : gameEntities.bandits) {
                             if(bandit->getHex().distance(devilHex) <= 1) {
                                 banditsToRemove.push_back(bandit);
                             }
                         }
                         for(auto& bandit : banditsToRemove) {
-                            bandits.erase(std::remove(bandits.begin(), bandits.end(), bandit), bandits.end());
+                            gameEntities.bandits.erase(std::remove(gameEntities.bandits.begin(), gameEntities.bandits.end(), bandit), gameEntities.bandits.end());
                         }
                         // remove all the bandit camps around the devil
                         std::vector<std::shared_ptr<BanditCamp>> banditCampsToRemove;
-                        for(auto& banditcamp : banditCamps) {
+                        for(auto& banditcamp : gameEntities.banditCamps) {
                             if(banditcamp->getHex().distance(devilHex) <= 1) {
                                 banditCampsToRemove.push_back(banditcamp);
                             }
                         }
                         for(auto& banditcamp : banditCampsToRemove) {
-                            banditCamps.erase(std::remove(banditCamps.begin(), banditCamps.end(), banditcamp), banditCamps.end());
+                            gameEntities.banditCamps.erase(std::remove(gameEntities.banditCamps.begin(), gameEntities.banditCamps.end(), banditcamp), gameEntities.banditCamps.end());
                         }
                         // remove all the treasures around the devil
                         std::vector<std::shared_ptr<Treasure>> treasuresToRemove;
-                        for(auto& treasure : treasures) {
+                        for(auto& treasure : gameEntities.treasures) {
                             if(treasure->getHex().distance(devilHex) <= 1) {
                                 treasuresToRemove.push_back(treasure);
                             }
                         }
                         for(auto& treasure : treasuresToRemove) {
-                            treasures.erase(std::remove(treasures.begin(), treasures.end(), treasure), treasures.end());
+                            gameEntities.treasures.erase(std::remove(gameEntities.treasures.begin(), gameEntities.treasures.end(), treasure), gameEntities.treasures.end());
                         }
                     }
                 }
             } else {
                 // remove all the devils
-                for(auto& devil : devils) {
-                    devils.erase(std::remove(devils.begin(), devils.end(), devil), devils.end());
+                for(auto& devil : gameEntities.devils) {
+                    gameEntities.devils.erase(std::remove(gameEntities.devils.begin(), gameEntities.devils.end(), devil), gameEntities.devils.end());
                 }
 
             }
@@ -354,7 +352,7 @@ void Game::handleEvent(SDL_Event& event) {
             for(auto& entity : currentPlayer->getEntities()) {
                 bool building = dynamic_cast<Building*>(entity.get());
 
-                if(!building && players.size() > 1) { // if the player is alone, no need to make the units ready to move
+                if(!building && gameEntities.players.size() > 1) { // if the player is alone, no need to make the units ready to move
                     entity->setMoved(false);
                 }
                 int currentUpkeep = entity->getUpkeep();
@@ -365,10 +363,10 @@ void Game::handleEvent(SDL_Event& event) {
                     Hex entityHex = entity->getHex();
                     if(building) {
                         // replace by bandit camp
-                        entityManager.addBanditCamp(entityHex, banditCamps);
+                        entityManager.addBanditCamp(entityHex, gameEntities.banditCamps);
                     } else {
                         // replace by bandit
-                        entityManager.addBandit(entityHex, bandits);
+                        entityManager.addBandit(entityHex, gameEntities.bandits);
                     }
                     toRemove.push_back(entity);
                 }
@@ -419,28 +417,28 @@ void Game::handleEvent(SDL_Event& event) {
         // Check if a button was clicked
         for (auto& button : unitButtons) {
             if ((button.containsPoint(mouseX, mouseY) || button.getIconName() == entityToBuy)&& !entitySelected) {
-                if (button.getCost() <= players[playerTurn]->getCoins()) {
+                if (button.getCost() <= gameEntities.players[playerTurn]->getCoins()) {
                     if (button.getIconName() == "villager") {
-                        players[playerTurn]->addEntity(std::make_shared<Villager>(clickedHex));
+                        gameEntities.players[playerTurn]->addEntity(std::make_shared<Villager>(clickedHex));
                     } else if (button.getIconName() == "pikeman") {
-                        players[playerTurn]->addEntity(std::make_shared<Pikeman>(clickedHex));
+                        gameEntities.players[playerTurn]->addEntity(std::make_shared<Pikeman>(clickedHex));
                     } else if (button.getIconName() == "knight") {
-                        players[playerTurn]->addEntity(std::make_shared<Knight>(clickedHex));
+                        gameEntities.players[playerTurn]->addEntity(std::make_shared<Knight>(clickedHex));
                     } else if (button.getIconName() == "hero") {
-                        players[playerTurn]->addEntity(std::make_shared<Hero>(clickedHex));
+                        gameEntities.players[playerTurn]->addEntity(std::make_shared<Hero>(clickedHex));
                     } else if(button.getIconName() == "castle") {
-                        players[playerTurn]->addEntity(std::make_shared<Castle>(clickedHex));
-                        players[playerTurn]->getEntities().back()->setMoved(false);
+                        gameEntities.players[playerTurn]->addEntity(std::make_shared<Castle>(clickedHex));
+                        gameEntities.players[playerTurn]->getEntities().back()->setMoved(false);
                     }
-                    players[playerTurn]->removeCoins(button.getCost());
+                    gameEntities.players[playerTurn]->removeCoins(button.getCost());
                 }
             }
         }
 
 
-        if (playerTurn >= 0 && playerTurn < players.size()) {
+        if (playerTurn >= 0 && playerTurn < gameEntities.players.size()) {
             if (!entitySelected) {
-                auto& currentPlayer = players[playerTurn];
+                auto& currentPlayer = gameEntities.players[playerTurn];
                 const auto& playerEntities = currentPlayer->getEntities();
 
                 for (size_t i = 0; i < playerEntities.size(); ++i) {
@@ -456,14 +454,14 @@ void Game::handleEvent(SDL_Event& event) {
             } else if (entityToBuy == "") {
                 bool moveSuccessful = false;
                 if (grid.hexExists(clickedHex)) {
-                    auto& currentPlayer = players[playerTurn];
+                    auto& currentPlayer = gameEntities.players[playerTurn];
                     auto entity = currentPlayer->getEntities()[selectedEntityIndex];
                     SDL_Color targetColor = grid.getHexColors().at(clickedHex);
 
                     if ((entity) &&
-                        !entityManager.isSurroundedByOtherPlayerEntities(clickedHex, *currentPlayer, entity->getProtectionLevel(), grid, players, banditCamps, devils) &&
-                        hasSamePlayerEntities(clickedHex, *currentPlayer) == "") {
-                        if(entity->getName() == "castle" && !entityManager.entityOnHex(clickedHex, bandits, banditCamps, treasures, devils, players) && grid.getHexColors().at(clickedHex) == currentPlayer->getColor()) {
+                        !entityManager.isSurroundedByOtherPlayerEntities(clickedHex, *currentPlayer, entity->getProtectionLevel(), grid, gameEntities) &&
+                        playerManager.hasSamePlayerEntities(clickedHex, *currentPlayer) == "") {
+                        if(entity->getName() == "castle" && !entityManager.entityOnHex(clickedHex, gameEntities) && grid.getHexColors().at(clickedHex) == currentPlayer->getColor()) {
                             entity->setHex(clickedHex);
                             entity->setMoved(true);
                         }
@@ -475,18 +473,18 @@ void Game::handleEvent(SDL_Event& event) {
                             bool movedOnSameColor = targetColor == currentPlayer->getColor();
 
                             // remove potential bandits on the hex we are moving to
-                            for (auto& bandit : bandits) {
+                            for (auto& bandit : gameEntities.bandits) {
                                 if (bandit->getHex() == clickedHex) {
-                                    bandits.erase(std::remove(bandits.begin(), bandits.end(), bandit), bandits.end());
+                                    gameEntities.bandits.erase(std::remove(gameEntities.bandits.begin(), gameEntities.bandits.end(), bandit), gameEntities.bandits.end());
                                     entity->setMoved(true);
                                     break;
                                 }
                             }
 
                             // remove potential bandit camps on the hex we are moving to
-                            for (auto& banditcamp : banditCamps) {
+                            for (auto& banditcamp : gameEntities.banditCamps) {
                                 if (banditcamp->getHex() == clickedHex) {
-                                    banditCamps.erase(std::remove(banditCamps.begin(), banditCamps.end(), banditcamp), banditCamps.end());
+                                    gameEntities.banditCamps.erase(std::remove(gameEntities.banditCamps.begin(), gameEntities.banditCamps.end(), banditcamp), gameEntities.banditCamps.end());
                                     entity->setMoved(true);
                                     break;
                                 }
@@ -495,7 +493,7 @@ void Game::handleEvent(SDL_Event& event) {
                             if(!movedOnSameColor) {
                                 entity->setMoved(true);
                                 // remove potential entity on the hex we are moving to
-                                for (auto& player : players) {
+                                for (auto& player : gameEntities.players) {
                                     if (player->getColor() == currentPlayer->getColor()) {
                                         continue;
                                     }
@@ -512,12 +510,12 @@ void Game::handleEvent(SDL_Event& event) {
                                     }
                                 }
                                 // check if a player is on a treasure, give the coins to the player and remove the treasure
-                                for(auto& treasure : treasures) {
-                                    for (auto& player : players) {
+                                for(auto& treasure : gameEntities.treasures) {
+                                    for (auto& player : gameEntities.players) {
                                         for (auto& entity : player->getEntities()) {
                                             if(treasure->getHex() == entity->getHex()) {
                                                 player->addCoins(treasure->getValue());
-                                                treasures.erase(std::remove(treasures.begin(), treasures.end(), treasure), treasures.end());
+                                                gameEntities.treasures.erase(std::remove(gameEntities.treasures.begin(), gameEntities.treasures.end(), treasure), gameEntities.treasures.end());
                                                 break;
                                             }
                                         }
@@ -525,12 +523,12 @@ void Game::handleEvent(SDL_Event& event) {
                                 }
 
                                 // check if a player beat the devil, give the coins to the player and remove the devil
-                                for(auto& devil : devils) {
-                                    for (auto& player : players) {
+                                for(auto& devil : gameEntities.devils) {
+                                    for (auto& player : gameEntities.players) {
                                         for (auto& entity : player->getEntities()) {
                                             if(devil->getHex() == entity->getHex()) {
                                                 player->addCoins(devil->getUpkeep());
-                                                devils.erase(std::remove(devils.begin(), devils.end(), devil), devils.end());
+                                                gameEntities.devils.erase(std::remove(gameEntities.devils.begin(), gameEntities.devils.end(), devil), gameEntities.devils.end());
                                                 break;
                                             }
                                         }
@@ -548,9 +546,9 @@ void Game::handleEvent(SDL_Event& event) {
                                 }
                             }
                         }
-                    } else if (entity && !(entity->getHex() == clickedHex) && entity->getName() == hasSamePlayerEntities(clickedHex, *currentPlayer) && entity->getName() != "hero" && entity->getName() != "castle") {
+                    } else if (entity && !(entity->getHex() == clickedHex) && entity->getName() == playerManager.hasSamePlayerEntities(clickedHex, *currentPlayer) && entity->getName() != "hero" && entity->getName() != "castle") {
                         currentPlayer->removeEntity(entity);
-                        entityManager.upgradeEntity(clickedHex, players);
+                        entityManager.upgradeEntity(clickedHex, gameEntities.players);
                     } else if(entity && !grid.hexExists(entity->getHex())) {
                         currentPlayer->removeEntity(entity);
                         // refund the cost of the entity
@@ -562,14 +560,14 @@ void Game::handleEvent(SDL_Event& event) {
                     }
                 } else {
                     // handle when the hex in question is on a button (then doesnt exist)
-                    auto& entity = players[playerTurn]->getEntities()[selectedEntityIndex];
+                    auto& entity = gameEntities.players[playerTurn]->getEntities()[selectedEntityIndex];
                     Hex entityHex = entity->getHex();
                     if(!(grid.hexExists(entityHex))) {
-                        players[playerTurn]->removeEntity(entity);
+                        gameEntities.players[playerTurn]->removeEntity(entity);
                         // refund the cost of the entity
                         for(auto& button : unitButtons) {
                             if(button.getIconName() == entity->getName()) {
-                                players[playerTurn]->addCoins(button.getCost());
+                                gameEntities.players[playerTurn]->addCoins(button.getCost());
                             }
                         }
                     }
@@ -591,8 +589,8 @@ void Game::update() {
     const float jumpSpeedDecrease = initjumpSpeed / 50.0f;
     const float jumpSpeedIncrease = jumpSpeedDecrease;
 
-    for (auto& player : players) {
-        if (player != players[playerTurn]) {
+    for (auto& player : gameEntities.players) {
+        if (player != gameEntities.players[playerTurn]) {
             for (auto& entity : player->getEntities()) {
                 if (!entity->hasMoved() && !dynamic_cast<Building*>(entity.get())) {
                     entity->setYOffset(minJumpHeight);
@@ -659,167 +657,24 @@ void Game::renderAll(SDL_Renderer* renderer) const {
     grid.draw(renderer, cameraX, cameraY);
 
     // Render all entities
-    renderGame.renderEntities(renderer, bandits, "bandit", grid, cameraX, cameraY, textures);
-    renderGame.renderEntities(renderer, banditCamps, "bandit-camp", grid, cameraX, cameraY, textures);
-    renderGame.renderEntities(renderer, treasures, "treasury", grid, cameraX, cameraY, textures);
-    renderGame.renderEntities(renderer, devils, "zzzdevil", grid, cameraX, cameraY, textures);
+    renderGame.renderEntities(renderer, gameEntities.bandits, "bandit", grid, cameraX, cameraY, textures);
+    renderGame.renderEntities(renderer, gameEntities.banditCamps, "bandit-camp", grid, cameraX, cameraY, textures);
+    renderGame.renderEntities(renderer, gameEntities.treasures, "treasury", grid, cameraX, cameraY, textures);
+    renderGame.renderEntities(renderer, gameEntities.devils, "zzzdevil", grid, cameraX, cameraY, textures);
+    renderGame.renderEntities(renderer, gameEntities.forests, "zzzforest", grid, cameraX, cameraY, textures);
 
     // Render all players' entities
-    renderGame.renderPlayersEntities(renderer, players, playerTurn, grid, cameraX, cameraY, textures, entitySelected, selectedEntityIndex);
+    renderGame.renderPlayersEntities(renderer, gameEntities.players, playerTurn, grid, cameraX, cameraY, textures, entitySelected, selectedEntityIndex);
 
     // Render the selected entity if any
-    renderGame.renderSelectedEntity(renderer, players, playerTurn, grid, bandits, banditCamps, treasures, devils, cameraX, cameraY, textures, entitySelected, selectedEntityIndex);
+    renderGame.renderSelectedEntity(renderer, playerTurn, grid, gameEntities, cameraX, cameraY, textures, entitySelected, selectedEntityIndex);
 
     // Display current player's color and information
-    renderGame.renderPlayerInfo(renderer, players, playerTurn, grid, textures);
+    renderGame.renderPlayerInfo(renderer, gameEntities.players, playerTurn, grid, textures);
 
     // Render all buttons
-    renderGame.renderAllButtons(renderer, unitButtons, textures);
-
-    // Render the turn button
-    renderGame.renderTurnButton(renderer, turnButton, textures, players, playerTurn);
+    renderGame.renderAllButtons(renderer, unitButtons, textures, gameEntities.players, playerTurn, turnButton, undoButton, quitButton);
 
     // Display game over message if only one player remains
-    renderGame.renderGameOverMessage(renderer, players, textures, unitButtons);
-}
-
-// Check if a hex is surrounded other entities of the same player
-std::string Game::hasSamePlayerEntities(const Hex& hex, const Player& currentPlayer) const {
-    for (const auto& entity : currentPlayer.getEntities()) {
-        if (entity->getHex() == hex) {
-            return entity->getName();
-        }
-    }
-    return "";
-}
-
-// Remove a player from the game
-void Game::removePlayer(std::shared_ptr<Player> player) {
-    auto entities = player->getEntities();
-    // vector "toRemove" to store the entities to remove to avoid modifying the vector while iterating over it
-    std::vector<std::shared_ptr<Entity>> toRemove;
-    for(auto& entity : entities) {
-        if (entity) {
-            if (dynamic_cast<Building*>(entity.get())) {
-                entityManager.addBanditCamp(entity->getHex(), banditCamps);
-            } else {
-                entityManager.addBandit(entity->getHex(), bandits);
-            }
-            toRemove.push_back(entity);
-        }
-    }
-    for(auto& entity : toRemove) {
-        player->removeEntity(entity);
-    }
-
-    players.erase(std::remove(players.begin(), players.end(), player), players.end());
-    nbplayers--;
-}
-
-
-void Game::checkIfHexConnectedToTown(Player& player) {
-    // Get the player's color
-    SDL_Color playerColor = player.getColor();
-    SDL_Color originalColor = playerColor; // Store original player color
-    
-    // Find all hexes with this player's color or darker versions of it
-    std::vector<Hex> playerHexes;
-    std::map<Hex, SDL_Color> currentHexColors; // Store current colors for potential restoration
-    
-    for (const auto& pair : grid.getHexColors()) {
-        const SDL_Color& hexColor = pair.second;
-        // Check if this is the player's color or a darker version of it (not sure about how clean the > * 0.69 is, but it works)
-        if (hexColor == playerColor || 
-            (hexColor.r <= playerColor.r && hexColor.g <= playerColor.g && 
-             hexColor.b <= playerColor.b && 
-             hexColor.r >= playerColor.r * 0.69 && hexColor.g >= playerColor.g * 0.69 && 
-             hexColor.b >= playerColor.b * 0.69)) {
-            
-            playerHexes.push_back(pair.first);
-            currentHexColors[pair.first] = hexColor;
-        }
-    }
-    
-    // Find all town hexes
-    std::vector<Hex> townHexes;
-    for (const auto& entity : player.getEntities()) {
-        if (entity->getName() == "town") {
-            townHexes.push_back(entity->getHex());
-        }
-    }
-    
-    // If no towns, all hexes are disconnected
-    if (townHexes.empty()) {
-        for (const Hex& hex : playerHexes) {
-            disconnectHex(player, hex);
-        }
-        return;
-    }
-    
-    // Use BFS to find all hexes connected to any town
-    std::set<Hex> connectedHexes;
-    std::queue<Hex> queue;
-    
-    // Start BFS from each town
-    for (const Hex& townHex : townHexes) {
-        queue.push(townHex);
-        connectedHexes.insert(townHex);
-    }
-    
-    // BFS traversal
-    while (!queue.empty()) {
-        Hex current = queue.front();
-        queue.pop();
-        
-        // If current hex has a darker color, restore it to the player's original color
-        if (!(grid.getHexColors().at(current) == playerColor)) {
-            grid.setHexColor(current, originalColor);
-        }
-        
-        // Check all adjacent hexes
-        for (const Hex& dir : directions) {
-            Hex neighbor = current.add(dir);
-            
-            // If neighbor exists and has any version of player's color (original or darker)
-            if (grid.hexExists(neighbor) && 
-                currentHexColors.find(neighbor) != currentHexColors.end() &&
-                connectedHexes.find(neighbor) == connectedHexes.end()) {
-                
-                connectedHexes.insert(neighbor);
-                queue.push(neighbor);
-            }
-        }
-    }
-    
-    // Handle disconnected hexes
-    for (const Hex& hex : playerHexes) {
-        if (connectedHexes.find(hex) == connectedHexes.end()) {
-            disconnectHex(player, hex);
-        }
-    }
-}
-
-
-void Game::disconnectHex(Player& player, const Hex& hex) {
-    // Make the color darker
-    SDL_Color newHexColor = player.getColor();
-    newHexColor.r = newHexColor.r * 0.7;
-    newHexColor.g = newHexColor.g * 0.7;
-    newHexColor.b = newHexColor.b * 0.7;
-    grid.setHexColor(hex, newHexColor);
-    
-    // Remove potential entity on this hex and replace with bandits
-    std::vector<std::shared_ptr<Entity>> entitiesToRemove;
-    
-    for (auto& entity : player.getEntities()) {
-        if (entity->getHex() == hex) {
-            if (dynamic_cast<Building*>(entity.get())) {
-                entityManager.addBanditCamp(hex, banditCamps);
-            } else {
-                entityManager.addBandit(hex, bandits);
-            }
-            player.removeEntity(entity);
-            break;
-        }
-    }
+    renderGame.renderGameOverMessage(renderer, gameEntities.players, textures, unitButtons);
 }

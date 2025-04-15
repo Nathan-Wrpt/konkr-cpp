@@ -53,4 +53,11 @@ private:
     int value;
 };
 
+class Forest : public Building {
+public:
+    Forest();
+    Forest(Hex hex);
+    virtual ~Forest();
+};
+
 #endif // BUILDINGS_HPP
