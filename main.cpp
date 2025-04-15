@@ -167,6 +167,10 @@ int main(int argc, char* argv[]) {
     bool running = true;
     SDL_Event event;
     while (running) {
+        if (game.getTurnButtonClicked()) {
+            gamecopy = game;
+            game.setTurnButtonClicked(false);
+        }
         if (game.getUndo()) {
             game = gamecopy;
             game.setUndo(false);

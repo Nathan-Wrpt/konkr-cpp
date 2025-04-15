@@ -35,6 +35,9 @@ public:
   bool getUndo() const { return undo; }
   void setUndo(bool undo) { this->undo = undo; }
 
+  bool getTurnButtonClicked() const { return turnButtonClicked; }
+  void setTurnButtonClicked(bool clicked) { turnButtonClicked = clicked; }
+
 private:
   HexagonalGrid grid;
   EntityManager entityManager;
@@ -55,6 +58,7 @@ private:
   int cameraX, cameraY, cameraSpeed;
   bool endGame;
   bool undo;
+  bool turnButtonClicked;
 };
 
 #endif // GAME_HPP

@@ -580,6 +580,11 @@ void Game::handleEvent(SDL_Event& event) {
         int mouseX, mouseY;
         SDL_GetMouseState(&mouseX, &mouseY);
     }
+
+    if (event.type == SDL_MOUSEBUTTONDOWN && turnButton.containsPoint(event.button.x, event.button.y)) {
+        turnButtonClicked = true;
+        return;
+    }
 }
 
 void Game::update() {
