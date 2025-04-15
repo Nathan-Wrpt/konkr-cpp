@@ -24,7 +24,7 @@ void RenderGame::renderButton(SDL_Renderer* renderer, const Button& button, cons
     SDL_RenderDrawRect(renderer, &buttonRect);
 
     // Draw button icon
-    SDL_Texture* iconTexture = textures[iconsMap.at(button.getIconName())];
+    SDL_Texture* iconTexture = textures[getIconIndex(button.getIconName())];
     SDL_RenderCopy(renderer, iconTexture, NULL, &buttonRect);
 
     // Draw cost text with better visibility
@@ -92,16 +92,16 @@ void RenderGame::renderTurnButton(SDL_Renderer* renderer, const Button& turnButt
 }
 
 SDL_Texture* RenderGame::determineTurnButtonTexture(const std::vector<SDL_Texture*>& textures, const Button& turnButton, const std::shared_ptr<Player>& currentPlayer, const std::vector<std::shared_ptr<Player>>& players) const {
-    SDL_Texture* iconTexture = textures[iconsMap.at(turnButton.getIconName())];
+    SDL_Texture* iconTexture = textures[getIconIndex(turnButton.getIconName())];
     bool allEntitiesMoved = std::all_of(currentPlayer->getEntities().begin(), currentPlayer->getEntities().end(), [](const auto& entity) {
         return entity->hasMoved();
     });
 
     if (allEntitiesMoved && currentPlayer->getCoins() < 10) {
-        iconTexture = textures[iconsMap.at("zznext2")];
+        iconTexture = textures[getIconIndex("zznext2")];
     }
     if (players.size() == 1) {
-        iconTexture = textures[iconsMap.at("zzquit")];
+        iconTexture = textures[getIconIndex("zzquit")];
     }
     return iconTexture;
 }
@@ -109,7 +109,7 @@ SDL_Texture* RenderGame::determineTurnButtonTexture(const std::vector<SDL_Textur
 template <typename T>
 void RenderGame::renderEntities(SDL_Renderer* renderer, const std::vector<std::shared_ptr<T>>& entities, const std::string& textureKey, const HexagonalGrid& grid, int cameraX, int cameraY, const std::vector<SDL_Texture*>& textures) const {
     for (const auto& entity : entities) {
-        render_entity(renderer, *entity, textures[iconsMap.at(textureKey)], grid, cameraX, cameraY);
+        render_entity(renderer, *entity, textures[getIconIndex(textureKey)], grid, cameraX, cameraY);
     }
 }
 
@@ -129,7 +129,7 @@ void RenderGame::renderPlayersEntities(SDL_Renderer* renderer, const std::vector
             if (entitySelected && entity == currentPlayer->getEntities()[selectedEntityIndex]) {
                 continue;
             }
-            render_entity(renderer, *entity, textures[iconsMap.at(entity->getName())], grid, cameraX, cameraY);
+            render_entity(renderer, *entity, textures[getIconIndex(entity->getName())], grid, cameraX, cameraY);
         }
     }
 }
@@ -144,7 +144,7 @@ void RenderGame::renderSelectedEntity(SDL_Renderer* renderer, size_t playerTurn,
         SDL_GetMouseState(&mouseX, &mouseY);
         entityRect.x = mouseX - entityRect.w / 2;
         entityRect.y = mouseY - entityRect.h / 2;
-        SDL_RenderCopy(renderer, textures[iconsMap.at(selectedEntity.getName())], NULL, &entityRect);
+        SDL_RenderCopy(renderer, textures[getIconIndex(selectedEntity.getName())], NULL, &entityRect);
 
         highlightAccessibleHexes(renderer, selectedEntityptr, grid, cameraX, cameraY, playerTurn, gameEntities, textures);
     }
@@ -175,7 +175,7 @@ void RenderGame::drawHexHighlight(SDL_Renderer* renderer, const Hex& hex, const 
         SDL_SetRenderDrawColor(renderer, 150, 0, 0, 100); // Red color
         SDL_RenderDrawRect(renderer, &hexRect);
         SDL_Rect swordRect = {hexRect.x + hexRect.w / 2 - 10, hexRect.y + hexRect.h / 2 - 10, 20, 20};
-        SDL_RenderCopy(renderer, textures[iconsMap.at("zwords")], NULL, &swordRect);
+        SDL_RenderCopy(renderer, textures[getIconIndex("zwords")], NULL, &swordRect);
     } else {
         SDL_SetRenderDrawColor(renderer, 150, 150, 0, 100); // Yellow color
         SDL_RenderDrawRect(renderer, &hexRect);

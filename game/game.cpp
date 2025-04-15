@@ -35,8 +35,8 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     // Load all textures from the icons directory
     std::cout << "Loading textures..." << std::endl;
     std::string iconsPath = "icons/";
-    for (const auto& filename : iconsMap) {
-        std::string path = iconsPath + filename.first + ".png";
+    for (const auto& filename : iconNames) {
+        std::string path = iconsPath + filename + ".png";
         SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
         if (!texture) {
             std::cerr << "Error loading texture: " << IMG_GetError() << std::endl;

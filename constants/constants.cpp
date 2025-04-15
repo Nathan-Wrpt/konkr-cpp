@@ -1,20 +1,25 @@
 #include "constants.hpp"
+#include <array>
 
-const std::map<std::string, int> iconsMap = {
-    {"bandit", 0},        {"bandit-camp", 1},
-    {"castle", 2},        {"coin", 3},
-    {"coins", 4},         {"deficit", 5},
-    {"emoji-happy", 6},   {"face", 7},
-    {"gold-trophy", 8},   {"grave", 9},
-    {"hero", 10},         {"knight", 11},
-    {"pikeman", 12},      {"silver-trophy", 13},
-    {"surplus", 14},      {"town", 15},
-    {"treasury", 16},     {"upkeep", 17},
-    {"villager", 18},     {"zwords", 19},
-    {"zznext", 20},       {"zznext2", 21},
-    {"zzquit", 22},       {"zzzdevil", 23},
-    {"zzzforest", 24},    {"zzzundo", 25} 
+const std::array<std::string, 26> iconNames = {
+    "bandit",         "bandit-camp",    "castle",      "coin",
+    "coins",          "deficit",        "emoji-happy", "face",
+    "gold-trophy",    "grave",          "hero",        "knight",
+    "pikeman",        "silver-trophy",  "surplus",     "town",
+    "treasury",       "upkeep",         "villager",    "zwords",
+    "zznext",         "zznext2",        "zzquit",      "zzzdevil",
+    "zzzforest",       "zzzundo"
 };
+
+int getIconIndex(const std::string& name) {
+    for (size_t i = 0; i < iconNames.size(); ++i) {
+        if (name == iconNames[i]) {
+            return static_cast<int>(i);
+        }
+    }
+    return -1; // Not found
+}
+
 
 const std::vector<Hex> directions = {
     Hex(1, 0, -1), Hex(1, -1, 0), Hex(0, -1, 1),
