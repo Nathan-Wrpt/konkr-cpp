@@ -116,6 +116,7 @@ template void RenderGame::renderEntities<Bandit>(SDL_Renderer* renderer, const s
 template void RenderGame::renderEntities<BanditCamp>(SDL_Renderer* renderer, const std::vector<std::shared_ptr<BanditCamp>>& entities, const std::string& textureKey, const HexagonalGrid& grid, int cameraX, int cameraY, const std::vector<SDL_Texture*>& textures) const;
 template void RenderGame::renderEntities<Treasure>(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Treasure>>& entities, const std::string& textureKey, const HexagonalGrid& grid, int cameraX, int cameraY, const std::vector<SDL_Texture*>& textures) const;
 template void RenderGame::renderEntities<Devil>(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Devil>>& entities, const std::string& textureKey, const HexagonalGrid& grid, int cameraX, int cameraY, const std::vector<SDL_Texture*>& textures) const;
+template void RenderGame::renderEntities<Forest>(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Forest>>& entities, const std::string& textureKey, const HexagonalGrid& grid, int cameraX, int cameraY, const std::vector<SDL_Texture*>& textures) const;
 
 void RenderGame::renderPlayersEntities(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const HexagonalGrid& grid, int cameraX, int cameraY, const std::vector<SDL_Texture*>& textures, bool entitySelected, int selectedEntityIndex) const {
     auto& currentPlayer = players[playerTurn];

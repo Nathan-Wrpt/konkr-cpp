@@ -38,6 +38,6 @@ Treasure::~Treasure() {}
 
 // --- Forest Class Implementation ---
 Forest::Forest(Hex hex) 
-    : Building(hex, 0, "forest", 0) {}
+    : Building(hex, 10, "forest", 0) {}
     
 Forest::~Forest() {}

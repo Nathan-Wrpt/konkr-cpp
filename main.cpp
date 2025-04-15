@@ -80,33 +80,33 @@ int main(int argc, char* argv[]) {
 
     // default ASCII and entity maps
     std::vector<std::string> asciiMap = {
-        "       .",
+        "   .....",
         "  ......",
-        "  ...  ...",
-        ".  .. ... ",
-        " ...r...  ",
-        "...rrgg.. ",
+        " ....  ...",
+        "..... ....",
+        " ...r.....",
+        "...rrgg...",
         " ...rgg....",
-        " ... g....",
-        " ..    ...",
+        " ....g....",
+        " ..  .....",
         " ... ...",
-        "   ... ",
-        "   .. "
+        "   ....",
+        "   ..."
     };
 
     std::vector<std::string> entityMap = {
-        "       .",
+        "   ffff.",
         "  ......",
-        "  ...  ..c",
-        ".  .. ..B ",
-        " ...TB..  ",
-        "..BC..T.. ",
+        " f...  ..c",
+        ".ff.. ..Bf",
+        " ...TB..ff",
+        "..BC..T..f",
         " .....C....",
-        " ... .B...",
-        " ..    ...",
+        " ...f.B...",
+        " ..  ff...",
         " ..c ...",
-        "   B.. ",
-        "   .. "
+        "   B..f",
+        "   ..f"
     };
 
     // Check if a map file is provided as a command-line argument

@@ -74,6 +74,11 @@ void EntityManager::generateEntities(const std::vector<std::string>& entityMap, 
                     addTreasure(hex, treasureValue, gameEntities.treasures);
                     break;
                 }
+                case 'f': {
+                    addForest(hex, gameEntities.forests);
+                    break;
+                }
+
                 default: {
                     SDL_Color hexColor = grid.getHexColors().at(hex);
 
@@ -151,6 +156,11 @@ bool EntityManager::entityOnHex(const Hex& hex, const GameEntities& gameEntities
             return true;
         }
     }
+    for (const auto& forest : gameEntities.forests) {
+        if (forest->getHex() == hex) {
+            return true;
+        }
+    }
     return false;
 }
 
@@ -179,7 +189,15 @@ void EntityManager::moveBanditToNewPosition(HexagonalGrid& grid, std::shared_ptr
             }
         }
 
-        if (grid.hexExists(newHex) && !entityOnHex(newHex, gameEntities) && !treasureOnHex && !devilOnHex) {
+        bool forestOnHex = false;
+        for (const auto& forest : gameEntities.forests) {
+            if (forest->getHex() == newHex) {
+                forestOnHex = true;
+                break;
+            }
+        }
+
+        if (grid.hexExists(newHex) && !entityOnHex(newHex, gameEntities) && !treasureOnHex && !devilOnHex && !forestOnHex) {
             bandit->moveBandit(grid, newHex);
             moved = true;
         } else {
@@ -259,6 +277,10 @@ void EntityManager::addDevil(const Hex& hex, std::vector<std::shared_ptr<Devil>>
     devils.push_back(std::make_shared<Devil>(hex));
 }
 
+void EntityManager::addForest(const Hex& hex, std::vector<std::shared_ptr<Forest>>& forests) {
+    forests.push_back(std::make_shared<Forest>(hex));
+}
+
 bool EntityManager::isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel, const HexagonalGrid& grid, const GameEntities& gameEntities) const {
     for (auto& player : gameEntities.players) {
         if (player->getColor() == currentPlayer.getColor()) {
@@ -296,6 +318,11 @@ bool EntityManager::isSurroundedByOtherPlayerEntities(const Hex& hex, const Play
     }
     for (const auto& devil : gameEntities.devils) {
         if (devil->getHex() == hex && devil->getProtectionLevel() >= currentLevel) {
+            return true;
+        }
+    }
+    for (const auto& forest : gameEntities.forests) {
+        if (forest->getHex() == hex && forest->getProtectionLevel() >= currentLevel) {
             return true;
         }
     }

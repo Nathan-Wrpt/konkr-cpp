@@ -12,7 +12,8 @@ const std::map<std::string, int> iconsMap = {
     {"treasury", 16},     {"upkeep", 17},
     {"villager", 18},     {"zwords", 19},
     {"zznext", 20},       {"zznext2", 21},
-    {"zzquit", 22},       {"zzzdevil", 23}
+    {"zzquit", 22},       {"zzzdevil", 23},
+    {"zzzforest", 24}
 };
 
 const std::vector<Hex> directions = {

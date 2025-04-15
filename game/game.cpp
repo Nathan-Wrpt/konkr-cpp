@@ -136,6 +136,11 @@ Game::Game(const Game& other)
     for (const auto& devil : other.gameEntities.devils) {
         gameEntities.devils.push_back(std::make_shared<Devil>(*devil));
     }
+
+    // Copy forests
+    for (const auto& forest : other.gameEntities.forests) {
+        gameEntities.forests.push_back(std::make_shared<Forest>(*forest));
+    }
 }
 
 Game& Game::operator=(const Game& other) {
@@ -182,6 +187,12 @@ Game& Game::operator=(const Game& other) {
         gameEntities.devils.clear();
         for (const auto& devil : other.gameEntities.devils) {
             gameEntities.devils.push_back(std::make_shared<Devil>(*devil));
+        }
+
+        // Copy forests
+        gameEntities.forests.clear();
+        for (const auto& forest : other.gameEntities.forests) {
+            gameEntities.forests.push_back(std::make_shared<Forest>(*forest));
         }
     }
     return *this;
@@ -632,6 +643,7 @@ void Game::renderAll(SDL_Renderer* renderer) const {
     renderGame.renderEntities(renderer, gameEntities.banditCamps, "bandit-camp", grid, cameraX, cameraY, textures);
     renderGame.renderEntities(renderer, gameEntities.treasures, "treasury", grid, cameraX, cameraY, textures);
     renderGame.renderEntities(renderer, gameEntities.devils, "zzzdevil", grid, cameraX, cameraY, textures);
+    renderGame.renderEntities(renderer, gameEntities.forests, "zzzforest", grid, cameraX, cameraY, textures);
 
     // Render all players' entities
     renderGame.renderPlayersEntities(renderer, gameEntities.players, playerTurn, grid, cameraX, cameraY, textures, entitySelected, selectedEntityIndex);

@@ -17,6 +17,7 @@ public:
     void addBanditCamp(const Hex& hex, std::vector<std::shared_ptr<BanditCamp>>& banditCamps);
     void addTreasure(const Hex& hex, int value, std::vector<std::shared_ptr<Treasure>>& treasures);
     void addDevil(const Hex& hex, std::vector<std::shared_ptr<Devil>>& devils);
+    void addForest(const Hex& hex, std::vector<std::shared_ptr<Forest>>& forests);
     bool isSurroundedByOtherPlayerEntities(const Hex& hex, const Player& currentPlayer, const int& currentLevel, const HexagonalGrid& grid, const GameEntities& gameEntities) const;
     bool HexNotOnTerritoryAndAccessible(const std::shared_ptr<Entity>& entity, const Hex& targetHex, const HexagonalGrid& grid, size_t playerTurn, const GameEntities& gameEntities) const;
     Hex randomfreeHex(const HexagonalGrid& grid, const GameEntities& gameEntities) const;
