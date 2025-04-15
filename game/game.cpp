@@ -377,22 +377,9 @@ void Game::handleEvent(SDL_Event& event) {
         }
     }
 
-    if (event.key.keysym.sym == SDLK_LEFT) {
-        cameraX -= cameraSpeed;
-    } 
-    if (event.key.keysym.sym == SDLK_RIGHT) {
-        cameraX += cameraSpeed;
-    } 
-    if (event.key.keysym.sym == SDLK_UP) {
-        cameraY -= cameraSpeed;
-    } 
-    if (event.key.keysym.sym == SDLK_DOWN) {
-        cameraY += cameraSpeed;
-    }
-    // if scrollwheelup, hexSize += 1
     if (event.type == SDL_MOUSEWHEEL) {
-    int hexSize = grid.getHexSize();
-    int camCompensation = 9;
+        int hexSize = grid.getHexSize();
+        int camCompensation = 9; // value found by trial and error
         if (event.wheel.y > 0) {
             grid.setHexSize(hexSize + 1);
             cameraX += camCompensation;
@@ -403,22 +390,37 @@ void Game::handleEvent(SDL_Event& event) {
             cameraY -= camCompensation;
         }
     }
-    std::string entityToBuy = "";
 
-    if(event.key.keysym.sym == SDLK_1 || event.key.keysym.sym == SDLK_AMPERSAND) { // AZERTY: '&'
-        entityToBuy = "villager";
-    }
-    if(event.key.keysym.sym == SDLK_2 || event.key.keysym.sym == SDLK_QUOTEDBL) { // AZERTY: 'é'
-        entityToBuy = "pikeman";
-    }
-    if(event.key.keysym.sym == SDLK_3 || event.key.keysym.sym == SDLK_QUOTE) { // AZERTY: '"'
-        entityToBuy = "knight";
-    }
-    if(event.key.keysym.sym == SDLK_4 || event.key.keysym.sym == SDLK_LEFTPAREN) { // AZERTY: '''
-        entityToBuy = "hero";
-    }
-    if(event.key.keysym.sym == SDLK_5 || event.key.keysym.sym == SDLK_MINUS) { // AZERTY: '('
-        entityToBuy = "castle";
+    std::string entityToBuy = "";
+    if(event.type == SDL_KEYDOWN){
+        if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_q) {
+            cameraX -= cameraSpeed;
+        } 
+        if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d) {
+            cameraX += cameraSpeed;
+        } 
+        if (event.key.keysym.sym == SDLK_UP || event.key.keysym.sym == SDLK_z) {
+            cameraY -= cameraSpeed;
+        } 
+        if (event.key.keysym.sym == SDLK_DOWN || event.key.keysym.sym == SDLK_s) {
+            cameraY += cameraSpeed;
+        }
+
+        if(event.key.keysym.sym == SDLK_1 || event.key.keysym.sym == SDLK_AMPERSAND) { // AZERTY: '&'
+            entityToBuy = "villager";
+        }
+        if(event.key.keysym.sym == SDLK_2 || event.key.keysym.sym == SDLK_QUOTEDBL) { // AZERTY: 'é'
+            entityToBuy = "pikeman";
+        }
+        if(event.key.keysym.sym == SDLK_3 || event.key.keysym.sym == SDLK_QUOTE) { // AZERTY: '"'
+            entityToBuy = "knight";
+        }
+        if(event.key.keysym.sym == SDLK_4 || event.key.keysym.sym == SDLK_LEFTPAREN) { // AZERTY: '''
+            entityToBuy = "hero";
+        }
+        if(event.key.keysym.sym == SDLK_5 || event.key.keysym.sym == SDLK_MINUS) { // AZERTY: '('
+            entityToBuy = "castle";
+        }
     }
 
     if (event.type == SDL_MOUSEBUTTONDOWN || entityToBuy != "") {
