@@ -32,6 +32,9 @@ public:
   void renderAll(SDL_Renderer* renderer) const;
   bool isEndGame() const { return endGame; }
 
+  bool getUndo() const { return undo; }
+  void setUndo(bool undo) { this->undo = undo; }
+
 private:
   HexagonalGrid grid;
   EntityManager entityManager;
@@ -46,10 +49,12 @@ private:
   int turn;
   std::vector<Button> unitButtons;
   Button turnButton;
+  Button undoButton;
   Button quitButton;
   Button* draggedButton;
   int cameraX, cameraY, cameraSpeed;
   bool endGame;
+  bool undo;
 };
 
 #endif // GAME_HPP

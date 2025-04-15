@@ -21,6 +21,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     entitySelected(false),
     selectedEntityIndex(-1),
     turnButton(0, 0, 0, 0, "", 0),
+    undoButton(0, 0, 0, 0, "", 0),
     quitButton(0, 0, 0, 0, "", 0),
     draggedButton(nullptr),
     cameraSpeed(cameraSpeed),
@@ -95,6 +96,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     // turn button on the bottom right corner
     int turnButtonWidth = buttonSize * 3;
     turnButton = Button(windowWidth - turnButtonWidth- 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zznext", 0);
+    undoButton = Button(windowWidth - 2 * turnButtonWidth - 2 * 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zzzundo", 0);
     quitButton = Button(20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zzquit", 0);
 }
 
@@ -109,6 +111,7 @@ Game::Game(const Game& other)
       turn(other.turn),
       unitButtons(other.unitButtons),
       turnButton(other.turnButton),
+      undoButton(other.undoButton),
       quitButton(other.quitButton),
       draggedButton(nullptr),
       cameraX(other.cameraX),     
@@ -157,6 +160,7 @@ Game& Game::operator=(const Game& other) {
         turn = other.turn;
         unitButtons = other.unitButtons;
         turnButton = other.turnButton;
+        undoButton = other.undoButton;
         quitButton = other.quitButton;
         draggedButton = nullptr;
         cameraX = other.cameraX;
@@ -214,11 +218,19 @@ void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed or turnbutton clicked, change player
     if ((event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) 
     || (event.type == SDL_MOUSEBUTTONDOWN && turnButton.containsPoint(event.button.x, event.button.y))
+    || (event.type == SDL_MOUSEBUTTONDOWN && undoButton.containsPoint(event.button.x, event.button.y))
     || (event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y))) {
+
+        if (event.type == SDL_MOUSEBUTTONDOWN && undoButton.containsPoint(event.button.x, event.button.y)) {
+            undo = true;
+            return;
+        }
+
         if(gameEntities.players.size() == 1 || (event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y))) {
             endGame = true;
             return;
         }
+
         // if entities on hex not existing on the grid refund the cost of the entity
         if(entitySelected) {
             auto& entity = gameEntities.players[playerTurn]->getEntities()[selectedEntityIndex];
@@ -661,11 +673,7 @@ void Game::renderAll(SDL_Renderer* renderer) const {
     renderGame.renderPlayerInfo(renderer, gameEntities.players, playerTurn, grid, textures);
 
     // Render all buttons
-    renderGame.renderAllButtons(renderer, unitButtons, textures);
-
-    // Render the turn button
-    renderGame.renderTurnButton(renderer, turnButton, textures, gameEntities.players, playerTurn);
-    renderGame.renderTurnButton(renderer, quitButton, textures, gameEntities.players, playerTurn);
+    renderGame.renderAllButtons(renderer, unitButtons, textures, gameEntities.players, playerTurn, turnButton, undoButton, quitButton);
 
     // Display game over message if only one player remains
     renderGame.renderGameOverMessage(renderer, gameEntities.players, textures, unitButtons);

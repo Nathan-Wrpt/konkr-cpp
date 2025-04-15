@@ -28,7 +28,9 @@ void RenderGame::renderButton(SDL_Renderer* renderer, const Button& button, cons
     SDL_RenderCopy(renderer, iconTexture, NULL, &buttonRect);
 
     // Draw cost text with better visibility
-    renderButtonText(renderer, button, buttonRect, textures);
+    if (button.getCost() > 0) {
+        renderButtonText(renderer, button, buttonRect, textures);
+    }
 }
 
 void RenderGame::renderButtonText(SDL_Renderer* renderer, const Button& button, SDL_Rect& buttonRect, const std::vector<SDL_Texture*>& textures) const {
@@ -220,10 +222,19 @@ void RenderGame::renderPlayerResources(SDL_Renderer* renderer, const HexagonalGr
     TTF_CloseFont(font);
 }
 
-void RenderGame::renderAllButtons(SDL_Renderer* renderer, const std::vector<Button>& unitButtons, const std::vector<SDL_Texture*>& textures) const {
+void RenderGame::renderAllButtons(SDL_Renderer* renderer, const std::vector<Button>& unitButtons, const std::vector<SDL_Texture*>& textures, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const Button& turnButton, const Button& undoButton, const Button& quitButton) const {
     for (const auto& button : unitButtons) {
         renderButton(renderer, button, textures);
     }
+
+    // Render the undo and quit buttons
+    renderButton(renderer, undoButton, textures);
+    renderButton(renderer, quitButton, textures);
+
+    // Render the turn button
+    renderTurnButton(renderer, turnButton, textures, players, playerTurn);
+    // renderTurnButton(renderer, undoButton, textures, gameEntities.players, playerTurn);
+    // renderTurnButton(renderer, quitButton, textures, gameEntities.players, playerTurn);
 }
 
 void RenderGame::renderGameOverMessage(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Player>>& players, const std::vector<SDL_Texture*>& textures, const std::vector<Button>& unitButtons) const {

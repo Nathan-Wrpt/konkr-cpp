@@ -167,6 +167,10 @@ int main(int argc, char* argv[]) {
     bool running = true;
     SDL_Event event;
     while (running) {
+        if (game.getUndo()) {
+            game = gamecopy;
+            game.setUndo(false);
+        }
         Uint32 frameStart = SDL_GetTicks();
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_KEYDOWN) {
