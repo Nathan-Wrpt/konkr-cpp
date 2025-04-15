@@ -9,6 +9,7 @@
 
 #include "../players/playermanager.hpp"
 #include "rendergame.hpp"
+#include "gameentities.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -36,11 +37,7 @@ private:
   EntityManager entityManager;
   RenderGame renderGame;
   PlayerManager playerManager;
-  std::vector<std::shared_ptr<Player>> players;
-  std::vector<std::shared_ptr<Bandit>> bandits;
-  std::vector<std::shared_ptr<BanditCamp>> banditCamps;
-  std::vector<std::shared_ptr<Treasure>> treasures;
-  std::vector<std::shared_ptr<Devil>> devils;
+  GameEntities gameEntities;
   size_t playerTurn;
   bool entitySelected;
   std::vector<SDL_Texture*> textures;

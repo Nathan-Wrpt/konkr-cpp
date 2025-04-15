@@ -131,9 +131,9 @@ void RenderGame::renderPlayersEntities(SDL_Renderer* renderer, const std::vector
     }
 }
 
-void RenderGame::renderSelectedEntity(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const HexagonalGrid& grid, const std::vector<std::shared_ptr<Bandit>>& bandits, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Treasure>>& treasures, const std::vector<std::shared_ptr<Devil>>& devils, int cameraX, int cameraY, const std::vector<SDL_Texture*>& textures, bool entitySelected, int selectedEntityIndex) const {
+void RenderGame::renderSelectedEntity(SDL_Renderer* renderer, size_t playerTurn, const HexagonalGrid& grid, const GameEntities& gameEntities, int cameraX, int cameraY, const std::vector<SDL_Texture*>& textures, bool entitySelected, int selectedEntityIndex) const {
     if (entitySelected) {
-        const auto& playerEntities = players[playerTurn]->getEntities();
+        const auto& playerEntities = gameEntities.players[playerTurn]->getEntities();
         const std::shared_ptr<Entity>& selectedEntityptr = playerEntities[selectedEntityIndex];
         const Entity& selectedEntity = *playerEntities[selectedEntityIndex];
         SDL_Rect entityRect = entityToRect(selectedEntity, grid, cameraX, cameraY);
@@ -143,24 +143,24 @@ void RenderGame::renderSelectedEntity(SDL_Renderer* renderer, const std::vector<
         entityRect.y = mouseY - entityRect.h / 2;
         SDL_RenderCopy(renderer, textures[iconsMap.at(selectedEntity.getName())], NULL, &entityRect);
 
-        highlightAccessibleHexes(renderer, selectedEntityptr, grid, cameraX, cameraY, players, playerTurn, bandits, banditCamps, treasures, devils, textures);
+        highlightAccessibleHexes(renderer, selectedEntityptr, grid, cameraX, cameraY, playerTurn, gameEntities, textures);
     }
 }
 
-void RenderGame::highlightAccessibleHexes(SDL_Renderer* renderer, const std::shared_ptr<Entity>& selectedEntity, const HexagonalGrid& grid, int cameraX, int cameraY, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const std::vector<std::shared_ptr<Bandit>>& bandits, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Treasure>>& treasures, const std::vector<std::shared_ptr<Devil>>& devils, const std::vector<SDL_Texture*>& textures) const {
+void RenderGame::highlightAccessibleHexes(SDL_Renderer* renderer, const std::shared_ptr<Entity>& selectedEntity, const HexagonalGrid& grid, int cameraX, int cameraY, size_t playerTurn, const GameEntities& gameEntities, const std::vector<SDL_Texture*>& textures) const {
     if (selectedEntity->getName() != "castle") {
         for (const auto& hex : grid.getHexes()) {
-            bool banditOnHex = std::any_of(bandits.begin(), bandits.end(), [&](const auto& bandit) {
+            bool banditOnHex = std::any_of(gameEntities.bandits.begin(), gameEntities.bandits.end(), [&](const auto& bandit) {
                 return bandit->getHex() == hex;
             });
-            if (entityManager.HexNotOnTerritoryAndAccessible(selectedEntity, hex, grid, players, playerTurn, banditCamps, devils) || (grid.getHexColors().at(hex) == players[playerTurn]->getColor() && banditOnHex)) {
-                drawHexHighlight(renderer, hex, grid, cameraX, cameraY, bandits, banditCamps, treasures, devils, players, textures);
+            if (entityManager.HexNotOnTerritoryAndAccessible(selectedEntity, hex, grid, playerTurn, gameEntities) || (grid.getHexColors().at(hex) == gameEntities.players[playerTurn]->getColor() && banditOnHex)) {
+                drawHexHighlight(renderer, hex, grid, cameraX, cameraY, gameEntities, textures);
             }
         }
     }
 }
 
-void RenderGame::drawHexHighlight(SDL_Renderer* renderer, const Hex& hex, const HexagonalGrid& grid, int cameraX, int cameraY, const std::vector<std::shared_ptr<Bandit>>& bandits, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Treasure>>& treasures, const std::vector<std::shared_ptr<Devil>>& devils, const std::vector<std::shared_ptr<Player>>& players, const std::vector<SDL_Texture*>& textures) const {
+void RenderGame::drawHexHighlight(SDL_Renderer* renderer, const Hex& hex, const HexagonalGrid& grid, int cameraX, int cameraY, const GameEntities& gameEntities, const std::vector<SDL_Texture*>& textures) const {
     Point hexPos = grid.hexToPixel(hex);
     SDL_Rect hexRect;
     hexRect.x = static_cast<int>(hexPos.x - grid.getHexSize() / 2) - cameraX;
@@ -168,7 +168,7 @@ void RenderGame::drawHexHighlight(SDL_Renderer* renderer, const Hex& hex, const 
     hexRect.w = static_cast<int>(grid.getHexSize());
     hexRect.h = static_cast<int>(grid.getHexSize());
 
-    if (entityManager.entityOnHex(hex, bandits, banditCamps, treasures, devils, players)) {
+    if (entityManager.entityOnHex(hex, gameEntities)) {
         SDL_SetRenderDrawColor(renderer, 150, 0, 0, 100); // Red color
         SDL_RenderDrawRect(renderer, &hexRect);
         SDL_Rect swordRect = {hexRect.x + hexRect.w / 2 - 10, hexRect.y + hexRect.h / 2 - 10, 20, 20};
