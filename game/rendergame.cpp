@@ -197,7 +197,7 @@ void RenderGame::renderPlayerInfo(SDL_Renderer* renderer, const std::vector<std:
 
 void RenderGame::renderPlayerResources(SDL_Renderer* renderer, const HexagonalGrid& grid, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const std::vector<SDL_Texture*>& textures) const {
     TTF_Font* font = TTF_OpenFont("assets/OpenSans.ttf", 24);
-    RenderData renderData(renderer, font, textures, iconsMap);
+    RenderData renderData(renderer, font, textures);
 
     std::string coinsnumber = std::to_string(players[playerTurn]->getCoins());
     SDL_Rect coinRect = {10, 60, 50, 30};
