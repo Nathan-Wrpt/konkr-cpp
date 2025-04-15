@@ -392,11 +392,16 @@ void Game::handleEvent(SDL_Event& event) {
     // if scrollwheelup, hexSize += 1
     if (event.type == SDL_MOUSEWHEEL) {
         int hexSize = grid.getHexSize();
+        int camMove = 9;
         if(hexSize > 1) {
             if (event.wheel.y > 0) {
                 grid.setHexSize(hexSize + 1);
+                cameraX += camMove;
+                cameraY += camMove;
             } else if (event.wheel.y < 0) {
                 grid.setHexSize(hexSize - 1);
+                cameraX -= camMove;
+                cameraY -= camMove;
             }
         }
     }
