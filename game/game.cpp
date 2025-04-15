@@ -21,6 +21,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     entitySelected(false),
     selectedEntityIndex(-1),
     turnButton(0, 0, 0, 0, "", 0),
+    quitButton(0, 0, 0, 0, "", 0),
     draggedButton(nullptr),
     cameraSpeed(cameraSpeed),
     endGame(false)
@@ -94,6 +95,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     // turn button on the bottom right corner
     int turnButtonWidth = buttonSize * 3;
     turnButton = Button(windowWidth - turnButtonWidth- 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zznext", 0);
+    quitButton = Button(20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "zzquit", 0);
 }
 
 Game::Game(const Game& other)
@@ -107,6 +109,7 @@ Game::Game(const Game& other)
       turn(other.turn),
       unitButtons(other.unitButtons),
       turnButton(other.turnButton),
+      quitButton(other.quitButton),
       draggedButton(nullptr),
       cameraX(other.cameraX),     
       cameraY(other.cameraY),
@@ -154,6 +157,7 @@ Game& Game::operator=(const Game& other) {
         turn = other.turn;
         unitButtons = other.unitButtons;
         turnButton = other.turnButton;
+        quitButton = other.quitButton;
         draggedButton = nullptr;
         cameraX = other.cameraX;
         cameraY = other.cameraY;
@@ -208,8 +212,10 @@ Game::~Game() {
 
 void Game::handleEvent(SDL_Event& event) {
     // if 'E' is pressed or turnbutton clicked, change player
-    if ((event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) || (event.type == SDL_MOUSEBUTTONDOWN && turnButton.containsPoint(event.button.x, event.button.y))) {
-        if(gameEntities.players.size() == 1) {
+    if ((event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) 
+    || (event.type == SDL_MOUSEBUTTONDOWN && turnButton.containsPoint(event.button.x, event.button.y))
+    || (event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y))) {
+        if(gameEntities.players.size() == 1 || (event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y))) {
             endGame = true;
             return;
         }
@@ -659,6 +665,7 @@ void Game::renderAll(SDL_Renderer* renderer) const {
 
     // Render the turn button
     renderGame.renderTurnButton(renderer, turnButton, textures, gameEntities.players, playerTurn);
+    renderGame.renderTurnButton(renderer, quitButton, textures, gameEntities.players, playerTurn);
 
     // Display game over message if only one player remains
     renderGame.renderGameOverMessage(renderer, gameEntities.players, textures, unitButtons);

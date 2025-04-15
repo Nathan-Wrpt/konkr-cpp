@@ -46,6 +46,7 @@ private:
   int turn;
   std::vector<Button> unitButtons;
   Button turnButton;
+  Button quitButton;
   Button* draggedButton;
   int cameraX, cameraY, cameraSpeed;
   bool endGame;
