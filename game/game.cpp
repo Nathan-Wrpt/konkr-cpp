@@ -71,6 +71,12 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     }
     std::cout << "Number of players: " << nbplayers << std::endl;
 
+    if(nbplayers == 0) {
+        std::cerr << "Error : Need at least one player" << std::endl;
+        endGame = true;
+        return;
+    }
+
     // Create a map to store hexes by color
     std::map<SDL_Color, std::vector<Hex>, SDL_Color_Compare> hexesByColor;
     for (const auto& pair : grid.getHexColors()) {
@@ -229,7 +235,7 @@ void Game::handleEvent(SDL_Event& event) {
     || (event.type == SDL_MOUSEBUTTONDOWN && replayButton.containsPoint(event.button.x, event.button.y))) {
 
         if (gameEntities.players.size() == 1
-            && event.type == SDL_MOUSEBUTTONDOWN && replayButton.containsPoint(event.button.x, event.button.y)) {
+            || (event.type == SDL_MOUSEBUTTONDOWN && replayButton.containsPoint(event.button.x, event.button.y))) {
             replayButtonClicked = true;
             return;
         }
@@ -239,7 +245,7 @@ void Game::handleEvent(SDL_Event& event) {
             return;
         }
 
-        if(gameEntities.players.size() == 1 || (event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y))) {
+        if(event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y)) {
             endGame = true;
             return;
         }
