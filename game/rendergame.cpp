@@ -22,15 +22,13 @@ void RenderGame::renderButton(SDL_Renderer* renderer, const Button& button, cons
     // Draw button border
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderDrawRect(renderer, &buttonRect);
-
+    
     // Draw button icon
     SDL_Texture* iconTexture = textures[getIconIndex(button.getIconName())];
     SDL_RenderCopy(renderer, iconTexture, NULL, &buttonRect);
 
     // Draw cost text with better visibility
-    if (button.getCost() > 0) {
-        renderButtonText(renderer, button, buttonRect, textures);
-    }
+    renderButtonText(renderer, button, buttonRect, textures);
 }
 
 void RenderGame::renderButtonNoBorder(SDL_Renderer* renderer, const Button& button, const std::vector<SDL_Texture*>& textures) const {
@@ -39,11 +37,6 @@ void RenderGame::renderButtonNoBorder(SDL_Renderer* renderer, const Button& butt
     // Draw button icon
     SDL_Texture* iconTexture = textures[getIconIndex(button.getIconName())];
     SDL_RenderCopy(renderer, iconTexture, NULL, &buttonRect);
-
-    // Draw cost text with better visibility
-    if (button.getCost() > 0) {
-        renderButtonText(renderer, button, buttonRect, textures);
-    }
 }
 
 void RenderGame::renderButtonText(SDL_Renderer* renderer, const Button& button, SDL_Rect& buttonRect, const std::vector<SDL_Texture*>& textures) const {

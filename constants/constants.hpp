@@ -4,10 +4,13 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <array>
 
 #include "../core/hex.hpp"
 
-extern const std::array<std::string, 26> iconNames;
+#define NB_ICONS 26
+
+extern const std::array<std::string, NB_ICONS> iconNames;
 extern const std::vector<Hex> directions;
 
 const SDL_Color defaultColor = {0, 125, 0, SDL_ALPHA_OPAQUE}; // Dark green

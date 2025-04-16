@@ -1,7 +1,4 @@
 #include "constants.hpp"
-#include <array>
-
-#define NB_ICONS 26
 
 const std::array<std::string, NB_ICONS> iconNames = {
     "bandit",         "bandit-camp",    "castle",      "coin",
