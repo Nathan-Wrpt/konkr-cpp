@@ -228,7 +228,8 @@ void Game::handleEvent(SDL_Event& event) {
     || (event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y))
     || (event.type == SDL_MOUSEBUTTONDOWN && replayButton.containsPoint(event.button.x, event.button.y))) {
 
-        if (event.type == SDL_MOUSEBUTTONDOWN && replayButton.containsPoint(event.button.x, event.button.y)) {
+        if (gameEntities.players.size() == 1
+            && event.type == SDL_MOUSEBUTTONDOWN && replayButton.containsPoint(event.button.x, event.button.y)) {
             replayButtonClicked = true;
             return;
         }
