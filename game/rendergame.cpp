@@ -228,7 +228,7 @@ void RenderGame::renderPlayerResources(SDL_Renderer* renderer, const HexagonalGr
     TTF_CloseFont(font);
 }
 
-void RenderGame::renderAllButtons(SDL_Renderer* renderer, const std::vector<Button>& unitButtons, const std::vector<SDL_Texture*>& textures, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const Button& turnButton, const Button& undoButton, const Button& quitButton) const {
+void RenderGame::renderAllButtons(SDL_Renderer* renderer, const std::vector<Button>& unitButtons, const std::vector<SDL_Texture*>& textures, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const Button& turnButton, const Button& undoButton, const Button& quitButton, const Button& replayButton) const {
     for (const auto& button : unitButtons) {
         renderButton(renderer, button, textures);
     }
@@ -237,10 +237,13 @@ void RenderGame::renderAllButtons(SDL_Renderer* renderer, const std::vector<Butt
     renderButtonNoBorder(renderer, undoButton, textures);
     renderButtonNoBorder(renderer, quitButton, textures);
 
-    // Render the turn button
-    renderTurnButton(renderer, turnButton, textures, players, playerTurn);
-    // renderTurnButton(renderer, undoButton, textures, gameEntities.players, playerTurn);
-    // renderTurnButton(renderer, quitButton, textures, gameEntities.players, playerTurn);
+    // Render the replay button
+    if (players.size() == 1) {
+        renderButtonNoBorder(renderer, replayButton, textures);
+    } else {
+        // Render the turn button
+        renderTurnButton(renderer, turnButton, textures, players, playerTurn);
+    }
 }
 
 void RenderGame::RenderButtonInfo(SDL_Renderer* renderer, Button button, const std::vector<SDL_Texture*>& textures) const {

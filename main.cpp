@@ -162,6 +162,7 @@ int main(int argc, char* argv[]) {
     Game game(hexSize, asciiMap, entityMap, windowWidth, windowHeight, renderer, cameraSpeed);
 
     Game gamecopy = game;
+    Game gameinit = game;
 
     // Main loop
     bool running = true;
@@ -174,6 +175,12 @@ int main(int argc, char* argv[]) {
         if (game.getUndo()) {
             game = gamecopy;
             game.setUndo(false);
+        }
+        if (game.getReplayButtonClicked()) {
+            game = gameinit;
+            gamecopy = gameinit;
+            game.setReplayButtonClicked(false);
+            game.setEndGame(false);
         }
         Uint32 frameStart = SDL_GetTicks();
         while (SDL_PollEvent(&event)) {
@@ -191,7 +198,7 @@ int main(int argc, char* argv[]) {
                 running = false;
             }
             game.handleEvent(event);
-            if(game.isEndGame()) {
+            if(game.getEndGame()) {
                 running = false;
             }
         }

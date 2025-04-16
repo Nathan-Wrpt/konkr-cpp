@@ -23,6 +23,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     turnButton(0, 0, 0, 0, "", 0),
     undoButton(0, 0, 0, 0, "", 0),
     quitButton(0, 0, 0, 0, "", 0),
+    replayButton(0, 0, 0, 0, "", 0),
     draggedButton(nullptr),
     cameraSpeed(cameraSpeed),
     endGame(false),
@@ -99,6 +100,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     turnButton = Button(windowWidth - turnButtonWidth- 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "next", 0);
     undoButton = Button(windowWidth - 2 * turnButtonWidth - 2 * 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "undo", 0);
     quitButton = Button(20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "quit", 0);
+    replayButton = Button(windowWidth - turnButtonWidth- 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "replay", 0);
 }
 
 Game::Game(const Game& other)
@@ -114,6 +116,7 @@ Game::Game(const Game& other)
       turnButton(other.turnButton),
       undoButton(other.undoButton),
       quitButton(other.quitButton),
+      replayButton(other.replayButton),
       draggedButton(nullptr),
       cameraX(other.cameraX),     
       cameraY(other.cameraY),
@@ -164,6 +167,7 @@ Game& Game::operator=(const Game& other) {
         turnButton = other.turnButton;
         undoButton = other.undoButton;
         quitButton = other.quitButton;
+        replayButton = other.replayButton;
         draggedButton = nullptr;
         cameraX = other.cameraX;
         cameraY = other.cameraY;
@@ -221,7 +225,13 @@ void Game::handleEvent(SDL_Event& event) {
     if ((event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) 
     || (event.type == SDL_MOUSEBUTTONDOWN && turnButton.containsPoint(event.button.x, event.button.y))
     || (event.type == SDL_MOUSEBUTTONDOWN && undoButton.containsPoint(event.button.x, event.button.y))
-    || (event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y))) {
+    || (event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y))
+    || (event.type == SDL_MOUSEBUTTONDOWN && replayButton.containsPoint(event.button.x, event.button.y))) {
+
+        if (event.type == SDL_MOUSEBUTTONDOWN && replayButton.containsPoint(event.button.x, event.button.y)) {
+            replayButtonClicked = true;
+            return;
+        }
 
         if (event.type == SDL_MOUSEBUTTONDOWN && undoButton.containsPoint(event.button.x, event.button.y)) {
             undo = true;
@@ -708,7 +718,7 @@ void Game::renderAll(SDL_Renderer* renderer) const {
     renderGame.renderPlayerInfo(renderer, gameEntities.players, playerTurn, grid, textures);
 
     // Render all buttons
-    renderGame.renderAllButtons(renderer, unitButtons, textures, gameEntities.players, playerTurn, turnButton, undoButton, quitButton);
+    renderGame.renderAllButtons(renderer, unitButtons, textures, gameEntities.players, playerTurn, turnButton, undoButton, quitButton, replayButton);
 
     // Display game over message if only one player remains
     renderGame.renderGameOverMessage(renderer, gameEntities.players, textures, unitButtons);

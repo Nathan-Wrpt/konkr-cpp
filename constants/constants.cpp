@@ -8,8 +8,8 @@ const std::array<std::string, NB_ICONS> iconNames = {
     "pikeman",        "silver-trophy",  "surplus",     "town",
     "treasury",       "upkeep",         "villager",    "swords",
     "next",         "nextbright",        "quit",      "devil",
-    "forest",       "undo",            "info-villager", "info-pikeman",
-    "info-knight",  "info-hero",        "info-castle"
+    "forest",       "undo",             "replay",     "info-villager", 
+    "info-pikeman", "info-knight",      "info-hero",  "info-castle"
 };
 
 int getIconIndex(const std::string& name) {

@@ -30,13 +30,18 @@ public:
   void handleEvent(SDL_Event& event);
   void update();
   void renderAll(SDL_Renderer* renderer) const;
-  bool isEndGame() const { return endGame; }
+
+  bool getEndGame() const { return endGame; }
+  void setEndGame(bool endGame) { this->endGame = endGame; }
 
   bool getUndo() const { return undo; }
   void setUndo(bool undo) { this->undo = undo; }
 
   bool getTurnButtonClicked() const { return turnButtonClicked; }
   void setTurnButtonClicked(bool clicked) { turnButtonClicked = clicked; }
+
+  bool getReplayButtonClicked() const { return replayButtonClicked; }
+  void setReplayButtonClicked(bool clicked) { replayButtonClicked = clicked; }
 
 private:
   HexagonalGrid grid;
@@ -54,11 +59,13 @@ private:
   Button turnButton;
   Button undoButton;
   Button quitButton;
+  Button replayButton;
   Button* draggedButton;
   int cameraX, cameraY, cameraSpeed;
   bool endGame;
   bool undo;
   bool turnButtonClicked;
+  bool replayButtonClicked;
   bool buttonHovered;
   Button hoveredButton;
 };
