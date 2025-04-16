@@ -25,7 +25,8 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     quitButton(0, 0, 0, 0, "", 0),
     draggedButton(nullptr),
     cameraSpeed(cameraSpeed),
-    endGame(false)
+    endGame(false),
+    hoveredButton(0, 0, 0, 0, "", 0)
 {
     std::cout << "Game constructor started" << std::endl;
     turn = 0;
@@ -116,7 +117,8 @@ Game::Game(const Game& other)
       draggedButton(nullptr),
       cameraX(other.cameraX),     
       cameraY(other.cameraY),
-      cameraSpeed(other.cameraSpeed)
+      cameraSpeed(other.cameraSpeed),
+      hoveredButton(other.hoveredButton)
 {
     // Copy players
     for (const auto& player : other.gameEntities.players) {
@@ -601,6 +603,18 @@ void Game::handleEvent(SDL_Event& event) {
         turnButtonClicked = true;
         return;
     }
+
+    if (event.type == SDL_MOUSEMOTION) {
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        buttonHovered = false;
+        for(auto unitButton : unitButtons) {
+            if(unitButton.containsPoint(mouseX, mouseY)) {
+                buttonHovered = true;
+                hoveredButton = unitButton;
+            }
+        }
+    }
 }
 
 void Game::update() {
@@ -698,4 +712,8 @@ void Game::renderAll(SDL_Renderer* renderer) const {
 
     // Display game over message if only one player remains
     renderGame.renderGameOverMessage(renderer, gameEntities.players, textures, unitButtons);
+
+    if(buttonHovered) {
+        renderGame.RenderButtonInfo(renderer, hoveredButton, textures);
+    }
 }

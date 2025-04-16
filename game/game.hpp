@@ -59,6 +59,8 @@ private:
   bool endGame;
   bool undo;
   bool turnButtonClicked;
+  bool buttonHovered;
+  Button hoveredButton;
 };
 
 #endif // GAME_HPP

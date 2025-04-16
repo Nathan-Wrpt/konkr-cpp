@@ -21,6 +21,7 @@ public:
     void renderPlayerInfo(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const HexagonalGrid& grid, const std::vector<SDL_Texture*>& textures) const;
     void renderAllButtons(SDL_Renderer* renderer, const std::vector<Button>& unitButtons, const std::vector<SDL_Texture*>& textures, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const Button& turnButton, const Button& undoButton, const Button& quitButton) const;
     void renderTurnButton(SDL_Renderer* renderer, const Button& turnButton, const std::vector<SDL_Texture*>& textures, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn) const;
+    void RenderButtonInfo(SDL_Renderer* renderer, Button button, const std::vector<SDL_Texture*>& textures) const;
     void renderGameOverMessage(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Player>>& players, const std::vector<SDL_Texture*>& textures, const std::vector<Button>& unitButtons) const;
 
 private:

@@ -243,6 +243,31 @@ void RenderGame::renderAllButtons(SDL_Renderer* renderer, const std::vector<Butt
     // renderTurnButton(renderer, quitButton, textures, gameEntities.players, playerTurn);
 }
 
+void RenderGame::RenderButtonInfo(SDL_Renderer* renderer, Button button, const std::vector<SDL_Texture*>& textures) const {
+    SDL_Rect buttonRect = button.getRect();
+    int infoW = buttonRect.w * 4;
+    int infoX = buttonRect.x - infoW / 2 + buttonRect.w / 2;
+    int infoY = buttonRect.y - 35;
+    int infoH = buttonRect.h - 20; 
+    auto infoRect = SDL_Rect{infoX, infoY, infoW, infoH};
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderDrawRect(renderer, &infoRect);
+    std::string iconName = button.getIconName();
+    if (iconName == "villager") {
+        iconName = "info-villager";
+    } else if (iconName == "pikeman") {
+        iconName = "info-pikeman";
+    } else if (iconName == "knight") {
+        iconName = "info-knight";
+    } else if (iconName == "hero") {
+        iconName = "info-hero";
+    } else if (iconName == "castle") {
+        iconName = "info-castle";
+    }
+    SDL_RenderCopy(renderer, textures[getIconIndex(iconName)], NULL, &infoRect);
+}
+
 void RenderGame::renderGameOverMessage(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Player>>& players, const std::vector<SDL_Texture*>& textures, const std::vector<Button>& unitButtons) const {
     if (players.size() == 1) {
         int windowWidth, windowHeight;

@@ -1,4 +1,5 @@
 #include "constants.hpp"
+#include <array>
 
 const std::array<std::string, NB_ICONS> iconNames = {
     "bandit",         "bandit-camp",    "castle",      "coin",
@@ -7,7 +8,8 @@ const std::array<std::string, NB_ICONS> iconNames = {
     "pikeman",        "silver-trophy",  "surplus",     "town",
     "treasury",       "upkeep",         "villager",    "swords",
     "next",         "nextbright",        "quit",      "devil",
-    "forest",       "undo"
+    "forest",       "undo",            "info-villager", "info-pikeman",
+    "info-knight",  "info-hero",        "info-castle"
 };
 
 int getIconIndex(const std::string& name) {

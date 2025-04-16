@@ -8,7 +8,7 @@
 
 #include "../core/hex.hpp"
 
-#define NB_ICONS 26
+#define NB_ICONS 31
 
 extern const std::array<std::string, NB_ICONS> iconNames;
 extern const std::vector<Hex> directions;
