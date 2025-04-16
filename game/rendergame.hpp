@@ -27,6 +27,7 @@ private:
     SDL_Rect entityToRect(const Entity& entity, const HexagonalGrid& grid, int cameraX, int cameraY) const;
     void render_entity(SDL_Renderer* renderer, const Entity& entity, SDL_Texture* texture, const HexagonalGrid& grid, int cameraX, int cameraY) const;
     void renderButton(SDL_Renderer* renderer, const Button& button, const std::vector<SDL_Texture*>& textures) const;
+    void renderButtonNoBorder(SDL_Renderer* renderer, const Button& button, const std::vector<SDL_Texture*>& textures) const;
     void renderButtonText(SDL_Renderer* renderer, const Button& button, SDL_Rect& buttonRect, const std::vector<SDL_Texture*>& textures) const;
     SDL_Texture* determineTurnButtonTexture(const std::vector<SDL_Texture*>& textures, const Button& turnButton, const std::shared_ptr<Player>& currentPlayer, const std::vector<std::shared_ptr<Player>>& players) const;
 

@@ -33,6 +33,19 @@ void RenderGame::renderButton(SDL_Renderer* renderer, const Button& button, cons
     }
 }
 
+void RenderGame::renderButtonNoBorder(SDL_Renderer* renderer, const Button& button, const std::vector<SDL_Texture*>& textures) const {
+    SDL_Rect buttonRect = button.getRect();
+
+    // Draw button icon
+    SDL_Texture* iconTexture = textures[getIconIndex(button.getIconName())];
+    SDL_RenderCopy(renderer, iconTexture, NULL, &buttonRect);
+
+    // Draw cost text with better visibility
+    if (button.getCost() > 0) {
+        renderButtonText(renderer, button, buttonRect, textures);
+    }
+}
+
 void RenderGame::renderButtonText(SDL_Renderer* renderer, const Button& button, SDL_Rect& buttonRect, const std::vector<SDL_Texture*>& textures) const {
     TTF_Font* font = TTF_OpenFont("assets/OpenSans.ttf", 16); // Larger font size
     if (font) {
@@ -228,8 +241,8 @@ void RenderGame::renderAllButtons(SDL_Renderer* renderer, const std::vector<Butt
     }
 
     // Render the undo and quit buttons
-    renderButton(renderer, undoButton, textures);
-    renderButton(renderer, quitButton, textures);
+    renderButtonNoBorder(renderer, undoButton, textures);
+    renderButtonNoBorder(renderer, quitButton, textures);
 
     // Render the turn button
     renderTurnButton(renderer, turnButton, textures, players, playerTurn);
