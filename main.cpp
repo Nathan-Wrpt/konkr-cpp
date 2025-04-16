@@ -71,7 +71,7 @@ bool loadMapsFromFile(const std::string& filename,
 int main(int argc, char* argv[]) {
     TTF_Init();
     const double hexSize = 30.0;
-    const int cameraSpeed = 10;
+    const int cameraSpeed = 20;
 
     const int FPS = 240;
     const int frameDelay = 1000 / FPS;

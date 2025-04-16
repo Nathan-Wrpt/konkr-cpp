@@ -391,12 +391,13 @@ void Game::handleEvent(SDL_Event& event) {
 
     if (event.type == SDL_MOUSEWHEEL) {
         int hexSize = grid.getHexSize();
+        int minimumZoom = 10;
         int camCompensation = 9; // value found by trial and error
         if (event.wheel.y > 0) {
             grid.setHexSize(hexSize + 1);
             cameraX += camCompensation;
             cameraY += camCompensation;
-        } else if (event.wheel.y < 0 && hexSize > 1) {
+        } else if (event.wheel.y < 0 && hexSize > minimumZoom) {
             grid.setHexSize(hexSize - 1);
             cameraX -= camCompensation;
             cameraY -= camCompensation;
