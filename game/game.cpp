@@ -725,7 +725,7 @@ void Game::renderAll(SDL_Renderer* renderer) const {
     // Display game over message if only one player remains
     renderGame.renderGameOverMessage(renderer, gameEntities.players, textures, unitButtons);
 
-    if(buttonHovered) {
+    if(buttonHovered && !entitySelected) {
         renderGame.RenderButtonInfo(renderer, hoveredButton, textures);
     }
 }
