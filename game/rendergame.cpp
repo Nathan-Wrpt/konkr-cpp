@@ -248,10 +248,12 @@ void RenderGame::renderAllButtons(SDL_Renderer* renderer, const std::vector<Butt
 
 void RenderGame::RenderButtonInfo(SDL_Renderer* renderer, Button button, const std::vector<SDL_Texture*>& textures) const {
     SDL_Rect buttonRect = button.getRect();
-    int infoW = buttonRect.w * 4;
+    int buttonSpacing = 10;
+    int multiplier = 8;
+    int infoW = 27 * multiplier;
     int infoX = buttonRect.x - infoW / 2 + buttonRect.w / 2;
-    int infoY = buttonRect.y - 35;
-    int infoH = buttonRect.h - 20; 
+    int infoH = 4 * multiplier;
+    int infoY = buttonRect.y - infoH - buttonSpacing;
     auto infoRect = SDL_Rect{infoX, infoY, infoW, infoH};
 
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
