@@ -227,28 +227,32 @@ Game::~Game() {
 }
 
 void Game::handleEvent(SDL_Event& event) {
+
+    if (gameEntities.players.size() == 1
+        && (event.type == SDL_MOUSEBUTTONDOWN && replayButton.containsPoint(event.button.x, event.button.y))) {
+        replayButtonClicked = true;
+        return;
+    }
+
+    if (gameEntities.players.size() == 1
+        && (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e)) {
+        replayButtonClicked = true;
+        return;
+    }
+
+    if (event.type == SDL_MOUSEBUTTONDOWN && undoButton.containsPoint(event.button.x, event.button.y)) {
+        undo = true;
+        return;
+    }
+
+    if(event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y)) {
+        endGame = true;
+        return;
+    }
+
     // if 'E' is pressed or turnbutton clicked, change player
-    if ((event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e) 
-    || (event.type == SDL_MOUSEBUTTONDOWN && turnButton.containsPoint(event.button.x, event.button.y))
-    || (event.type == SDL_MOUSEBUTTONDOWN && undoButton.containsPoint(event.button.x, event.button.y))
-    || (event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y))
-    || (event.type == SDL_MOUSEBUTTONDOWN && replayButton.containsPoint(event.button.x, event.button.y))) {
-
-        if (gameEntities.players.size() == 1
-            || (event.type == SDL_MOUSEBUTTONDOWN && replayButton.containsPoint(event.button.x, event.button.y))) {
-            replayButtonClicked = true;
-            return;
-        }
-
-        if (event.type == SDL_MOUSEBUTTONDOWN && undoButton.containsPoint(event.button.x, event.button.y)) {
-            undo = true;
-            return;
-        }
-
-        if(event.type == SDL_MOUSEBUTTONDOWN && quitButton.containsPoint(event.button.x, event.button.y)) {
-            endGame = true;
-            return;
-        }
+    if ((event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e)
+        || (event.type == SDL_MOUSEBUTTONDOWN && turnButton.containsPoint(event.button.x, event.button.y) && !entitySelected)) {
 
         // if entities on hex not existing on the grid refund the cost of the entity
         if(entitySelected) {
