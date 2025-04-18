@@ -15,6 +15,7 @@ private:
     SDL_Color color;
     std::vector<std::shared_ptr<Entity>> entities;
     int coins;
+    bool townDestroyed;
     bool alive;
 
 public:
@@ -22,7 +23,7 @@ public:
     ~Player() = default;
 
     // Copy constructor
-    Player(const Player& other) : color(other.color), coins(other.coins), alive(other.alive) {
+    Player(const Player& other) : color(other.color), coins(other.coins), townDestroyed(other.townDestroyed), alive(other.alive) {
         entities.reserve(other.entities.size());
         for (const auto& entity : other.entities) {
             if (entity->getName() == "villager") {
@@ -45,6 +46,7 @@ public:
         if (this != &other) {
             color = other.color;
             coins = other.coins;
+            townDestroyed = other.townDestroyed;
             alive = other.alive;
 
             // Clear existing entities
@@ -75,6 +77,7 @@ public:
     }
 
     SDL_Color getColor() const { return color; }
+    void setColor(SDL_Color color) { this->color = color; }
     const std::vector<std::shared_ptr<Entity>>& getEntities() const { return entities; }
 
     void addEntity(std::shared_ptr<Entity> entity);
@@ -82,6 +85,8 @@ public:
     int getCoins() const { return coins; }
     void addCoins(int amount) { coins += amount; }
     void removeCoins(int amount) { coins -= amount; }
+    bool isTownDestroyed() const { return townDestroyed; }
+    void setTownDestroyed(bool destroyed) { townDestroyed = destroyed; }
     bool isAlive() const { return alive; }
     void setAlive(bool alive) { this->alive = alive; }
 };

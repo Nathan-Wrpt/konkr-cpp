@@ -2,6 +2,7 @@
 
 Player::Player(SDL_Color color) : color(color) {
     coins = 10;
+    townDestroyed = false;
     alive = true;
 }
 

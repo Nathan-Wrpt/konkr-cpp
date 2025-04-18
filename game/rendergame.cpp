@@ -106,9 +106,6 @@ SDL_Texture* RenderGame::determineTurnButtonTexture(const std::vector<SDL_Textur
     if (allEntitiesMoved && currentPlayer->getCoins() < 10) {
         iconTexture = textures[getIconIndex("nextbright")];
     }
-    if (players.size() == 1) {
-        iconTexture = textures[getIconIndex("quit")];
-    }
     return iconTexture;
 }
 
@@ -228,7 +225,7 @@ void RenderGame::renderPlayerResources(SDL_Renderer* renderer, const HexagonalGr
     TTF_CloseFont(font);
 }
 
-void RenderGame::renderAllButtons(SDL_Renderer* renderer, const std::vector<Button>& unitButtons, const std::vector<SDL_Texture*>& textures, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const Button& turnButton, const Button& undoButton, const Button& quitButton, const Button& replayButton) const {
+void RenderGame::renderAllButtons(SDL_Renderer* renderer, const std::vector<Button>& unitButtons, const std::vector<SDL_Texture*>& textures, const std::vector<std::shared_ptr<Player>>& players, const int&nbplayers, size_t playerTurn, const Button& turnButton, const Button& undoButton, const Button& quitButton, const Button& replayButton) const {
     for (const auto& button : unitButtons) {
         renderButton(renderer, button, textures);
     }
@@ -238,7 +235,7 @@ void RenderGame::renderAllButtons(SDL_Renderer* renderer, const std::vector<Butt
     renderButtonNoBorder(renderer, quitButton, textures);
 
     // Render the replay button
-    if (players.size() == 1) {
+    if (nbplayers == 1) {
         renderButtonNoBorder(renderer, replayButton, textures);
     } else {
         // Render the turn button
@@ -277,54 +274,58 @@ void RenderGame::RenderButtonInfo(SDL_Renderer* renderer, Button button, const s
 }
 
 void RenderGame::renderGameOverMessage(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Player>>& players, const std::vector<SDL_Texture*>& textures, const std::vector<Button>& unitButtons) const {
-    if (players.size() == 1) {
-        int windowWidth, windowHeight;
-        SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
+    int windowWidth, windowHeight;
+    SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
 
-        int buttonY = windowHeight - unitButtons[0].getRect().h - 20 - 10;
-        int messageY = buttonY - 80;
+    int buttonY = windowHeight - unitButtons[0].getRect().h - 20 - 10;
+    int messageY = buttonY - 80;
 
-        SDL_Rect messageBgRect = {windowWidth / 2 - 190, messageY, 390, 60};
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
-        SDL_RenderFillRect(renderer, &messageBgRect);
-        SDL_SetRenderDrawColor(renderer, 255, 215, 0, 255);
-        SDL_RenderDrawRect(renderer, &messageBgRect);
+    SDL_Rect messageBgRect = {windowWidth / 2 - 190, messageY, 390, 60};
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 200);
+    SDL_RenderFillRect(renderer, &messageBgRect);
+    SDL_SetRenderDrawColor(renderer, 255, 215, 0, 255);
+    SDL_RenderDrawRect(renderer, &messageBgRect);
 
-        TTF_Font* font = TTF_OpenFont("assets/OpenSans.ttf", 24);
-        if (font) {
-            SDL_Color textColor = {255, 255, 255, 255};
-            std::string gameOverText = "Game over! Player";
+    TTF_Font* font = TTF_OpenFont("assets/OpenSans.ttf", 24);
+    if (font) {
+        SDL_Color textColor = {255, 255, 255, 255};
+        std::string gameOverText = "Game over! Player";
 
-            SDL_Surface* textSurface = TTF_RenderText_Solid(font, gameOverText.c_str(), textColor);
-            if (textSurface) {
-                SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
-                if (textTexture) {
-                    SDL_Rect textRect = {messageBgRect.x + 20, messageBgRect.y + (messageBgRect.h - textSurface->h) / 2, textSurface->w, textSurface->h};
-                    SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
+        SDL_Surface* textSurface = TTF_RenderText_Solid(font, gameOverText.c_str(), textColor);
+        if (textSurface) {
+            SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+            if (textTexture) {
+                SDL_Rect textRect = {messageBgRect.x + 20, messageBgRect.y + (messageBgRect.h - textSurface->h) / 2, textSurface->w, textSurface->h};
+                SDL_RenderCopy(renderer, textTexture, NULL, &textRect);
 
-                    SDL_Rect winnerColorRect = {textRect.x + textRect.w + 10, textRect.y + (textRect.h - 30) / 2, 30, 30};
-                    SDL_Color winnerColor = players[0]->getColor();
-                    SDL_SetRenderDrawColor(renderer, winnerColor.r, winnerColor.g, winnerColor.b, winnerColor.a);
-                    SDL_RenderFillRect(renderer, &winnerColorRect);
-                    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-                    SDL_RenderDrawRect(renderer, &winnerColorRect);
-
-                    std::string hasWonText = "has won!";
-                    SDL_Surface* wonSurface = TTF_RenderText_Solid(font, hasWonText.c_str(), textColor);
-                    if (wonSurface) {
-                        SDL_Texture* wonTexture = SDL_CreateTextureFromSurface(renderer, wonSurface);
-                        if (wonTexture) {
-                            SDL_Rect wonRect = {winnerColorRect.x + winnerColorRect.w + 10, textRect.y, wonSurface->w, wonSurface->h};
-                            SDL_RenderCopy(renderer, wonTexture, NULL, &wonRect);
-                            SDL_DestroyTexture(wonTexture);
-                        }
-                        SDL_FreeSurface(wonSurface);
+                SDL_Rect winnerColorRect = {textRect.x + textRect.w + 10, textRect.y + (textRect.h - 30) / 2, 30, 30};
+                SDL_Color winnerColor;
+                for (auto& player : players) {
+                    if (player->isAlive()) {
+                        winnerColor = player->getColor();
+                        break;
                     }
-                    SDL_DestroyTexture(textTexture);
                 }
-                SDL_FreeSurface(textSurface);
+                SDL_SetRenderDrawColor(renderer, winnerColor.r, winnerColor.g, winnerColor.b, winnerColor.a);
+                SDL_RenderFillRect(renderer, &winnerColorRect);
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_RenderDrawRect(renderer, &winnerColorRect);
+
+                std::string hasWonText = "has won!";
+                SDL_Surface* wonSurface = TTF_RenderText_Solid(font, hasWonText.c_str(), textColor);
+                if (wonSurface) {
+                    SDL_Texture* wonTexture = SDL_CreateTextureFromSurface(renderer, wonSurface);
+                    if (wonTexture) {
+                        SDL_Rect wonRect = {winnerColorRect.x + winnerColorRect.w + 10, textRect.y, wonSurface->w, wonSurface->h};
+                        SDL_RenderCopy(renderer, wonTexture, NULL, &wonRect);
+                        SDL_DestroyTexture(wonTexture);
+                    }
+                    SDL_FreeSurface(wonSurface);
+                }
+                SDL_DestroyTexture(textTexture);
             }
-            TTF_CloseFont(font);
+            SDL_FreeSurface(textSurface);
         }
+        TTF_CloseFont(font);
     }
 }

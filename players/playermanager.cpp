@@ -28,7 +28,8 @@ void PlayerManager::removePlayer(std::shared_ptr<Player> player, std::vector<std
         player->removeEntity(entity);
     }
 
-    players.erase(std::remove(players.begin(), players.end(), player), players.end());
+    // players.erase(std::remove(players.begin(), players.end(), player), players.end());
+    player->setAlive(false);
     nbplayers--;
 }
 

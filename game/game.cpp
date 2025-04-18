@@ -228,13 +228,13 @@ Game::~Game() {
 
 void Game::handleEvent(SDL_Event& event) {
 
-    if (gameEntities.players.size() == 1
+    if (nbplayers == 1
         && (event.type == SDL_MOUSEBUTTONDOWN && replayButton.containsPoint(event.button.x, event.button.y))) {
         replayButtonClicked = true;
         return;
     }
 
-    if (gameEntities.players.size() == 1
+    if (nbplayers == 1
         && (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_e)) {
         replayButtonClicked = true;
         return;
@@ -275,18 +275,11 @@ void Game::handleEvent(SDL_Event& event) {
             playerManager.checkIfHexConnectedToTown(*player, grid, gameEntities.bandits, gameEntities.banditCamps);
         }
 
-        int nextPlayerIndex = (playerTurn + 1) % gameEntities.players.size();
-        SDL_Color nextPlayerColor = gameEntities.players[nextPlayerIndex]->getColor();
-
         // Remove dead players
         std::vector<std::shared_ptr<Player>> toRemove;
         for (auto& player : gameEntities.players) {
-            if (!player->isAlive()) {
+            if (player->isTownDestroyed() && player->isAlive()) {
                 toRemove.push_back(player);
-                if(player->getColor() == nextPlayerColor) {
-                    nextPlayerIndex = (nextPlayerIndex + 1) % gameEntities.players.size();
-                    nextPlayerColor = gameEntities.players[nextPlayerIndex]->getColor();
-                }
             }
         }
         for (auto& player : toRemove) {
@@ -294,7 +287,7 @@ void Game::handleEvent(SDL_Event& event) {
         }
         // Change player
         playerTurn = (playerTurn + 1) % gameEntities.players.size();
-        while(!(gameEntities.players[playerTurn]->getColor() == nextPlayerColor)) {
+        while(!gameEntities.players[playerTurn]->isAlive()) {
             playerTurn = (playerTurn + 1) % gameEntities.players.size();
         }
 
@@ -550,7 +543,7 @@ void Game::handleEvent(SDL_Event& event) {
                                     for (auto& entity : player->getEntities()) {
                                         if (entity->getHex() == clickedHex) {
                                             if (entity->getName() == "town") {
-                                                player->setAlive(false);
+                                                player->setTownDestroyed(true);
                                                 int coinsOfDeadPlayer = player->getCoins();
                                                 currentPlayer->addCoins(coinsOfDeadPlayer);
                                             }
@@ -740,11 +733,12 @@ void Game::renderAll(SDL_Renderer* renderer) const {
     renderGame.renderPlayerInfo(renderer, gameEntities.players, playerTurn, grid, textures);
 
     // Render all buttons
-    renderGame.renderAllButtons(renderer, unitButtons, textures, gameEntities.players, playerTurn, turnButton, undoButton, quitButton, replayButton);
+    renderGame.renderAllButtons(renderer, unitButtons, textures, gameEntities.players, nbplayers, playerTurn, turnButton, undoButton, quitButton, replayButton);
 
     // Display game over message if only one player remains
-    renderGame.renderGameOverMessage(renderer, gameEntities.players, textures, unitButtons);
-
+    if (nbplayers == 1) {
+        renderGame.renderGameOverMessage(renderer, gameEntities.players, textures, unitButtons);
+    }
     if(buttonHovered && !entitySelected) {
         renderGame.RenderButtonInfo(renderer, hoveredButton, textures);
     }
