@@ -275,10 +275,7 @@ void Game::handleEvent(SDL_Event& event) {
             playerManager.checkIfHexConnectedToTown(*player, grid, gameEntities.bandits, gameEntities.banditCamps);
         }
 
-        // Change player
-        playerTurn = (playerTurn + 1) % gameEntities.players.size();
-        auto& currentPlayer = gameEntities.players[playerTurn];
-        SDL_Color currentColor = currentPlayer->getColor();
+        SDL_Color previousPlayerColor = gameEntities.players[playerTurn]->getColor();
 
         // Remove dead players
         std::vector<std::shared_ptr<Player>> toRemove;
@@ -290,17 +287,16 @@ void Game::handleEvent(SDL_Event& event) {
         for (auto& player : toRemove) {
             playerManager.removePlayer(player, gameEntities.players, nbplayers, gameEntities.bandits, gameEntities.banditCamps);
         }
-        if(gameEntities.players.size() <= playerTurn){
-            playerTurn = 0;
-        }
-        int maxAttempts = gameEntities.players.size();
-        int attempts = 0;
-        while (!(currentColor == gameEntities.players[playerTurn]->getColor()) && attempts < maxAttempts) {
+        
+        // find the previous player (that is for sure alive)
+        while(!(gameEntities.players[playerTurn]->getColor() == previousPlayerColor)) {
             playerTurn = (playerTurn + 1) % gameEntities.players.size();
-            attempts++;
         }
+        
+        // change player
+        playerTurn = (playerTurn + 1) % gameEntities.players.size();
 
-        currentPlayer = gameEntities.players[playerTurn];
+        auto& currentPlayer = gameEntities.players[playerTurn];
 
         // BANDIT AND TREASURE ACTIONS HERE
         if (playerTurn == 0) {
