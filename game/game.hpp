@@ -60,6 +60,7 @@ private:
   bool replayButtonClicked;
   bool buttonHovered;
   Button hoveredButton;
+  int defaultHexSize;
 };
 
 #endif // GAME_HPP

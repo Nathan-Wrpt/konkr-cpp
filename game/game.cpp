@@ -23,7 +23,8 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     draggedButton(nullptr),
     cameraSpeed(cameraSpeed),
     endGame(false),
-    hoveredButton(0, 0, 0, 0, "", 0)
+    hoveredButton(0, 0, 0, 0, "", 0),
+    defaultHexSize(hexSize)
 {
     std::cout << "Game constructor started" << std::endl;
     turn = 0;
@@ -417,6 +418,13 @@ void Game::handleEvent(SDL_Event& event) {
             cameraX -= camCompensation;
             cameraY -= camCompensation;
         }
+    }
+
+    // reset camera zoom and position if space is pressed
+    if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
+        grid.setHexSize(defaultHexSize);
+        cameraX = 0;
+        cameraY = 0;
     }
 
     std::string entityToBuy = "";
