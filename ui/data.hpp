@@ -7,7 +7,6 @@
 
 class RenderData {
 public:
-    // Constructor that matches the arguments with raw pointers
     RenderData(SDL_Renderer* renderer,
                TTF_Font* font,
                const std::vector<SDL_Texture*>& textures)

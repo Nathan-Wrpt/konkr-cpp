@@ -8,7 +8,7 @@
 
 #include "../constants/constants.hpp"
 
-// Redéfinition de l'opérateur == pour SDL_Color
+// Redefinition of the operator == for SDL_Color
 inline bool operator==(const SDL_Color& lhs, const SDL_Color& rhs) {
     return lhs.r == rhs.r &&
            lhs.g == rhs.g &&

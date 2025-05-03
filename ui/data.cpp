@@ -13,7 +13,7 @@ void RenderData::renderImageWithText(const SDL_Rect& imageRect, const std::strin
     // Render the image
     SDL_RenderCopy(renderer, textures[textureIndex], NULL, &imageRect);
 
-    // Create the text surface and texture using smart pointers
+    // Create the text surface and texture
     SDL_Color textColor = {255, 255, 255, 255};
     std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)> textSurface(
         TTF_RenderText_Solid(font, text.c_str(), textColor),
@@ -27,8 +27,8 @@ void RenderData::renderImageWithText(const SDL_Rect& imageRect, const std::strin
 
     // Calculate the text rectangle position
     SDL_Rect textRect;
-    textRect.x = imageRect.x + imageRect.w + 10; // 10 pixels to the right of the image
-    textRect.h = 30; // Set the height to 30 pixels
+    textRect.x = imageRect.x + imageRect.w + 10;
+    textRect.h = 30;
     textRect.y = imageRect.y + (imageRect.h - textRect.h) / 2; // Center the text vertically
 
     // Calculate the width of the text

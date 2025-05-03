@@ -17,7 +17,6 @@ Entity::~Entity() {}
 
 bool Entity::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) {
     if (grid.hexExists(target)) {
-        // Check if the target is the same color as the ownerColor
         auto it = grid.getHexColors().find(target);
         if (it != grid.getHexColors().end()) {
             const SDL_Color& targetColor = it->second;
@@ -26,7 +25,6 @@ bool Entity::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) 
             if (targetColor == ownerColor) {
                 // Move the entity to the target hex
                 hex = target;
-                // Nothing else to do
                 return true;
             } else {
                 // Check if the target is a valid position on the grid
@@ -86,6 +84,8 @@ Hero::Hero(Hex hex)
     : Entity(hex, 4, "hero", 54) {}
 
 Hero::~Hero() {}
+
+// --- Devil Class Implementation ---
 
 Devil::Devil(Hex hex) 
     : Entity(hex, 2, "devil", 100) {}

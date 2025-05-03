@@ -63,7 +63,7 @@ public:
                     entities.push_back(std::make_shared<BanditCamp>(*dynamic_cast<BanditCamp*>(entity.get())));
                 } else {
                     // Handle other entity types appropriately (e.g., Buildings)
-                    entities.push_back(entity->clone()); // Use the clone method to create a copy
+                    entities.push_back(entity->clone());
                 }
             }
         }

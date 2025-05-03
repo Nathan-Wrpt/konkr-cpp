@@ -30,9 +30,7 @@ public:
     BanditCamp();
     BanditCamp(Hex hex);
     virtual ~BanditCamp();
-    // Getter for coins
     int getCoins() const { return coins; }
-    // adder for coins
     void addCoins(int coins) { this->coins += coins; }
     void removeCoins(int coins) { this->coins -= coins; }
 

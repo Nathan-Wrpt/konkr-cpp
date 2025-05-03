@@ -15,7 +15,6 @@ class Entity {
         bool jumping;
         bool falling;
 
-    
     public:
         Entity(Hex hex, int protection_level, std::string name, int upkeep = 0);
         virtual ~Entity();
@@ -42,42 +41,31 @@ class Entity {
             return *this;
         }
     
-        //Virtual clone method
+        // Virtual clone method
         virtual std::shared_ptr<Entity> clone() const {
             return std::make_shared<Entity>(*this);
         }
     
-        // Getter for hex
+        // Getters
         Hex getHex() const { return hex; }
-    
-        // Getter for name
         std::string getName() const { return name; }
-    
-        // Getter for protection level
         int getProtectionLevel() const { return protection_level; }
-    
-        // Getter for moved
         bool hasMoved() const { return moved; }
-    
-        // Setter for moved
+        int getUpkeep() const { return upkeep; }
+        float getYOffset() const { return yOffset; }
+        float getJumpSpeed() const { return jumpSpeed; }
+        bool isJumping() const { return jumping; }
+        bool isFalling() const { return falling; }
+
+        // Setters
         void setMoved(bool moved) { this->moved = moved; }
+        void setHex(Hex hex) { this->hex = hex; }
+        void setYOffset(const float& newYOffset) { yOffset = newYOffset; }
+        void setJumpSpeed(const float& newJumpSpeed) { jumpSpeed = newJumpSpeed; }
+        void setJumping(const bool& newJumping) { jumping = newJumping; }
+        void setFalling(const bool& newFalling) { falling = newFalling; }
         
         virtual bool move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor);
-    
-        // Getter for upkeep
-        int getUpkeep() const { return upkeep; }
-    
-        // Setter for hex
-        void setHex(Hex hex) { this->hex = hex; }
-    
-        float getYOffset() const { return yOffset; }
-        void setYOffset(const float& newYOffset) { yOffset = newYOffset; }
-        float getJumpSpeed() const { return jumpSpeed; }
-        void setJumpSpeed(const float& newJumpSpeed) { jumpSpeed = newJumpSpeed; }
-        bool isJumping() const { return jumping; }
-        void setJumping(const bool& newJumping) { jumping = newJumping; }
-        bool isFalling() const { return falling; }
-        void setFalling(const bool& newFalling) { falling = newFalling; }
 };
     
 

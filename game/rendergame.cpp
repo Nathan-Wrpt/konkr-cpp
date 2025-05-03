@@ -54,8 +54,7 @@ void RenderGame::renderButtonText(SDL_Renderer* renderer, const Button& button, 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
         SDL_RenderFillRect(renderer, &textBgRect);
 
-        // Use bright text color for better contrast
-        SDL_Color textColor = {255, 255, 0, 255}; // Bright yellow for visibility
+        SDL_Color textColor = {255, 255, 0, 255};
 
         std::string costText = std::to_string(button.getCost());
         SDL_Surface* textSurface = TTF_RenderText_Solid(font, costText.c_str(), textColor);

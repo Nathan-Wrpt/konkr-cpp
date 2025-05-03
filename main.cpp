@@ -132,11 +132,11 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Create the SDL window in fullscreen windowed mode
+    // Create the SDL window
     SDL_Window* window = SDL_CreateWindow("C++ Konkr by Nathan W & Antoine B",
                                           SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED,
-                                          0, 0, // Ignored in fullscreen mode
+                                          0, 0,
                                           SDL_WINDOW_FULLSCREEN_DESKTOP);
 
     if (!window) {

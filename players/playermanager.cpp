@@ -33,9 +33,9 @@ void PlayerManager::removePlayer(std::shared_ptr<Player> player, int& nbplayers,
 }
 
 void PlayerManager::checkIfHexConnectedToTown(Player& player, HexagonalGrid& grid, std::vector<std::shared_ptr<Bandit>>& bandits, std::vector<std::shared_ptr<BanditCamp>>& banditCamps) {
-    // Get the player's color
+    // Get the player's color and original color
     SDL_Color playerColor = player.getColor();
-    SDL_Color originalColor = playerColor; // Store original player color
+    SDL_Color originalColor = playerColor;
     
     // Find all hexes with this player's color or darker versions of it
     std::vector<Hex> playerHexes;

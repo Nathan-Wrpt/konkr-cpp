@@ -97,7 +97,7 @@ Game::Game(double hexSize, const std::vector<std::string>& asciiMap, std::vector
     unitButtons.emplace_back(startX + 3 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "hero", 80);
     unitButtons.emplace_back(startX + 4 * (buttonSize + buttonSpacing), buttonY, buttonSize, buttonSize, "castle", 20);
 
-    // turn button on the bottom right corner
+    // Create buttons for turn, undo, quit, and replay
     int turnButtonWidth = buttonSize * 3;
     turnButton = Button(windowWidth - turnButtonWidth- 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "next", 0);
     undoButton = Button(windowWidth - 2 * turnButtonWidth - 2 * 20, windowHeight - buttonSize - 20, turnButtonWidth, buttonSize, "undo", 0);
@@ -289,7 +289,7 @@ void Game::handleEvent(SDL_Event& event) {
 
         auto& currentPlayer = gameEntities.players[playerTurn];
 
-        // BANDIT AND TREASURE ACTIONS HERE
+        // BANDIT, TREASURE AND DEVIL ACTIONS HERE
         if (playerTurn == 0) {
             turn++;
             if(turn > 0) {
@@ -363,38 +363,43 @@ void Game::handleEvent(SDL_Event& event) {
             }
         }
 
-        // END OF BANDIT AND TREASURE ACTIONS
+        // END OF BANDIT, TREASURE AND DEVIL ACTIONS
 
         if(turn > 0) {
-            // land income
+            // Add land income based on the number of hexes owned by the current player
             currentPlayer->addCoins(grid.getNbCasesColor(currentPlayer->getColor()));
 
-            // Pay upkeep for each entity in reverse order (because we remove entities)
-            std::vector<std::shared_ptr<Entity>> toRemove;
+            // Prepare entities for the next turn and handle upkeep costs
+            std::vector<std::shared_ptr<Entity>> entitiesToRemove;
             for(auto& entity : currentPlayer->getEntities()) {
-                bool building = dynamic_cast<Building*>(entity.get());
+            bool isBuilding = dynamic_cast<Building*>(entity.get());
 
-                if(!building && gameEntities.players.size() > 1) { // if the player is alone, no need to make the units ready to move
-                    entity->setMoved(false);
-                }
-                int currentUpkeep = entity->getUpkeep();
-
-                if(currentPlayer->getCoins() >= currentUpkeep) {
-                    currentPlayer->removeCoins(currentUpkeep);
-                } else {
-                    Hex entityHex = entity->getHex();
-                    if(building) {
-                        // replace by bandit camp
-                        entityManager.addBanditCamp(entityHex, gameEntities.banditCamps);
-                    } else {
-                        // replace by bandit
-                        entityManager.addBandit(entityHex, gameEntities.bandits);
-                    }
-                    toRemove.push_back(entity);
-                }
+            // Reset movement for non-building entities if there are multiple players
+            if(!isBuilding && gameEntities.players.size() > 1) {
+                entity->setMoved(false);
             }
-            for(auto& entity : toRemove) {
-                currentPlayer->removeEntity(entity);
+
+            int upkeepCost = entity->getUpkeep();
+
+            // Deduct upkeep cost or replace the entity with a bandit/bandit camp if insufficient funds
+            if(currentPlayer->getCoins() >= upkeepCost) {
+                currentPlayer->removeCoins(upkeepCost);
+            } else {
+                Hex entityHex = entity->getHex();
+                if(isBuilding) {
+                // Replace building with a bandit camp
+                entityManager.addBanditCamp(entityHex, gameEntities.banditCamps);
+                } else {
+                // Replace unit with a bandit
+                entityManager.addBandit(entityHex, gameEntities.bandits);
+                }
+                entitiesToRemove.push_back(entity);
+            }
+            }
+
+            // Remove entities that couldn't pay their upkeep
+            for(auto& entity : entitiesToRemove) {
+            currentPlayer->removeEntity(entity);
             }
         }
     }
@@ -735,6 +740,8 @@ void Game::renderAll(SDL_Renderer* renderer) const {
     if (nbplayers == 1) {
         renderGame.renderGameOverMessage(renderer, gameEntities.players, unitButtons);
     }
+
+    // Render Button Info
     if(buttonHovered && !entitySelected) {
         renderGame.RenderButtonInfo(renderer, hoveredButton, textures);
     }
