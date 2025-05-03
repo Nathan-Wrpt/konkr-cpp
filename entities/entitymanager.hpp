@@ -2,9 +2,7 @@
 #define ENTITYMANAGER_HPP
 
 #include <random>
-#include <limits>
 
-#include "../core/grid.hpp"
 #include "../game/gameentities.hpp"
 
 class EntityManager {

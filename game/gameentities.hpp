@@ -1,8 +1,6 @@
 #ifndef GAMEENTITIES_HPP
 #define GAMEENTITIES_HPP
 
-#include "../entities/entity.hpp"
-#include "../entities/building.hpp"
 #include "../players/player.hpp"
 
 struct GameEntities {

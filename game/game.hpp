@@ -1,19 +1,11 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <memory>
-#include <map>
+#include <filesystem>
+#include <SDL2/SDL_image.h>
 
 #include "../players/playermanager.hpp"
 #include "rendergame.hpp"
-#include "gameentities.hpp"
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
 
 class Game {
 public:

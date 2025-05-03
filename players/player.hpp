@@ -1,13 +1,7 @@
 #ifndef PLAYER_HPP
 #define PLAYER_HPP
 
-#include <vector>
-#include <string>
-#include <memory>
 #include <algorithm>
-#include <SDL2/SDL.h>
-#include "../core/grid.hpp"
-#include "../entities/entity.hpp"
 #include "../entities/building.hpp"
 
 class Player {

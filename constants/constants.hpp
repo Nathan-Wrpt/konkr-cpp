@@ -1,9 +1,6 @@
 #ifndef CONSTANTS_HPP
 #define CONSTANTS_HPP
 
-#include <map>
-#include <string>
-#include <vector>
 #include <array>
 
 #include "../core/hex.hpp"

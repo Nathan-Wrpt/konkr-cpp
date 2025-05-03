@@ -1,14 +1,7 @@
 #ifndef RENDERGAME_HPP
 #define RENDERGAME_HPP
 
-#include <SDL2/SDL_ttf.h>
-#include <vector>
-#include <memory>
-
-#include "../constants/constants.hpp"
-#include "../entities/entity.hpp"
 #include "../entities/entitymanager.hpp"
-#include "../players/player.hpp"
 #include "../ui/button.hpp"
 #include "../ui/data.hpp"
 

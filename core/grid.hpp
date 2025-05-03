@@ -1,13 +1,11 @@
 #ifndef HEXAGONAL_GRID_HPP
 #define HEXAGONAL_GRID_HPP
 
-#include <vector>
-#include <map>
-#include <string>
-#include <iostream>
-#include <memory>
-#include <SDL2/SDL.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
+
+#include <stdexcept>
+#include <cmath>
+#include <limits>
 
 #include "hex.hpp"
 #include "../constants/constants.hpp"

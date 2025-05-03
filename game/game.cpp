@@ -1,8 +1,4 @@
 #include "game.hpp"
-#include <random>
-#include <map>
-#include <filesystem>
-#include <algorithm>
 
 // Custom comparison function for SDL_Color
 struct SDL_Color_Compare {

@@ -1,5 +1,4 @@
 #include "constants.hpp"
-#include <array>
 
 const std::array<std::string, NB_ICONS> iconNames = {
     "bandit",         "bandit-camp",    "castle",      "coin",

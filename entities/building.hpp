@@ -1,9 +1,6 @@
 #ifndef BUILDINGS_HPP
 #define BUILDINGS_HPP
 
-#include <string>
-#include <iostream>
-
 #include "entity.hpp"
 
 class Building : public Entity {

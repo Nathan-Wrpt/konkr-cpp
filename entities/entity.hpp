@@ -1,9 +1,6 @@
 #ifndef ENTITY_HPP
 #define ENTITY_HPP
 
-#include <string>
-#include <iostream>
-
 #include "../core/grid.hpp"
 
 class Entity {

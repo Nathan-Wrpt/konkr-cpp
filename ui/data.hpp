@@ -1,13 +1,7 @@
 #ifndef DATA_HPP
 #define DATA_HPP
 
-#include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <string>
-#include <vector>
-#include <map>
-#include <memory>
-#include <iostream>
 
 #include "../constants/constants.hpp"
 
