@@ -15,6 +15,7 @@ This project is a C++ implementation of the [Konkr.io](http://konkr.io) game, cr
 - **🗺️ Map Creation**
 - **🌳 Project Structure**
 - **⚙️ Technical Details**
+- **🛠️ Features implemented (for corrector only)**
 
 ---
 
@@ -180,6 +181,29 @@ _Code is compiled with -Wextra -Wall -Wpedantic -Werror flags to ensure high cod
 - Event handling system
 
 ---
+
+## 🛠️ Features implemented (for corrector only)
+
+| Feature | Status |
+|---------|---------|
+| Turn-based game | ✅ |
+| Multiplayer version | ✅ |
+| Autonomous bandits | ✅ |
+| Hexagonal grid | ✅ |
+| ASCII file loading | ✅ |
+| Faction colouring | ✅ |
+| Path finding / flooding to check if territory is connected to its town | ✅ |
+| Buildings and troops | ✅ |
+| Power hierarchy | ✅ |
+| Protection system | ✅ |
+| Troop fusion for promotion | ✅ |
+| Income and salary payment | ✅ |
+| Mutiny for unpaid troops | ✅ |
+| Selection by click and keyboard | ✅ |
+| Basic troop animations | ✅ |
+| Drag & drop | ✅ |
+| undo option (basic, just cancels all of what happened in the current player turn) | ✅ |
+| Map editor for creating, modifying, and saving maps | ❌ |
 
 ## 🎨 Credits
 
