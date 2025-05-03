@@ -2,12 +2,10 @@
 #define HEXAGONAL_GRID_HPP
 
 #include <SDL2/SDL2_gfxPrimitives.h>
-
 #include <stdexcept>
 #include <cmath>
 #include <limits>
 
-#include "hex.hpp"
 #include "../constants/constants.hpp"
 
 // Redéfinition de l'opérateur == pour SDL_Color
