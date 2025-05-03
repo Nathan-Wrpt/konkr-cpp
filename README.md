@@ -1,6 +1,6 @@
 # Konkr Game in C++ 🎮
 
-Made by **Nathan W**
+Made by **Antoine B & Nathan W**
 
 ## Project Presentation
 
