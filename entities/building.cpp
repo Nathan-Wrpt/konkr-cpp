@@ -6,10 +6,6 @@ Building::Building(Hex hex, int protection_level, std::string name, int upkeep)
 
 Building::~Building() {}
 
-bool Building::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) {
-    return false;
-}
-
 // --- Town Class Implementation ---
 Town::Town(Hex hex) 
     : Building(hex, 1, "town", 0) {}

@@ -28,7 +28,7 @@ void RenderGame::renderButton(SDL_Renderer* renderer, const Button& button, cons
     SDL_RenderCopy(renderer, iconTexture, NULL, &buttonRect);
 
     // Draw cost text with better visibility
-    renderButtonText(renderer, button, buttonRect, textures);
+    renderButtonText(renderer, button, buttonRect);
 }
 
 void RenderGame::renderButtonNoBorder(SDL_Renderer* renderer, const Button& button, const std::vector<SDL_Texture*>& textures) const {
@@ -39,7 +39,7 @@ void RenderGame::renderButtonNoBorder(SDL_Renderer* renderer, const Button& butt
     SDL_RenderCopy(renderer, iconTexture, NULL, &buttonRect);
 }
 
-void RenderGame::renderButtonText(SDL_Renderer* renderer, const Button& button, SDL_Rect& buttonRect, const std::vector<SDL_Texture*>& textures) const {
+void RenderGame::renderButtonText(SDL_Renderer* renderer, const Button& button, SDL_Rect& buttonRect) const {
     TTF_Font* font = TTF_OpenFont("assets/OpenSans.ttf", 16); // Larger font size
     if (font) {
         // Create a small background for the text
@@ -91,13 +91,13 @@ void RenderGame::renderTurnButton(SDL_Renderer* renderer, const Button& turnButt
     auto& currentPlayer = players[playerTurn];
 
     // Determine the correct texture for the turn button
-    SDL_Texture* iconTexture = determineTurnButtonTexture(textures, turnButton, currentPlayer, players);
+    SDL_Texture* iconTexture = determineTurnButtonTexture(textures, turnButton, currentPlayer);
 
     // Draw button icon
     SDL_RenderCopy(renderer, iconTexture, NULL, &buttonRect);
 }
 
-SDL_Texture* RenderGame::determineTurnButtonTexture(const std::vector<SDL_Texture*>& textures, const Button& turnButton, const std::shared_ptr<Player>& currentPlayer, const std::vector<std::shared_ptr<Player>>& players) const {
+SDL_Texture* RenderGame::determineTurnButtonTexture(const std::vector<SDL_Texture*>& textures, const Button& turnButton, const std::shared_ptr<Player>& currentPlayer) const {
     SDL_Texture* iconTexture = textures[getIconIndex(turnButton.getIconName())];
     bool allEntitiesMoved = std::all_of(currentPlayer->getEntities().begin(), currentPlayer->getEntities().end(), [](const auto& entity) {
         return entity->hasMoved();
@@ -186,7 +186,7 @@ void RenderGame::drawHexHighlight(SDL_Renderer* renderer, const Hex& hex, const 
 }
 
 void RenderGame::renderPlayerInfo(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Player>>& players, size_t playerTurn, const HexagonalGrid& grid, const std::vector<SDL_Texture*>& textures) const {
-    if (playerTurn >= 0 && playerTurn < players.size()) {
+    if (playerTurn < players.size()) {
         SDL_Color currentColor = players[playerTurn]->getColor();
         SDL_Rect colorRect = {10, 10, 50, 30};
         SDL_SetRenderDrawColor(renderer, currentColor.r, currentColor.g, currentColor.b, currentColor.a);
@@ -273,7 +273,7 @@ void RenderGame::RenderButtonInfo(SDL_Renderer* renderer, Button button, const s
     SDL_RenderCopy(renderer, textures[getIconIndex(iconName)], NULL, &infoRect);
 }
 
-void RenderGame::renderGameOverMessage(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Player>>& players, const std::vector<SDL_Texture*>& textures, const std::vector<Button>& unitButtons) const {
+void RenderGame::renderGameOverMessage(SDL_Renderer* renderer, const std::vector<std::shared_ptr<Player>>& players, const std::vector<Button>& unitButtons) const {
     int windowWidth, windowHeight;
     SDL_GetRendererOutputSize(renderer, &windowWidth, &windowHeight);
 

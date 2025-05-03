@@ -10,7 +10,7 @@ std::string PlayerManager::hasSamePlayerEntities(const Hex& hex, const Player& c
     return "";
 }
 
-void PlayerManager::removePlayer(std::shared_ptr<Player> player, std::vector<std::shared_ptr<Player>>& players, int& nbplayers, std::vector<std::shared_ptr<Bandit>>& bandits, std::vector<std::shared_ptr<BanditCamp>>& banditCamps) {
+void PlayerManager::removePlayer(std::shared_ptr<Player> player, int& nbplayers, std::vector<std::shared_ptr<Bandit>>& bandits, std::vector<std::shared_ptr<BanditCamp>>& banditCamps) {
     auto entities = player->getEntities();
     // vector "toRemove" to store the entities to remove to avoid modifying the vector while iterating over it
     std::vector<std::shared_ptr<Entity>> toRemove;
@@ -28,7 +28,6 @@ void PlayerManager::removePlayer(std::shared_ptr<Player> player, std::vector<std
         player->removeEntity(entity);
     }
 
-    // players.erase(std::remove(players.begin(), players.end(), player), players.end());
     player->setAlive(false);
     nbplayers--;
 }

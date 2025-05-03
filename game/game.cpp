@@ -279,7 +279,7 @@ void Game::handleEvent(SDL_Event& event) {
             }
         }
         for (auto& player : toRemove) {
-            playerManager.removePlayer(player, gameEntities.players, nbplayers, gameEntities.bandits, gameEntities.banditCamps);
+            playerManager.removePlayer(player, nbplayers, gameEntities.bandits, gameEntities.banditCamps);
         }
         // Change player
         playerTurn = (playerTurn + 1) % gameEntities.players.size();
@@ -475,7 +475,7 @@ void Game::handleEvent(SDL_Event& event) {
         }
 
 
-        if (playerTurn >= 0 && playerTurn < gameEntities.players.size()) {
+        if (playerTurn < gameEntities.players.size()) {
             if (!entitySelected) {
                 auto& currentPlayer = gameEntities.players[playerTurn];
                 const auto& playerEntities = currentPlayer->getEntities();
@@ -733,7 +733,7 @@ void Game::renderAll(SDL_Renderer* renderer) const {
 
     // Display game over message if only one player remains
     if (nbplayers == 1) {
-        renderGame.renderGameOverMessage(renderer, gameEntities.players, textures, unitButtons);
+        renderGame.renderGameOverMessage(renderer, gameEntities.players, unitButtons);
     }
     if(buttonHovered && !entitySelected) {
         renderGame.RenderButtonInfo(renderer, hoveredButton, textures);
