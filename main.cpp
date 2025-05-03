@@ -191,7 +191,7 @@ int main(int argc, char* argv[]) {
                     game.handleEvent(event);
                     gamecopy = game;
                     continue;
-                } else if (event.key.keysym.sym == SDLK_BACKSPACE) {
+                } else if (event.key.keysym.sym == SDLK_BACKSPACE || event.key.keysym.sym == SDLK_r) {
                     game = gamecopy;
                 }
             } else if (event.type == SDL_QUIT) {
