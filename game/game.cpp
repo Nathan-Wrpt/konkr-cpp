@@ -454,7 +454,7 @@ void Game::handleEvent(SDL_Event& event) {
         if(event.key.keysym.sym == SDLK_4 || event.key.keysym.sym == SDLK_LEFTPAREN) { // AZERTY: '''
             entityToBuy = "hero";
         }
-        if(event.key.keysym.sym == SDLK_5 || event.key.keysym.sym == SDLK_MINUS) { // AZERTY: '('
+        if(event.key.keysym.sym == SDLK_5 || event.key.keysym.sym == SDLK_MINUS || event.key.keysym.sym == SDLK_c) { // AZERTY: '('
             entityToBuy = "castle";
         }
     }
