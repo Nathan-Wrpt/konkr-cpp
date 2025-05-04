@@ -73,7 +73,7 @@ $ ./konkr maps/1v1_close
 
 ### Special Elements
 
-- **Bandits**: Autonomous units that steal coins from territories
+- **Bandits**: Autonomous units that steal coins from territories. Generates a bandit camp randomly on the map when it is too far from one (> 5 hexes distance)
 - **Bandit Camps**: Generate new bandits when enough coins are collected (5 coins)
 - **Forests**: Natural obstacles
 - **Treasures**: Collectible resources with random values spawned with a 1/4 chance each turn if no treasure is present on the map
