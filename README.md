@@ -217,7 +217,7 @@ QoL : We chose to highlight where the units can me moved at and display a swords
 | Protection system (except the walls) | ✅ |
 | Troop fusion for promotion | ✅ |
 | Income and salary payment | ✅ |
-| Mutiny for unpaid troops (only the ones that can't be paid, we've been kinder than thr original game) | ✅ |
+| Mutiny for unpaid troops (only the ones that can't be paid, we've been kinder than the original game) | ✅ |
 | Selection by click and keyboard | ✅ |
 | Basic troop animations | ✅ |
 | Drag & drop | ✅ |
