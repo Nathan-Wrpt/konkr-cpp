@@ -77,46 +77,31 @@ int main(int argc, char* argv[]) {
     const int frameDelay = 1000 / FPS;
 
     // default ASCII and entity maps
-    std::vector<std::string> asciiMap = {
-        "   .....",
-        "  ......",
-        " ....  ...",
-        "..... ....",
-        " ...r.....",
-        "...rrgg...",
-        " ...rgg....",
-        " ....g....",
-        " ..  .....",
-        " ... ...",
-        "   ....",
-        "   ..."
-    };
+    std::vector<std::string> asciiMap;
 
-    std::vector<std::string> entityMap = {
-        "   ffff.",
-        "  ......",
-        " f...  ..c",
-        ".ff.. ..Bf",
-        " ...TB..ff",
-        "..BC..T..f",
-        " .....C....",
-        " ...f.B...",
-        " ..  ff...",
-        " ..c ...",
-        "   B..f",
-        "   ..f"
-    };
+    std::vector<std::string> entityMap;
 
     // Check if a map file is provided as a command-line argument
+    std::string defaultMapFile = "maps/1v1_close";
     if (argc >= 2) {
         std::string mapFile = argv[1];
         if (loadMapsFromFile(mapFile, asciiMap, entityMap)) {
-            std::cout << "Successfully loaded maps from " << mapFile << std::endl;
+            std::cout << "Successfully loaded map from " << mapFile << std::endl;
         } else {
-            std::cout << "Using default maps" << std::endl;
+            std::cout << "Couldn't load map, using default one" << std::endl;
+            if (loadMapsFromFile(defaultMapFile, asciiMap, entityMap)) {
+                std::cout << "Successfully loaded map from " << defaultMapFile << std::endl;
+            } else {
+                std::cerr << "Error: Could not load default map file " << defaultMapFile << std::endl;
+                return 1;
+            }
         }
     } else {
-        std::cout << "No map file specified. Using default maps." << std::endl;
+        std::cout << "No map file specified. Using default map." << std::endl;
+        if (!loadMapsFromFile(defaultMapFile, asciiMap, entityMap)) {
+            std::cerr << "Error: Could not load default map file " << defaultMapFile << std::endl;
+            return 1;
+        }
     }
 
     // Initialize SDL
