@@ -24,6 +24,8 @@ private:
     void moveBanditToNewPosition(HexagonalGrid& grid, std::shared_ptr<Bandit>& bandit, const GameEntities& gameEntities);
     void stealCoinFromPlayer(HexagonalGrid& grid, const std::shared_ptr<Bandit>& bandit, std::vector<std::shared_ptr<BanditCamp>>& banditCamps, const std::vector<std::shared_ptr<Player>>& players);
     void spawnBanditFromCamp(HexagonalGrid& grid, std::shared_ptr<BanditCamp>& banditCamp, std::vector<std::shared_ptr<Bandit>>& bandits, const GameEntities& gameEntities);
+    bool banditCampNearBandit(const Hex& hex, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps) const;
+    void spawnCampIfNeeded(HexagonalGrid& grid, const std::vector<std::shared_ptr<Bandit>>& bandits, GameEntities& gameEntities);
 };
 
 #endif

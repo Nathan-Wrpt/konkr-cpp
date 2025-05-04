@@ -247,11 +247,33 @@ void EntityManager::spawnBanditFromCamp(HexagonalGrid& grid, std::shared_ptr<Ban
     }
 }
 
+bool EntityManager::banditCampNearBandit(const Hex& hex, const std::vector<std::shared_ptr<BanditCamp>>& banditCamps) const {
+    for (const auto& banditCamp : banditCamps) {
+        if (banditCamp->getHex().distance(hex) <= 5) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void EntityManager::spawnCampIfNeeded(HexagonalGrid& grid, const std::vector<std::shared_ptr<Bandit>>& bandits, GameEntities& gameEntities) {
+    for(const auto& bandit : bandits) {
+        if(!banditCampNearBandit(bandit->getHex(), gameEntities.banditCamps)) {
+            Hex campHex = randomfreeHex(grid, gameEntities);
+            if(grid.hexExists(campHex) && !entityOnHex(campHex, gameEntities)) {
+                addBanditCamp(campHex, gameEntities.banditCamps);
+                return; // Max one camp per turn
+            }
+        }
+    }
+}
+
 void EntityManager::manageBandits(HexagonalGrid& grid, GameEntities& gameEntities) {
     for (auto& bandit : gameEntities.bandits) {
         moveBanditToNewPosition(grid, bandit, gameEntities);
         stealCoinFromPlayer(grid, bandit, gameEntities.banditCamps, gameEntities.players);
     }
+    spawnCampIfNeeded(grid, gameEntities.bandits, gameEntities);
 
     int banditCost = 5;
     for (auto& banditCamp : gameEntities.banditCamps) {
