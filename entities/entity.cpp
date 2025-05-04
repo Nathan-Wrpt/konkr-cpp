@@ -38,7 +38,6 @@ bool Entity::move(HexagonalGrid& grid, Hex target, const SDL_Color& ownerColor) 
             }
         }
     }
-    std::cout << "Error: Target position is not valid." << std::endl;
     return false;
 }
 
