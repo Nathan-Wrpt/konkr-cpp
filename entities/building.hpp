@@ -8,7 +8,6 @@ public:
     Building();
     Building(Hex hex, int protection_level, std::string name, int upkeep = 0);
     virtual ~Building();
-    bool move() { return false; }
 };
 
 class Town : public Building {
